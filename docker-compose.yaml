@@ -73,8 +73,6 @@ services:
       - api
       - --defaults=dev
       - --identity-dir=/var/lib/storj/identities/1
-    volumes:
-      - /home/elek/go/bin/satellite:/var/lib/storj/go/bin/satellite
   satellite-core:
     <<: *common-container
     environment:
