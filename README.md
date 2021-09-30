@@ -8,12 +8,7 @@ Today it depends on my own local containers (see `rebuild.sh`) but it may work w
 
 ## Quick start
 
-Create the docker images first (once):
-```
-./rebuild.sh
-```
-
-And start the cluster:
+Just start the cluster:
 
 ```
 #remove previous state

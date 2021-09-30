@@ -18,11 +18,11 @@ version: "3.4"
 
 x-common-container:
   &common-container
-  image: elek/storj
+  image: ghcr.io/elek/storj
 
 x-common-edge-container:
   &common-edge-container
-  image: elek/storj-edge
+  image: ghcr.io/elek/storj-edge
 
 x-common-environment:
   &common-environment
