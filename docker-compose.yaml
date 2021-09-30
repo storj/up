@@ -62,7 +62,6 @@ services:
       STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
       STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
-#      GO_DLV: "true"
     command:
       - satellite
       - run
@@ -81,6 +80,24 @@ services:
       - satellite
       - run
       - --defaults=dev
+  satellite-admin:
+    <<: *common-container
+    environment:
+      <<: *common-environment
+      STORJ_ROLE: satellite-admin
+      STORJ_DATABASE: "cockroach://root@cockroach:26257/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "cockroach://root@cockroach:26257/metainfo?sslmode=disable"
+      STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: "redis://redis:6379?db=1"
+      STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
+      STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
+      STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+    command:
+      - satellite
+      - run
+      - admin
+      - --defaults=dev
+#    volumes:
+#      - /home/elek/go/bin/satellite:/var/lib/storj/go/bin/satellite
   versioncontrol:
     <<: *common-container
     environment:
