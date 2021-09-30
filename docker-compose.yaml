@@ -18,11 +18,11 @@ version: "3.4"
 
 x-common-container:
   &common-container
-  image: ghcr.io/elek/storj
+  image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
 
 x-common-edge-container:
   &common-edge-container
-  image: ghcr.io/elek/storj-edge
+  image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
 
 x-common-environment:
   &common-environment
@@ -66,7 +66,6 @@ services:
       STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
-    #     GO_DLV: "true"
     command:
       - satellite
       - run
