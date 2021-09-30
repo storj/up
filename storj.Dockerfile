@@ -27,6 +27,7 @@ COPY --from=0 /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web
 COPY --from=0 /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist
 COPY --from=0 /var/lib/storj/storj/release/head/wasm /var/lib/storj/storj/web/satellite/static/wasm
 
+COPY --chown=storj identities /var/lib/storj/identities
 ADD entrypoint.sh /var/lib/storj/entrypoint.sh
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
 ENV PATH=$PATH:/var/lib/storj/go/bin

@@ -21,7 +21,6 @@ import (
 )
 
 var (
-
 	// Commander CLI.
 	rootCmd = &cobra.Command{
 		Use:   "devrun",
@@ -41,7 +40,7 @@ var (
 		},
 	}
 
-	waitForPort = &cobra.Command{
+	waitForPortCmd = &cobra.Command{
 		Use:   "wait-for-port",
 		Short: "Wait until ports is opened",
 		Args:  cobra.MinimumNArgs(1),
@@ -60,7 +59,7 @@ var (
 		},
 	}
 
-	waitForSatellite = &cobra.Command{
+	waitForSatelliteCmd = &cobra.Command{
 		Use:   "wait-for-satellite",
 		Short: "Wait until satellite can be called and return with the full NodeURL",
 		Args:  cobra.MinimumNArgs(1),
@@ -80,12 +79,12 @@ var (
 		},
 	}
 
-	credentials = &cobra.Command{
-		Use:   "credentials",
-		Short: "Generate test user with credentials",
+	credentialsCmd = &cobra.Command{
+		Use:   "credentialsCmd",
+		Short: "Generate test user with credentialsCmd",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, _ := context.WithTimeout(context.Background(), 100*time.Second)
+			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 			satelliteHost := args[0]
 			sateliteNodeUrl, err := getSatelliteId(ctx, satelliteHost+":7777")
@@ -113,6 +112,41 @@ var (
 				return errs.Wrap(err)
 			}
 			fmt.Printf("Grant: %s\n", grant)
+
+			return err
+		},
+	}
+
+	credentialsGrantCmd = &cobra.Command{
+		Use:   "grant",
+		Short: "Generate GRANT and prints out in console compatible format (use `eval $(devrun credentialsCmd grant ...)`",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+			satelliteHost := args[0]
+			sateliteNodeUrl, err := getSatelliteId(ctx, satelliteHost+":7777")
+			if err != nil {
+				return err
+			}
+			console := newConsoleEndpoints(satelliteHost+":10002", args[1])
+
+			err = console.login(ctx)
+			if err != nil {
+				return err
+			}
+			projectID, err := console.getOrCreateProject(ctx)
+			if err != nil {
+				return errs.Wrap(err)
+			}
+			apiKey, err := console.createAPIKey(ctx, projectID)
+			if err != nil {
+				return errs.Wrap(err)
+			}
+			grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, "Welcome1", projectID)
+			if err != nil {
+				return errs.Wrap(err)
+			}
+			fmt.Printf("export STORJ_ACCESS=%s", grant)
 
 			return err
 		},
@@ -181,9 +215,10 @@ func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {
 
 func init() {
 	rootCmd.AddCommand(nodeIDCmd)
-	rootCmd.AddCommand(waitForPort)
-	rootCmd.AddCommand(credentials)
-	rootCmd.AddCommand(waitForSatellite)
+	rootCmd.AddCommand(waitForPortCmd)
+	rootCmd.AddCommand(credentialsCmd)
+	rootCmd.AddCommand(waitForSatelliteCmd)
+	credentialsCmd.AddCommand(credentialsGrantCmd)
 	flag.Parse()
 }
 
