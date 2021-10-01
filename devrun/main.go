@@ -80,7 +80,7 @@ var (
 	}
 
 	credentialsCmd = &cobra.Command{
-		Use:   "credentialsCmd",
+		Use:   "credentials",
 		Short: "Generate test user with credentialsCmd",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -91,7 +91,7 @@ var (
 			if err != nil {
 				return err
 			}
-			console := newConsoleEndpoints(satelliteHost+":10002", args[1])
+			console := newConsoleEndpoints(satelliteHost+":10000", args[1])
 
 			err = console.login(ctx)
 			if err != nil {
@@ -128,7 +128,7 @@ var (
 			if err != nil {
 				return err
 			}
-			console := newConsoleEndpoints(satelliteHost+":10002", args[1])
+			console := newConsoleEndpoints(satelliteHost+":10000", args[1])
 
 			err = console.login(ctx)
 			if err != nil {
