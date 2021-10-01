@@ -1,172 +1,160 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 version: "3.4"
-
-x-common-container:
-  &common-container
-  image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
-
-x-common-edge-container:
-  &common-edge-container
-  image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
-
-x-common-environment:
-  &common-environment
-  STORJ_LOG_LEVEL: debug
-  #TODO it's ignored by the early flag evaluation
-  STORJ_DEFAULTS: dev
-  STORJ_METRICS_APP_SUFFIX: sim
-  STORJ_DEBUG_ADDR: 127.0.0.1:11111
-
 services:
-  redis:
-    image: redis:6.0.9
-  cockroach:
-    image: cockroachdb/cockroach
-    command:
-      - start-single-node
-      - --insecure
-      - --http-addr
-      - 127.0.0.1:1234
-  satellite-api:
-    <<: *common-container
-    environment:
-      <<: *common-environment
-      STORJ_ROLE: satellite-api
-      STORJ_CONSOLE_ADDRESS: 0.0.0.0:10002
-      STORJ_ADDRESS: 0.0.0.0:7777
-      STORJ_DATABASE: "cockroach://root@cockroach:26257/master?sslmode=disable"
-      STORJ_METAINFO_DATABASE_URL: "cockroach://root@cockroach:26257/metainfo?sslmode=disable"
-      #default 100 is not enough to run rclone unit tests
-      STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
-      STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: "redis://redis:6379?db=0"
-      STORJ_SERVER_REVOCATION_DBURL: "redis://redis:6379?db=1"
-      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
-      STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
-      STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
-      STORJ_CONSOLE_RATE_LIMIT_BURST: 100
-      STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
-      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/storj/web/satellite/
-      STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
-      STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
-      STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
-      STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
-      STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
-    command:
-      - satellite
-      - run
-      - api
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
-  satellite-core:
-    <<: *common-container
-    environment:
-      <<: *common-environment
-      STORJ_ROLE: satellite-core
-      STORJ_DATABASE: "cockroach://root@cockroach:26257/master?sslmode=disable"
-      STORJ_METAINFO_DATABASE_URL: "cockroach://root@cockroach:26257/metainfo?sslmode=disable"
-      STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: "redis://redis:6379?db=1"
-      STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
-      STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
-    command:
-      - satellite
-      - run
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
-  satellite-admin:
-    <<: *common-container
-    environment:
-      <<: *common-environment
-      STORJ_ROLE: satellite-admin
-      STORJ_DATABASE: "cockroach://root@cockroach:26257/master?sslmode=disable"
-      STORJ_METAINFO_DATABASE_URL: "cockroach://root@cockroach:26257/metainfo?sslmode=disable"
-      STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: "redis://redis:6379?db=1"
-      STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
-      STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
-      STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
-      STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
-    command:
-      - satellite
-      - run
-      - admin
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
-  versioncontrol:
-    <<: *common-container
-    environment:
-      <<: *common-environment
-      DEFAULTS: dev
-      BINARY_GATEWAY_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-      BINARY_IDENTITY_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-      BINARY_SATELLITE_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-      BINARY_STORAGENODE_UPDATER_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-      BINARY_STORAGENODE_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-      BINARY_UPLINK_ROLLOUT_SEED: 0000000000000000000000000000000000000000000000000000000000000001
-    command: [ "versioncontrol","run" ]
-  storagenode:
-    <<: *common-container
-    environment:
-      <<: *common-environment
-      STORJ_ROLE: storagenode
-      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
-      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
-      STORJ_OPERATOR_EMAIL: storage9@mail.test
-      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
-      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: 0
-      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
-      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
-      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
-      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
-    command:
-      - storagenode
-      - run
-      - --defaults=dev
-  authservice:
-    <<: *common-edge-container
-    environment:
-      STORJ_ROLE: authservice
-      STORJ_AUTH_TOKEN: "super-secret"
-      STORJ_ENDPOINT: http://0.0.0.0:7777
-      STORJ_KV_BACKEND: memory://
-      STORJ_ALLOWED_SATELLITES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
-      <<: *common-environment
-    command:
-      - authservice
-      - run
-      - --defaults=dev
-  gateway-mt:
-    <<: *common-edge-container
-    environment:
-      STORJ_SERVER_ADDRESS: 0.0.0.0:7777
-      STORJ_AUTH_TOKEN: super-secret
-      STORJ_AUTH_URL: http://authservice:8000
-      <<: *common-environment
-    command:
-      - gateway-mt
-      - run
-      - --defaults=dev
-  linksharing:
-    <<: *common-edge-container
-    environment:
-      STORJ_AUTH_SERVICE_TOKEN: super-secret
-      STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8000
-      STORJ_PUBLIC_URL: http://linksharing:8080
-    command:
-      - linksharing
-      - run
-      - --defaults=dev
-
+    authservice:
+        command:
+            - authservice
+            - run
+            - --defaults=dev
+        environment:
+            STORJ_ALLOWED_SATELLITES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+            STORJ_AUTH_TOKEN: super-secret
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_ENDPOINT: http://0.0.0.0:7777
+            STORJ_KV_BACKEND: memory://
+            STORJ_LOG_LEVEL: debug
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_ROLE: authservice
+        image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+    cockroach:
+        command:
+            - start-single-node
+            - --insecure
+            - --http-addr
+            - 127.0.0.1:1234
+        image: cockroachdb/cockroach
+    gateway-mt:
+        command:
+            - gateway-mt
+            - run
+            - --defaults=dev
+        environment:
+            STORJ_AUTH_TOKEN: super-secret
+            STORJ_AUTH_URL: http://authservice:8000
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_LOG_LEVEL: debug
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_SERVER_ADDRESS: 0.0.0.0:7777
+        image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+    linksharing:
+        command:
+            - linksharing
+            - run
+            - --defaults=dev
+        environment:
+            STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8000
+            STORJ_AUTH_SERVICE_TOKEN: super-secret
+            STORJ_PUBLIC_URL: http://linksharing:8080
+        image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+    redis:
+        image: redis:6.0.9
+    satellite-admin:
+        command:
+            - satellite
+            - run
+            - admin
+            - --defaults=dev
+            - --identity-dir=/var/lib/storj/identities/1
+        environment:
+            STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
+            STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
+            STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
+            STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: redis://redis:6379?db=1
+            STORJ_LOG_LEVEL: debug
+            STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+            STORJ_ROLE: satellite-admin
+        image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+    satellite-api:
+        command:
+            - satellite
+            - run
+            - api
+            - --defaults=dev
+            - --identity-dir=/var/lib/storj/identities/1
+        environment:
+            STORJ_ADDRESS: 0.0.0.0:7777
+            STORJ_CONSOLE_ADDRESS: 0.0.0.0:10002
+            STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
+            STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
+            STORJ_CONSOLE_RATE_LIMIT_BURST: "100"
+            STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/storj/web/satellite/
+            STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
+            STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: redis://redis:6379?db=0
+            STORJ_LOG_LEVEL: debug
+            STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
+            STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
+            STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
+            STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
+            STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+            STORJ_ROLE: satellite-api
+            STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+            STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
+            STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
+        image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+    satellite-core:
+        command:
+            - satellite
+            - run
+            - --defaults=dev
+            - --identity-dir=/var/lib/storj/identities/1
+        environment:
+            STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
+            STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: redis://redis:6379?db=1
+            STORJ_LOG_LEVEL: debug
+            STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+            STORJ_ROLE: satellite-core
+        image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+    storagenode:
+        command:
+            - storagenode
+            - run
+            - --defaults=dev
+        environment:
+            STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_LOG_LEVEL: debug
+            STORJ_METRICS_APP_SUFFIX: sim
+            STORJ_OPERATOR_EMAIL: storage9@mail.test
+            STORJ_OPERATOR_WALLET: 0x0123456789012345678901234567890123456789
+            STORJ_ROLE: storagenode
+            STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+            STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+            STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+            STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+            STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+            STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+        image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+    versioncontrol:
+        command:
+            - versioncontrol
+            - run
+        environment:
+            BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            BINARY_SATELLITE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            BINARY_STORAGENODE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            BINARY_STORAGENODE_UPDATER_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            BINARY_UPLINK_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+            DEFAULTS: dev
+            STORJ_DEBUG_ADDR: 127.0.0.1:11111
+            STORJ_DEFAULTS: dev
+            STORJ_LOG_LEVEL: debug
+            STORJ_METRICS_APP_SUFFIX: sim
+        image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
