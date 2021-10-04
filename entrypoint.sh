@@ -4,25 +4,32 @@ echo "Starting Storj development container"
 #Identifying IP address
 export STORJ_NODE_IP=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 
-export STORJ_IDENTITY_DIR=${STORJ_IDENTITY_DIR:-"/var/lib/storj/.local/share/storj/identity/$(echo $STORJ_ROLE | cut -f -1 -d '-')"}
-
 #Generate identity if missing
-if [ ! -f "$STORJ_IDENTITY_DIR/identity.key" ]; then
-   identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
+if [ "$STORJ_IDENTITY_DIR" ]; then
+  if [ ! -f "$STORJ_IDENTITY_DIR/identity.key" ]; then
+    identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
+  fi
 fi
-devrun wait-for-port cockroach:26257
-devrun wait-for-port redis:6379
+
+if [ "$STORJ_WAIT_FOR_DB" ]; then
+  devrun wait-for-port cockroach:26257
+  devrun wait-for-port redis:6379
+fi
+
+if [ "$STORJ_WAIT_FOR_SATELLITE" ]; then
+  SATELLITE_ADDRESS=$(devrun wait-for-satellite satellite-api:7777)
+fi
+
 
 if [ "$STORJ_ROLE" == "satellite-api" ]; then
   mkdir -p /var/lib/storj/.local
+
   #only migrate first time
   if [ ! -f "/var/lib/storj/.local/migrated" ]; then
-    satellite run migration
+    satellite run migration --identity-dir $STORJ_IDENTITY_DIR
     touch /var/lib/storj/.local/migrated
 
   fi
-else
-  SATELLITE_ADDRESS=$(devrun wait-for-satellite satellite-api:7777)
 fi
 
 if [ "$STORJ_ROLE" == "storagenode" ]; then
@@ -34,6 +41,12 @@ if [ "$STORJ_ROLE" == "storagenode" ]; then
   storagenode setup
 fi
 
+if [ "$STORJ_ROLE" == "uplink" ]; then
+  if [ "$1" != "/usr/bin/sleep"  ]; then
+    devrun credentials satellite-api test@storj.io
+    eval $(devrun credentials grant satellite-api test@storj.io)
+  fi
+fi
 mkdir -p /var/lib/storj/.local/share/storj/satellite
 
 if [ "$GO_DLV" ]; then
