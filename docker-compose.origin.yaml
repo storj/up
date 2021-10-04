@@ -51,6 +51,7 @@ services:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_PUBLIC_URL: http://linksharing:8080
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
   redis:
     image: redis:6.0.9
@@ -168,3 +169,14 @@ services:
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus.yml"
+    command: [ "--config.file","/etc/prometheus.yml" ]
+    ports:
+      - 9090:9090
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000

@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: storj
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "satellite-api:11111"
+          - "satellite-core:11111"
+          - "authservice:11111"
+          - "linksharing:11111"
+          - "gateway-mt:11111"
+          - "storj-docker_storagenode_1.storj-docker_default:11111"
+          - "storj-docker_storagenode_3.storj-docker_default:11111"
+          - "storj-docker_storagenode_4.storj-docker_default:11111"
+          - "storj-docker_storagenode_5.storj-docker_default:11111"
+          - "storj-docker_storagenode_6.storj-docker_default:11111"
+          - "storj-docker_storagenode_7.storj-docker_default:11111"
+          - "storj-docker_storagenode_8.storj-docker_default:11111"
+          - "storj-docker_storagenode_9.storj-docker_default:11111"
+          - "storj-docker_storagenode_10.storj-docker_default:11111"
