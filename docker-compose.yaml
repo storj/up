@@ -2,35 +2,35 @@ version: "3.4"
 services:
   authservice:
     command:
-      - authservice
-      - run
-      - --defaults=dev
+    - authservice
+    - run
+    - --defaults=dev
     environment:
       STORJ_ALLOWED_SATELLITES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_AUTH_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_ENDPOINT: http://localhost:9999
-      STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_KV_BACKEND: memory://
+      STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ROLE: authservice
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
     ports:
-      - 8888:8888
+    - "8888:8888"
   cockroach:
     command:
-      - start-single-node
-      - --insecure
-      - --http-addr
-      - 127.0.0.1:1234
+    - start-single-node
+    - --insecure
+    - --http-addr
+    - 127.0.0.1:1234
     image: cockroachdb/cockroach
   gateway-mt:
     command:
-      - gateway-mt
-      - run
-      - --defaults=dev
+    - gateway-mt
+    - run
+    - --defaults=dev
     environment:
       STORJ_AUTH_TOKEN: super-secret
       STORJ_AUTH_URL: http://authservice:8888
@@ -41,26 +41,27 @@ services:
       STORJ_SERVER_ADDRESS: 0.0.0.0:9999
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
     ports:
-      - 9999:9999
+    - "9999:9999"
   linksharing:
     command:
-      - linksharing
-      - run
-      - --defaults=dev
+    - linksharing
+    - run
+    - --defaults=dev
     environment:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_PUBLIC_URL: http://linksharing:8080
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
   redis:
     image: redis:6.0.9
   satellite-admin:
     command:
-      - satellite
-      - run
-      - admin
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
+    - satellite
+    - run
+    - admin
+    - --defaults=dev
+    - --identity-dir=/var/lib/storj/identities/1
     environment:
       STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
       STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
@@ -77,13 +78,13 @@ services:
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
   satellite-api:
     command:
-      - satellite
-      - run
-      - api
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
-      - --console.gateway-credentials-request-url=http://localhost:8888
-      - --console.linksharing-url=http://127.0.0.1:8080
+    - satellite
+    - run
+    - api
+    - --defaults=dev
+    - --identity-dir=/var/lib/storj/identities/1
+    - --console.gateway-credentials-request-url=http://localhost:8888
+    - --console.linksharing-url=http://127.0.0.1:8080
     environment:
       STORJ_ADDRESS: 0.0.0.0:7777
       STORJ_CONSOLE_ADDRESS: 0.0.0.0:10000
@@ -110,14 +111,14 @@ services:
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
     ports:
-      - 7777:7777
-      - 10000:10000
+    - "7777:7777"
+    - "10000:10000"
   satellite-core:
     command:
-      - satellite
-      - run
-      - --defaults=dev
-      - --identity-dir=/var/lib/storj/identities/1
+    - satellite
+    - run
+    - --defaults=dev
+    - --identity-dir=/var/lib/storj/identities/1
     environment:
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -132,9 +133,9 @@ services:
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
   storagenode:
     command:
-      - storagenode
-      - run
-      - --defaults=dev
+    - storagenode
+    - run
+    - --defaults=dev
     environment:
       STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -153,8 +154,8 @@ services:
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
   versioncontrol:
     command:
-      - versioncontrol
-      - run
+    - versioncontrol
+    - run
     environment:
       BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
       BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
