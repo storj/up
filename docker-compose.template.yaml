@@ -18,7 +18,7 @@ services:
       STORJ_ROLE: authservice
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
     ports:
-      - 8888:8888
+      - "8888:8888"
   cockroach:
     command:
       - start-single-node
@@ -41,7 +41,7 @@ services:
       STORJ_SERVER_ADDRESS: 0.0.0.0:9999
     image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
     ports:
-      - 9999:9999
+      - "9999:9999"
   linksharing:
     command:
       - linksharing
@@ -111,8 +111,8 @@ services:
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
     image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
     ports:
-      - 7777:7777
-      - 10000:10000
+      - "7777:7777"
+      - "10000:10000"
   satellite-core:
     command:
       - satellite
@@ -175,7 +175,7 @@ services:
       - "./prometheus.yml:/etc/prometheus.yml"
     command: [ "--config.file","/etc/prometheus.yml" ]
     ports:
-      - 9090:9090
+      - "9090:9090"
   grafana:
     image: grafana/grafana
     ports:
