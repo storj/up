@@ -11,12 +11,14 @@ services:
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_ENDPOINT: http://localhost:9999
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/authservice
       STORJ_KV_BACKEND: memory://
       STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ROLE: authservice
-    image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj-edge:1.14.0
     ports:
     - "8888:8888"
   cockroach:
@@ -39,7 +41,8 @@ services:
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_SERVER_ADDRESS: 0.0.0.0:9999
-    image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj-edge:1.14.0
     ports:
     - "9999:9999"
   linksharing:
@@ -52,7 +55,8 @@ services:
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_PUBLIC_URL: http://linksharing:8080
-    image: ghcr.io/elek/storj-edge@sha256:df0d666ea3555456fff11ad3da4a70b1cb05799ea07cf76d48e1cd519a1e5324
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj-edge:1.14.0
   redis:
     image: redis:6.0.9
   satellite-admin:
@@ -75,7 +79,8 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_ROLE: satellite-admin
-    image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
   satellite-api:
     command:
     - satellite
@@ -106,10 +111,12 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_ROLE: satellite-api
+      STORJ_SERVER_ADDRESS: satellite-api:7777
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
       STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
-    image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+      STORJ_WAIT_FOR_DB: "true"
+    image: ghcr.io/elek/storj:1.39.6
     ports:
     - "7777:7777"
     - "10000:10000"
@@ -130,7 +137,8 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_ROLE: satellite-core
-    image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
   storagenode:
     command:
     - storagenode
@@ -140,6 +148,7 @@ services:
       STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_OPERATOR_EMAIL: storage9@mail.test
@@ -151,7 +160,15 @@ services:
       STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
       STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
-    image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  uplink:
+    command:
+    - /usr/bin/sleep
+    - infinity
+    environment:
+      STORJ_ROLE: uplink
+    image: ghcr.io/elek/storj:1.39.6
   versioncontrol:
     command:
     - versioncontrol
@@ -168,4 +185,5 @@ services:
       STORJ_DEFAULTS: dev
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
-    image: ghcr.io/elek/storj@sha256:e77403660730dabf313a194880a08d1ca4821bee7d816599a71b0670e08a8e5f
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
