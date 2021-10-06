@@ -7,14 +7,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	sjr "github.com/elek/sjr/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 	"net"
 	"storj.io/common/identity"
-	"storj.io/common/pb"
-	"storj.io/common/peertls/tlsopts"
-	"storj.io/common/rpc"
-	"storj.io/common/socket"
 	"storj.io/private/process"
 	"storj.io/storj/satellite/console/consolewasm"
 	"time"
@@ -66,7 +63,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			for {
-				satellite, err := getSatelliteId(ctx, args[0])
+				satellite, err := sjr.GetSatelliteId(ctx, args[0])
 				if err != nil {
 					println("Couldn't connect to satellite. Retrying... " + err.Error())
 					time.Sleep(1 * time.Second)
@@ -87,22 +84,22 @@ var (
 			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := getSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeUrl, err := sjr.GetSatelliteId(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
-			console := newConsoleEndpoints(satelliteHost+":10000", args[1])
+			console := sjr.NewConsoleEndpoints(satelliteHost+":10000", args[1])
 
-			err = console.login(ctx)
+			err = console.Login(ctx)
 			if err != nil {
 				return err
 			}
-			projectID, err := console.getOrCreateProject(ctx)
+			projectID, err := console.GetOrCreateProject(ctx)
 			if err != nil {
 				return errs.Wrap(err)
 			}
 			fmt.Printf("ProjectID: %s\n", projectID)
-			apiKey, err := console.createAPIKey(ctx, projectID)
+			apiKey, err := console.CreateAPIKey(ctx, projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}
@@ -124,21 +121,21 @@ var (
 			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := getSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeUrl, err := sjr.GetSatelliteId(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
-			console := newConsoleEndpoints(satelliteHost+":10000", args[1])
+			console := sjr.NewConsoleEndpoints(satelliteHost+":10000", args[1])
 
-			err = console.login(ctx)
+			err = console.Login(ctx)
 			if err != nil {
 				return err
 			}
-			projectID, err := console.getOrCreateProject(ctx)
+			projectID, err := console.GetOrCreateProject(ctx)
 			if err != nil {
 				return errs.Wrap(err)
 			}
-			apiKey, err := console.createAPIKey(ctx, projectID)
+			apiKey, err := console.CreateAPIKey(ctx, projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}
@@ -152,66 +149,6 @@ var (
 		},
 	}
 )
-
-func getSatelliteId(ctx context.Context, address string) (string, error) {
-	tlsOptions, err := getProcessTLSOptions(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	dialer := rpc.NewDefaultDialer(tlsOptions)
-	dialer.Pool = rpc.NewDefaultConnectionPool()
-
-	dialer.DialTimeout = 10 * time.Second
-	dialContext := socket.BackgroundDialer().DialContext
-	dialer.Connector = rpc.NewDefaultTCPConnector(&rpc.ConnectorAdapter{DialContext: dialContext})
-
-	conn, err := dialer.DialAddressInsecure(ctx, address)
-	if err != nil {
-		return "", err
-	}
-	defer conn.Close()
-
-	req := pb.GetTimeRequest{}
-	client := pb.NewDRPCNodeClient(conn)
-	_, err = client.GetTime(ctx, &req)
-	if err != nil {
-		return "", err
-	}
-	for _, p := range conn.ConnectionState().PeerCertificates {
-		if p.IsCA {
-			id, err := identity.NodeIDFromCert(p)
-			if err != nil {
-				return "", err
-			}
-			return fmt.Sprintf("%s@%s", id, address), nil
-		}
-	}
-	return "", fmt.Errorf("Couldn't find the right certiticate")
-}
-
-func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {
-
-	ident, err := identity.NewFullIdentity(ctx, identity.NewCAOptions{
-		Difficulty:  0,
-		Concurrency: 1,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	tlsConfig := tlsopts.Config{
-		UsePeerCAWhitelist: false,
-		PeerIDVersions:     "0",
-	}
-
-	tlsOptions, err := tlsopts.NewOptions(ident, tlsConfig, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return tlsOptions, nil
-}
 
 func init() {
 	rootCmd.AddCommand(nodeIDCmd)

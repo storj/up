@@ -54,9 +54,11 @@ services:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
-      STORJ_PUBLIC_URL: http://linksharing:8080
+      STORJ_PUBLIC_URL: http://linksharing:8080,http://localhost:8080
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: ghcr.io/elek/storj-edge:1.14.0
+    ports:
+    - "8080:8080"
   redis:
     image: redis:6.0.9
   satellite-admin:
@@ -185,5 +187,6 @@ services:
       STORJ_DEFAULTS: dev
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
-      STORJ_WAIT_FOR_SATELLITE: "true"
     image: ghcr.io/elek/storj:1.39.6
+    ports:
+    - "7070:8080"

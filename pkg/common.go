@@ -19,21 +19,19 @@ var (
 var composeTemplate []byte
 
 func createPresets() map[string][]string {
-	presets := map[string][]string{
-		"edge":    {"gateway-mt", "linksharing", "authservice"},
-		"minimal": {"satellite-api", "storagenode"},
-		"db":      {"cockroach", "redis"},
-		"monitor": {"prometheus", "grafana"},
-	}
-	presets["db"] = append(presets["minimal"], "cockroach", "redis")
+	presets := map[string][]string{}
+	presets["minimal"] = []string{"satellite-api", "storagenode"}
+	presets["edge"] = []string{"gateway-mt", "linksharing", "authservice"}
+	presets["db"] = []string{"cockroach", "redis"}
+	presets["monitor"] = []string{"prometheus", "grafana"}
 	presets["core"] = append(presets["minimal"], "satellite-core", "satellite-admin", "versioncontrol")
-	presets["full"] = append(presets["core"], presets["edge"]...)
-	presets["full"] = append(presets["full"], "uplink")
+	presets["storj"] = append(presets["core"], presets["edge"]...)
+	presets["storj"] = append(presets["storj"], "uplink")
 	return presets
 }
 
 func init() {
-	for _, service := range presets["full"] {
+	for _, service := range presets["storj"] {
 		serviceCmd := &cobra.Command{
 			Use:   service,
 			Short: fmt.Sprintf("Customize the %s service", service),
@@ -58,12 +56,12 @@ func init() {
 	}
 
 	RootCmd.AddCommand(&cobra.Command{
-		Use:   "init",
+		Use:   "init [groups/service]",
 		Short: "Creates/overwrites local docker-compose.yaml with service. You can use predefined groups as arguments.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return initEnv("full")
+				return initEnv("db,storj")
 			} else {
 				return initEnv(args[0])
 			}
@@ -79,6 +77,25 @@ func init() {
 	}
 	RootCmd.AddCommand(addCmd)
 
+	listCmd := &cobra.Command{
+		Use:   "list",
+		Short: "Print all the configured services from the dockerfile",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return list()
+		},
+	}
+	RootCmd.AddCommand(listCmd)
+}
+
+func list() error {
+	current, err := ReadCompose("docker-compose.yaml")
+	if err != nil {
+		return err
+	}
+	for name, s := range current.Services {
+		fmt.Printf("%s (%s)\n", name, s.Image)
+	}
+	return nil
 }
 
 func add(group string) error {
@@ -113,9 +130,6 @@ func add(group string) error {
 }
 
 func initEnv(group string) error {
-	if group == "" {
-		group = "all"
-	}
 	content, err := ParseCompose(composeTemplate)
 	if err != nil {
 		return err
@@ -123,7 +137,7 @@ func initEnv(group string) error {
 
 	filtered := make(map[string]*ServiceConfig, 0)
 	for k, v := range content.Services {
-		if k == "redis" || k == "cockroach" || selected(group, k) {
+		if selected(group, k) {
 			filtered[k] = v
 		}
 	}

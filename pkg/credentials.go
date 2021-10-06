@@ -38,36 +38,66 @@ func init() {
 			if err != nil {
 				return errs.Wrap(err)
 			}
-			fmt.Printf("User: %s\n", email)
-			fmt.Printf("ProjectID: %s\n", projectID)
+			if !export {
+				fmt.Printf("User: %s\n", email)
+				fmt.Printf("Password: %s\n", "123a123")
+				fmt.Printf("ProjectID: %s\n", projectID)
+			}
 
 			apiKey, err := console.CreateAPIKey(ctx, projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}
 
-			fmt.Printf("API key: %s (use from host)\n", apiKey)
-			grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, "Welcome1", projectID)
-			if err != nil {
-				return errs.Wrap(err)
-			}
-			fmt.Printf("Grant: %s\n", grant)
+			secret := "Welcome1"
 
-			fmt.Printf("API key: %s (use from container)\n", apiKey)
 			internalSatelliteUrl := strings.ReplaceAll(sateliteNodeUrl, satelliteHost, "satellite-api")
-			internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteUrl, apiKey, "Welcome1", projectID)
+			internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteUrl, apiKey, secret, projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}
-			fmt.Printf("Grant: %s\n", internalGrant)
+
+			if !export {
+				fmt.Printf("API key: %s\n", apiKey)
+				fmt.Println()
+			}
+
+			if !export {
+				fmt.Println("[internal access from containers]")
+				fmt.Printf("Encryption secret: %s \n", secret)
+				fmt.Printf("Grant: %s\n", internalGrant)
+				fmt.Println()
+
+			} else {
+
+			}
+
+			grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, secret, projectID)
+			if err != nil {
+				return errs.Wrap(err)
+			}
+
+			if !export {
+				fmt.Println("\n[from host]")
+				fmt.Printf("Encryption secret: %s \n", secret)
+				fmt.Printf("Grant: %s\n", grant)
+			} else {
+				fmt.Printf("export STORJ_ACCESS=%s\n", grant)
+			}
 
 			accessKey, secretKey, endpoint, err := RegisterAccess(ctx, authService, internalGrant)
 			if err != nil {
 				return errs.Wrap(err)
 			}
-			fmt.Printf("Access key: %s\n", accessKey)
-			fmt.Printf("Secret key: %s\n", secretKey)
-			fmt.Printf("Endpoint: %s\n", endpoint)
+			if !export {
+				fmt.Printf("Access key: %s\n", accessKey)
+				fmt.Printf("Secret key: %s\n", secretKey)
+				fmt.Printf("Endpoint: %s\n", endpoint)
+			} else {
+				fmt.Printf("export AWS_ACCESS_KEY_ID=%s\n", accessKey)
+				fmt.Printf("export AWS_SECRET_ACCESS_KEY=%s\n", secretKey)
+				fmt.Printf("export STORJ_GATEWAY=%s\n", endpoint)
+			}
 			if write {
 				err = updateRclone(accessKey, secretKey, endpoint, grant)
 				if err != nil {
@@ -81,7 +111,7 @@ func init() {
 	credentialsCmd.Flags().StringVarP(&satelliteHost, "satellite", "s", "localhost", "The host of the satellite api to connect")
 	credentialsCmd.Flags().StringVarP(&authService, "authservice", "a", "http://localhost:8888", "Host of the auth service")
 	credentialsCmd.Flags().BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
-	credentialsCmd.Flags().BoolVarP(&export, "write", "w", false, "Write the right entries to rclone config file (storjdev, storj")
+	credentialsCmd.Flags().BoolVarP(&write, "write", "w", false, "Write the right entries to rclone config file (storjdev, storj")
 	RootCmd.AddCommand(credentialsCmd)
 }
 
