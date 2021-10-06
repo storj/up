@@ -55,8 +55,10 @@ services:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
-      STORJ_PUBLIC_URL: http://linksharing:8080
+      STORJ_PUBLIC_URL: http://linksharing:8080,http://localhost:8080
     image: ghcr.io/elek/storj-edge:1.14.0
+    ports:
+      - 8080:8080
   prometheus:
     command:
       - --config.file
@@ -177,7 +179,6 @@ services:
       - versioncontrol
       - run
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
       BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
       BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
       BINARY_SATELLITE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
@@ -190,6 +191,8 @@ services:
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
     image: ghcr.io/elek/storj:1.39.6
+    ports:
+      - 7070:8080
   uplink:
     command:
       - /usr/bin/sleep

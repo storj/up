@@ -21,8 +21,8 @@ func Local(service *ServiceConfig) error {
 	cmd := service.Command[0]
 	goBinPath := path.Join(os.Getenv("GOPATH"), "bin")
 	service.Volumes = append(service.Volumes, fmt.Sprintf(
-		"%s%s",
+		"%s:%s",
 		path.Join(goBinPath, cmd),
-		path.Join("/var/lib/storj/bin", cmd)))
+		path.Join("/var/lib/storj/go/bin", cmd)))
 	return nil
 }
