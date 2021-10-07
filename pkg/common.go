@@ -116,7 +116,7 @@ func add(group string) error {
 		}
 	}
 
-	out, err := yaml.Marshal(template)
+	out, err := yaml.Marshal(current)
 	if err != nil {
 		return err
 	}
