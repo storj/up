@@ -13,7 +13,7 @@ RUN go install github.com/go-delve/delve/cmd/dlv@latest
 RUN git clone ${REPO} --depth=1 --branch ${BRANCH}  && \
     cd storj && \
     env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh && \
-    go install ./cmd/... && \
+    go build ./cmd/... && \
     cd .. && \
     rm -rf storj
 
