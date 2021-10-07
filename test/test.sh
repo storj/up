@@ -21,6 +21,8 @@ sleep 10
 dd if=/dev/random of=data count=10240 bs=1024
 sha256sum data > sha256.sum
 
+eval $(sjr credentials -e)
+
 BUCKET=bucket$RANDOM
 uplink mb sj://$BUCKET
 uplink cp data sj://$BUCKET/data
