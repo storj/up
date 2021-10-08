@@ -20,12 +20,7 @@ var composeTemplate []byte
 
 
 func init() {
-	current, err := common.ReadCompose("docker-compose.yaml")
-	if err != nil {
-		panic("docker-compose.yaml couldn't be read from the local dir " + err.Error())
-	}
-
-	for service, _ := range current.Services {
+	for _, service := range common.Presets["storj"] {
 		serviceCmd := &cobra.Command{
 			Use:   service,
 			Short: fmt.Sprintf("Customize the %s service", service),
