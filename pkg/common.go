@@ -125,12 +125,8 @@ func initEnv(group string) error {
 		return err
 	}
 
-	filtered := make(map[string]*common.ServiceConfig, 0)
-	for k, v := range template.FilterPrefixAndGroup(group, common.Presets) {
-		filtered[k] = v
-	}
+	template.Services = template.FilterPrefixAndGroup(group, common.Presets)
 
-	template.Services = filtered
 	out, err := yaml.Marshal(template)
 	if err != nil {
 		return err

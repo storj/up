@@ -52,11 +52,11 @@ func (c *SimplifiedCompose) FilterPrefixAndGroup(service string, groups map[stri
 	for _, part := range strings.Split(service, ",") {
 		selector := strings.TrimSpace(part)
 		for k, v := range c.Services {
-			if selector == "all" || selector == service || hasIndexedPrefix(service, selector) {
+			if selector == "all" || selector == k || hasIndexedPrefix(k, selector) {
 				filtered[k] = v
 			} else if group, found := Presets[selector]; found {
 				for _, s := range group {
-					if s == service || hasIndexedPrefix(service, selector) {
+					if s == k || hasIndexedPrefix(k, s) {
 						filtered[k] = v
 					}
 				}
