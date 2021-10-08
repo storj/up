@@ -200,3 +200,24 @@ services:
     image: ghcr.io/elek/storj:1.39.6
     environment:
       STORJ_ROLE: uplink
+  multinode:
+    command:
+      - multinode
+      - run
+      - --identity-dir
+      - /var/lib/storj/.local/share/storj/identity/multinode/
+    environment:
+      DEFAULTS: dev
+      STORJ_ROLE: multinode
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/multinode
+      STORJ_CONSOLE_ADDRESS: 0.0.0.0:15002
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/storj/web/multinode/
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+    image: ghcr.io/elek/storj:1.39.6
+    ports:
+      - "15002:15002"
+    volumes:
+      - ./entrypoint.sh:/var/lib/storj/entrypoint.sh
