@@ -15,7 +15,7 @@ fi
 sjr init
 
 docker-compose down -v
-docker-compose up -d 
+docker-compose up -d --scale storagenode=10
 #yes it's a big todo, let's check if all the storagenodes are registered
 sleep 60
 dd if=/dev/random of=data count=10240 bs=1024
