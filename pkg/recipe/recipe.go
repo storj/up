@@ -10,5 +10,6 @@ func AddMutatorCommands(group string, serviceCmd *cobra.Command) {
 	localEntrypointCmd(group, serviceCmd)
 	envCmd(group, serviceCmd)
 	buildCmd(group, serviceCmd)
+	scaleCmd(group, serviceCmd)
 }
 

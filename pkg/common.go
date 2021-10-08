@@ -105,8 +105,8 @@ func add(group string) error {
 		return err
 	}
 
-	for k, v := range template.Services {
-		if _, found := current.Services[k]; !found && common.Selected(group, k) {
+	for k, v := range template.FilterPrefixAndGroup(group, common.Presets) {
+		if _, found := current.Services[k]; !found {
 			current.Services[k] = v
 		}
 	}
@@ -125,20 +125,18 @@ func add(group string) error {
 }
 
 func initEnv(group string) error {
-	content, err := common.ParseCompose(composeTemplate)
+	template, err := common.ParseCompose(composeTemplate)
 	if err != nil {
 		return err
 	}
 
 	filtered := make(map[string]*common.ServiceConfig, 0)
-	for k, v := range content.Services {
-		if common.Selected(group, k) {
-			filtered[k] = v
-		}
+	for k, v := range template.FilterPrefixAndGroup(group, common.Presets) {
+		filtered[k] = v
 	}
 
-	content.Services = filtered
-	out, err := yaml.Marshal(content)
+	template.Services = filtered
+	out, err := yaml.Marshal(template)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,8 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/zeebo/errs/v2"
 	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 type SimplifiedCompose struct {
@@ -18,6 +20,50 @@ func (c *SimplifiedCompose) GetService(service string) (*ServiceConfig, error) {
 		}
 	}
 	return nil, errs.Errorf("Service %s couldn't be found in the compose file", service)
+}
+
+// hasIndexedPrefix is true if s has prefix and remaining is a number
+func hasIndexedPrefix(s string, prefix string) bool {
+	if strings.HasPrefix(s, prefix) {
+		_, err := strconv.Atoi(s[len(prefix):])
+		if err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// FilterPrefix returns with the list of services which matches 'service' or starts with 'service' and has a number at the end.
+func (c *SimplifiedCompose) FilterPrefix(service string) map[string]*ServiceConfig {
+	filtered := map[string]*ServiceConfig{}
+	for k, v := range c.Services {
+		if k == service || hasIndexedPrefix(k, service) {
+			filtered[k] = v
+		}
+	}
+
+	return filtered
+}
+
+// FilterPrefixAndGroup returns with the list of services which either indexed/exactly the same or part of group definition
+func (c *SimplifiedCompose) FilterPrefixAndGroup(service string, groups map[string][]string) map[string]*ServiceConfig {
+	filtered := map[string]*ServiceConfig{}
+
+	for _, part := range strings.Split(service, ",") {
+		selector := strings.TrimSpace(part)
+		for k, v := range c.Services {
+			if selector == "all" || selector == service || hasIndexedPrefix(service, selector) {
+				filtered[k] = v
+			} else if group, found := Presets[selector]; found {
+				for _, s := range group {
+					if s == service || hasIndexedPrefix(service, selector) {
+						filtered[k] = v
+					}
+				}
+			}
+		}
+	}
+	return filtered
 }
 
 func ReadCompose(file string) (SimplifiedCompose, error) {
@@ -43,12 +89,10 @@ func UpdateEach(selector string, updater func(service *ServiceConfig) error) err
 	if err = yaml.Unmarshal(in, &content); err != nil {
 		return err
 	}
-	for k, v := range content.Services {
-		if Selected(selector, k) {
-			err := updater(v)
-			if err != nil {
-				return err
-			}
+	for _, v := range content.FilterPrefixAndGroup(selector, Presets) {
+		err := updater(v)
+		if err != nil {
+			return err
 		}
 	}
 	out, err := yaml.Marshal(content)
