@@ -31,7 +31,12 @@ func createPresets() map[string][]string {
 }
 
 func init() {
-	for _, service := range presets["storj"] {
+	current, err := ReadCompose("docker-compose.yaml")
+	if err != nil {
+		panic("docker-compose.yaml couldn't be read from the local dir " + err.Error())
+	}
+
+	for service, _ := range current.Services {
 		serviceCmd := &cobra.Command{
 			Use:   service,
 			Short: fmt.Sprintf("Customize the %s service", service),
@@ -40,6 +45,7 @@ func init() {
 		addMutatorCommands(service, serviceCmd)
 		RootCmd.AddCommand(serviceCmd)
 	}
+
 	for group, values := range presets {
 
 		short := fmt.Sprintf("Customize all %s services (%s)", group, strings.Join(values, ", "))
