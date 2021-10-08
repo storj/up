@@ -17,7 +17,7 @@ RUN git clone ${REPO} --depth=1 --branch ${BRANCH}  && \
     cd .. && \
     rm -rf storj
 
-ADD entrypoint.sh /var/lib/storj/entrypoint.sh
+ADD pkg/entrypoint.sh /var/lib/storj/entrypoint.sh
 
 ADD . /var/lib/storj/sjr
 RUN cd /var/lib/storj/sjr/devrun && go install

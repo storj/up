@@ -41,6 +41,13 @@ if [ "$STORJ_ROLE" == "storagenode" ]; then
   storagenode setup
 fi
 
+if [ "$STORJ_ROLE" == "multinode" ]; then
+  if [ -f "/var/lib/storj/.local/share/storj/multinode/config.yaml" ]; then
+    rm "/var/lib/storj/.local/share/storj/multinode/config.yaml"
+  fi
+  multinode setup
+fi
+
 if [ "$STORJ_ROLE" == "uplink" ]; then
   if [ "$1" != "/usr/bin/sleep"  ]; then
     devrun credentials satellite-api test@storj.io
