@@ -112,7 +112,7 @@ func init() {
 	credentialsCmd.Flags().StringVarP(&authService, "authservice", "a", "http://localhost:8888", "Host of the auth service")
 	credentialsCmd.Flags().BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
 	credentialsCmd.Flags().BoolVarP(&write, "write", "w", false, "Write the right entries to rclone config file (storjdev, storj")
-	RootCmd.AddCommand(credentialsCmd)
+
 }
 
 func updateRclone(key string, secret string, endpoint string, grant string) error {

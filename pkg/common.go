@@ -3,35 +3,24 @@ package sjr
 import (
 	_ "embed"
 	"fmt"
+	"github.com/elek/sjr/pkg/common"
+	"github.com/elek/sjr/pkg/recipe"
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
 	"io/ioutil"
-	"os"
 	"strings"
 )
 
 var (
 	RootCmd = &cobra.Command{}
-	presets = createPresets()
 )
 
 //go:embed docker-compose.template.yaml
 var composeTemplate []byte
 
-func createPresets() map[string][]string {
-	presets := map[string][]string{}
-	presets["minimal"] = []string{"satellite-api", "storagenode"}
-	presets["edge"] = []string{"gateway-mt", "linksharing", "authservice"}
-	presets["db"] = []string{"cockroach", "redis"}
-	presets["monitor"] = []string{"prometheus", "grafana"}
-	presets["core"] = append(presets["minimal"], "satellite-core", "satellite-admin", "versioncontrol")
-	presets["storj"] = append(presets["core"], presets["edge"]...)
-	presets["storj"] = append(presets["storj"], "uplink")
-	return presets
-}
 
 func init() {
-	current, err := ReadCompose("docker-compose.yaml")
+	current, err := common.ReadCompose("docker-compose.yaml")
 	if err != nil {
 		panic("docker-compose.yaml couldn't be read from the local dir " + err.Error())
 	}
@@ -42,11 +31,11 @@ func init() {
 			Short: fmt.Sprintf("Customize the %s service", service),
 		}
 
-		addMutatorCommands(service, serviceCmd)
+		recipe.AddMutatorCommands(service, serviceCmd)
 		RootCmd.AddCommand(serviceCmd)
 	}
 
-	for group, values := range presets {
+	for group, values := range common.Presets {
 
 		short := fmt.Sprintf("Customize all %s services (%s)", group, strings.Join(values, ", "))
 		if group == "all" {
@@ -57,7 +46,7 @@ func init() {
 			Use:   group,
 			Short: short,
 		}
-		addMutatorCommands(group, serviceCmd)
+		recipe.AddMutatorCommands(group, serviceCmd)
 		RootCmd.AddCommand(serviceCmd)
 	}
 
@@ -94,7 +83,7 @@ func init() {
 }
 
 func list() error {
-	current, err := ReadCompose("docker-compose.yaml")
+	current, err := common.ReadCompose("docker-compose.yaml")
 	if err != nil {
 		return err
 	}
@@ -106,18 +95,18 @@ func list() error {
 
 func add(group string) error {
 
-	template, err := ParseCompose(composeTemplate)
+	template, err := common.ParseCompose(composeTemplate)
 	if err != nil {
 		return err
 	}
 
-	current, err := ReadCompose("docker-compose.yaml")
+	current, err := common.ReadCompose("docker-compose.yaml")
 	if err != nil {
 		return err
 	}
 
 	for k, v := range template.Services {
-		if _, found := current.Services[k]; !found && selected(group, k) {
+		if _, found := current.Services[k]; !found && common.Selected(group, k) {
 			current.Services[k] = v
 		}
 	}
@@ -136,14 +125,14 @@ func add(group string) error {
 }
 
 func initEnv(group string) error {
-	content, err := ParseCompose(composeTemplate)
+	content, err := common.ParseCompose(composeTemplate)
 	if err != nil {
 		return err
 	}
 
-	filtered := make(map[string]*ServiceConfig, 0)
+	filtered := make(map[string]*common.ServiceConfig, 0)
 	for k, v := range content.Services {
-		if selected(group, k) {
+		if common.Selected(group, k) {
 			filtered[k] = v
 		}
 	}
@@ -167,45 +156,9 @@ var prometheusConfig []byte
 
 func writeDependencies(group string) error {
 	if strings.Contains(group, "prometheus") {
-		return extractFile(prometheusConfig, "prometheus.yml")
+		return common.ExtractFile(prometheusConfig, "prometheus.yml")
 	}
 	return nil
 }
 
-func addMutatorCommands(group string, serviceCmd *cobra.Command) {
-	debugCmd(group, serviceCmd)
-	imageCmd(group, serviceCmd)
-	localCmd(group, serviceCmd)
-	versionCmd(group, serviceCmd)
-	localEntrypointCmd(group, serviceCmd)
-	envCmd(group, serviceCmd)
-	buildCmd(group, serviceCmd)
-}
 
-func selected(selector string, service string) bool {
-	for _, part := range strings.Split(selector, ",") {
-		selector := strings.TrimSpace(part)
-		if selector == "all" {
-			return true
-		}
-		if selector == service {
-			return true
-		}
-		if group, found := presets[selector]; found {
-			for _, s := range group {
-				if s == service {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
-func extractFile(content []byte, fileName string) error {
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		return ioutil.WriteFile(fileName, content, 0644)
-	}
-	fmt.Printf("File %s exists/couldn't be checked. Skipping to write\n", fileName)
-	return nil
-}

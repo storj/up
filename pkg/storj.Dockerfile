@@ -2,8 +2,10 @@ FROM ghcr.io/elek/storj-build
 ARG BRANCH=v1.39.6
 ARG REPO=https://github.com/storj/storj
 
-RUN git clone ${REPO} --depth=1 --branch ${BRANCH} && \
-    cd storj/web/satellite && npm install && npm run build
+RUN git clone ${REPO} --depth=1 --branch ${BRANCH}
+RUN cd storj/web/satellite && npm install && npm run build
+RUN cd storj/web/multinode && npm install && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
+RUN cd storj/web/storagenode && npm install && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
 RUN cd storj && env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
 RUN cd storj && go install ./cmd/...
 
