@@ -179,6 +179,11 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 		out.WriteString("type = tardigrade\n")
 		out.WriteString("access_grant = " + grant + "\n")
 	}
+	err = os.MkdirAll(path.Dir(rcloneConf), 0644)
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	
 	err = ioutil.WriteFile(rcloneConf, []byte(out.String()), 0644)
 	return err
 }
