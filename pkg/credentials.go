@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path"
 	"regexp"
@@ -115,7 +116,7 @@ func init() {
 	RootCmd.AddCommand(credentialsCmd)
 }
 
-func updateRclone(key string, secret string, endpoint string, grant string) error {
+func updateRclone(key string, secret string, endpoint string, grant string) (err error) {
 	usr, err := user.Current()
 	if err != nil {
 		return errs.Wrap(err)
@@ -123,9 +124,16 @@ func updateRclone(key string, secret string, endpoint string, grant string) erro
 
 	out := strings.Builder{}
 	rcloneConf := path.Join(usr.HomeDir, ".config", "rclone", "rclone.conf")
-	content, err := ioutil.ReadFile(rcloneConf)
-	if err != nil {
-		return errs.Wrap(err)
+
+	var content []byte
+
+	if _, err := os.Stat(rcloneConf); err == nil {
+		content, err = ioutil.ReadFile(rcloneConf)
+		if err != nil {
+			return errs.Wrap(err)
+		}
+	} else if !os.IsNotExist(err) {
+		return err
 	}
 
 	section := regexp.MustCompile("\\[(.*)\\]")
