@@ -36,6 +36,7 @@ require (
 	github.com/jackc/pgtype v1.8.1 // indirect
 	github.com/jackc/pgx/v4 v4.13.0 // indirect
 	github.com/jtolds/tracetagger/v2 v2.0.0-rc5 // indirect
+	github.com/lib/pq v1.10.3 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect

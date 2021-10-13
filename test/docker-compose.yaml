@@ -5,13 +5,13 @@ services:
     - authservice
     - run
     - --defaults=dev
+    - --defaults=dev
     environment:
       STORJ_ALLOWED_SATELLITES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_AUTH_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_ENDPOINT: http://localhost:9999
-      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/authservice
       STORJ_KV_BACKEND: memory://
       STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_LOG_LEVEL: debug
@@ -26,8 +26,10 @@ services:
     - start-single-node
     - --insecure
     - --http-addr
-    - 127.0.0.1:1234
+    - 0.0.0.0:1234
     image: cockroachdb/cockroach
+    ports:
+    - "25257:26257"
   gateway-mt:
     command:
     - gateway-mt
@@ -141,7 +143,214 @@ services:
       STORJ_ROLE: satellite-core
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: ghcr.io/elek/storj:1.39.6
-  storagenode:
+  storagenode1:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode10:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode2:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode3:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode4:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode5:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode6:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode7:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode8:
+    command:
+    - storagenode
+    - run
+    - --defaults=dev
+    environment:
+      STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
+      STORJ_DEBUG_ADDR: 0.0.0.0:11111
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: /var/lib/storj/.local/share/storj/identity/storagenode/
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_ROLE: storagenode
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_WAIT_FOR_SATELLITE: "true"
+    image: ghcr.io/elek/storj:1.39.6
+  storagenode9:
     command:
     - storagenode
     - run

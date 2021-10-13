@@ -11,23 +11,30 @@ if [ ! "$(which uplink)" ]; then
    go install storj.io/storj/cmd/uplink@latest
 fi
 
-sjr init minimal,db
+if [ ! "$(which rclone)" ]; then
+  go install github.com/rclone/rclone@master
+fi
+
+sjr init
 sjr storagenode scale 10
 
 docker-compose down -v
-docker-compose up -d --scale storagenode=10
+docker-compose up -d
 
 sjr health
+
 dd if=/dev/random of=data count=10240 bs=1024
 sha256sum data > sha256.sum
 
-eval $(sjr credentials -e)
+sjr credentials -w
 
 BUCKET=bucket$RANDOM
-uplink mb sj://$BUCKET
-uplink cp data sj://$BUCKET/data
+rclone mkdir storjdevs3:$BUCKET
+rclone copy data storjdevs3:$BUCKET/data
+sha256sum -c sha256.sum
 
 rm data
-uplink cp sj://$BUCKET/data data 
+rclone copy storjdevs3:$BUCKET/data download
+mv download/data ./
 sha256sum -c sha256.sum
-docker-compose down
+docker-compose down -v

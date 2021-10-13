@@ -94,7 +94,7 @@ func DockerEdgeBuild(version string) error {
 		"build",
 		"-t", "ghcr.io/elek/storj-edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
-		"-f", "pkg/storj.Dockerfile", ".")
+		"-f", "pkg/edge.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
@@ -108,9 +108,17 @@ func Integration() error {
 func Publish() error {
 	coreVersion := "1.39.6"
 	edgeVersion := "1.14.0"
-	mg.Deps(DockerCoreBuild(coreVersion))
-	mg.Deps(DockerEdgeBuild(edgeVersion))
-	err := Test()
+	err := DockerCoreBuild(coreVersion)
+	if err != nil {
+		return err
+	}
+
+	err = DockerEdgeBuild(edgeVersion)
+	if err != nil {
+		return err
+	}
+
+	err = Integration()
 	if err != nil {
 		return err
 	}

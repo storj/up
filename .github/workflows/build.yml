@@ -16,4 +16,4 @@ jobs:
     - name: Build
       run: go install .
     - name: Test
-      run: ./test/test.sh
+      run: ./test/test.sh && ./test/test-edge.sh
