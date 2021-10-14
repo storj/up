@@ -127,13 +127,14 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 
 	var content []byte
 
+	_ = os.MkdirAll(path.Dir(rcloneConf), 0644)
 	if _, err := os.Stat(rcloneConf); err == nil {
 		content, err = ioutil.ReadFile(rcloneConf)
 		if err != nil {
 			return errs.Wrap(err)
 		}
 	} else if !os.IsNotExist(err) {
-		return err
+		return errs.Wrap(err)
 	}
 
 	section := regexp.MustCompile("\\[(.*)\\]")
@@ -179,11 +180,6 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 		out.WriteString("type = tardigrade\n")
 		out.WriteString("access_grant = " + grant + "\n")
 	}
-	err = os.MkdirAll(path.Dir(rcloneConf), 0644)
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	
 	err = ioutil.WriteFile(rcloneConf, []byte(out.String()), 0644)
 	return err
 }
