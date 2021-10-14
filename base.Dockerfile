@@ -1,8 +1,6 @@
-FROM archlinux
-RUN pacman -Sy --noconfirm which
-
-FROM archlinux
-COPY --from=0 /usr/bin/which /usr/bin/which
+FROM ubuntu:21.04 AS final
+RUN apt-get update
+RUN apt-get -y install iproute2
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
 USER storj
 WORKDIR /var/lib/storj
