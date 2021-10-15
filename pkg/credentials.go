@@ -127,7 +127,7 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 
 	var content []byte
 
-	_ = os.MkdirAll(path.Dir(rcloneConf), 0644)
+	_ = os.MkdirAll(path.Dir(rcloneConf), 0755)
 	if _, err := os.Stat(rcloneConf); err == nil {
 		content, err = ioutil.ReadFile(rcloneConf)
 		if err != nil {
