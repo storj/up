@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 )
 
@@ -10,6 +12,7 @@ var remoteCmd = &cobra.Command{
 	Use:   "remote",
 	Short: "build from a remote src repo for use inside the container",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.Help()
 		return nil
 	},
 }
@@ -18,7 +21,11 @@ var githubCmd = &cobra.Command{
 	Use:   "github",
 	Short: "build github src repo for use inside the container",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return buildRemoteGithubSrc()
+		composeProject, err := common.UpdateEach(ComposeFile, buildRemoteGithubSrc, args[0], args[1:])
+		if err != nil {
+			return err
+		}
+		return common.WriteComposeFile(composeProject)
 	},
 }
 
@@ -26,7 +33,11 @@ var gerritCmd = &cobra.Command{
 	Use:   "gerrit",
 	Short: "build gerrit src repo for use inside the container",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return buildRemoteGerritSrc()
+		composeProject, err := common.UpdateEach(ComposeFile, buildRemoteGerritSrc, args[0], args[1:])
+		if err != nil {
+			return err
+		}
+		return common.WriteComposeFile(composeProject)
 	},
 }
 
@@ -41,12 +52,12 @@ func init() {
 	gerritCmd.MarkPersistentFlagRequired("refspec")
 }
 
-func buildRemoteGithubSrc() error {
+func buildRemoteGithubSrc(_ *types.ServiceConfig, _ string) error {
 	// do magic here
 	return nil
 }
 
-func buildRemoteGerritSrc() error {
+	func buildRemoteGerritSrc(_ *types.ServiceConfig, _ string) error {
 	// do magic here
 	return nil
 }

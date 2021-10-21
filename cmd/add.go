@@ -1,18 +1,21 @@
 package cmd
 
 import (
+	"github.com/compose-spec/compose-go/types"
 	"github.com/elek/sjr/pkg/common"
-	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [service names or groups]",
+	Use:   "add [service ...]",
 	Short: "Add more services to the docker-compose.yaml. You can use predefined groups as arguments.",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return Add(args)
+		composeProject, err := AddToCompose(ComposeFile, TemplateFile, args)
+		if err != nil {
+			return err
+		}
+		return common.WriteComposeFile(composeProject)
 	},
 }
 
@@ -20,35 +23,30 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 }
 
-func Add(requestedServices []string) error {
-	templateComposeProject, err := common.CreateComposeProject("cmd/files/templates/docker-compose.template.yaml")
+func AddToCompose(composeDir string, templateDir string, services []string) (*types.Project, error) {
+	templateComposeProject, err := common.CreateComposeProject(templateDir)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	currentComposeProject, err := common.CreateComposeProject("docker-compose.yaml")
+	currentComposeProject, err := common.CreateComposeProject(composeDir)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	services, err := common.ResolveServices(requestedServices)
+	resolvedServices, err := common.ResolveServices(services)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, service := range services {
+	for _, service := range resolvedServices {
 		if !common.ContainsService(currentComposeProject.Services, service) {
 			newService, err := templateComposeProject.GetService(service)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			currentComposeProject.Services = append(currentComposeProject.Services, newService)
 		}
 	}
-
-	resolvedServices, err := yaml.Marshal(&common.ComposeFile{Version: "3.4", Services: currentComposeProject.Services})
-	if err = ioutil.WriteFile("docker-compose.yaml", resolvedServices, 0644); err != nil {
-		return err
-	}
-	return nil
+	return currentComposeProject, nil
 }

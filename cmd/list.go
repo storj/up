@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 )
@@ -10,7 +11,12 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Print all the configured services from the dockerfile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return List()
+		// Use all services to allow checking for any possible service
+		composeProject, err := common.UpdateEach(ComposeFile, list, "", []string{"storj", "db"})
+		if err != nil {
+			return err
+		}
+		return common.WriteComposeFile(composeProject)
 	},
 }
 
@@ -18,14 +24,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 }
 
-func List() error {
-	project, err := common.CreateComposeProject("docker-compose.yaml")
-	if err != nil {
-		return err
-	}
-
-	for _, service := range project.AllServices() {
-		fmt.Println(service.Name, service.Image)
-	}
+func list(composeService *types.ServiceConfig, _ string) error {
+	fmt.Println(composeService.Name, composeService.Image)
 	return nil
 }
