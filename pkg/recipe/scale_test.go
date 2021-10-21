@@ -1,37 +1,40 @@
 package recipe
 
 import (
+	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/cmd"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/stretchr/testify/require"
+	"strconv"
 	"testing"
 )
 
 func TestScale(t *testing.T) {
 
-	k := &common.SimplifiedCompose{
-		Services: map[string]*common.ServiceConfig{
-			"storagenode": &common.ServiceConfig{
-				Image: "foobar",
+	k := &common.ComposeFile{
+		Version: "3.4",
+		Services: []types.ServiceConfig{
+			{Name: "storagenode",
+			Image: "foobar",
 			},
-			"satellite-api": &common.ServiceConfig{},
+			{Name: "satellite-api"},
 		},
 	}
 
-	err := Scale("storagenode", k, 3)
+	var scale uint64 = 3
+	err := cmd.Scale([]string{strconv.Itoa(int(scale)), "storagenode"})
 	require.Nil(t, err)
 
-	expected := &common.SimplifiedCompose{
-		Services: map[string]*common.ServiceConfig{
-			"storagenode1": &common.ServiceConfig{
+	expected := &common.ComposeFile{
+		Version: "3.4",
+		Services: []types.ServiceConfig{
+			{Name: "storagenode",
 				Image: "foobar",
+				Deploy: &types.DeployConfig{
+					Replicas: &scale,
+				},
 			},
-			"storagenode2": &common.ServiceConfig{
-				Image: "foobar",
-			},
-			"storagenode3": &common.ServiceConfig{
-				Image: "foobar",
-			},
-			"satellite-api": &common.ServiceConfig{},
+			{Name: "satellite-api"},
 		},
 	}
 
@@ -40,30 +43,31 @@ func TestScale(t *testing.T) {
 
 func TestScaleDown(t *testing.T) {
 
-	k := &common.SimplifiedCompose{
-		Services: map[string]*common.ServiceConfig{
-			"storagenode1": &common.ServiceConfig{
+	var scaleUp uint64 = 3
+	var scaleDown uint64 = 1
+	k := &common.ComposeFile{
+		Version: "3.4",
+		Services: []types.ServiceConfig{
+			{Name: "storagenode",
 				Image: "foobar",
+				Deploy: &types.DeployConfig{
+					Replicas: &scaleUp,
+				},
 			},
-			"storagenode2": &common.ServiceConfig{
-				Image: "foobar",
-			},
-			"storagenode3": &common.ServiceConfig{
-				Image: "foobar",
-			},
-			"satellite-api": &common.ServiceConfig{},
+			{Name: "satellite-api"},
 		},
 	}
 
-	err := Scale("storagenode", k, 1)
+	err := cmd.Scale([]string{strconv.Itoa(int(scaleDown)), "storagenode"})
 	require.Nil(t, err)
 
-	expected := &common.SimplifiedCompose{
-		Services: map[string]*common.ServiceConfig{
-			"storagenode": &common.ServiceConfig{
+	expected := &common.ComposeFile{
+		Version: "3.4",
+		Services: []types.ServiceConfig{
+			{Name: "storagenode",
 				Image: "foobar",
 			},
-			"satellite-api": &common.ServiceConfig{},
+			{Name: "satellite-api"},
 		},
 	}
 

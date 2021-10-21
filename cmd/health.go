@@ -1,28 +1,28 @@
-package sjr
+package cmd
 
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
 	"time"
 )
 
-func init() {
-	RootCmd.AddCommand(&cobra.Command{
-		Use:   "health",
-		Short: "Wait until cluster is healthy (storagenodes are registered in the db)",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return checkHealth(10)
-		},
-	})
+var healthCmd = &cobra.Command{
+	Use:   "health",
+	Short: "Wait until cluster is healthy (storagenodes are registered in the db)",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return checkHealth(10)
+	},
+}
 
+func init() {
+	rootCmd.AddCommand(healthCmd)
 }
 
 func checkHealth(requiredStorageNodes int) error {
 	for {
 		time.Sleep(1 * time.Second)
-		db, err := sql.Open("postgres", "host=localhost port=25257 user=root dbname=master sslmode=disable")
+		db, err := sql.Open("postgres", "host=localhost port=26257 user=root dbname=master sslmode=disable")
 		if err != nil {
 			fmt.Printf("Couldn't connect to the database: %s\n", err.Error())
 			continue

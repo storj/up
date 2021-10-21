@@ -1,13 +1,9 @@
 package main
 
 import (
-	sjr "github.com/elek/sjr/pkg"
-	"log"
+	"github.com/elek/sjr/cmd"
 )
 
 func main() {
-	err := sjr.RootCmd.Execute()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	cmd.Execute()
 }

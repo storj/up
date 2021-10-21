@@ -1,128 +1,60 @@
 package common
 
 import (
-	"github.com/goccy/go-yaml"
-	"github.com/zeebo/errs/v2"
-	"io/ioutil"
-	"strconv"
+	"github.com/compose-spec/compose-go/cli"
+	"github.com/compose-spec/compose-go/types"
 	"strings"
 )
 
-type SimplifiedCompose struct {
-	Version  string
-	Services map[string]*ServiceConfig
+type ComposeFile struct {
+	Version   string
+	Services  types.Services
 }
 
-func (c *SimplifiedCompose) GetService(service string) (*ServiceConfig, error) {
-	for k, v := range c.Services {
-		if k == service {
-			return v, nil
+func CreateComposeProject(filename string) (*types.Project, error) {
+	options := cli.ProjectOptions{
+		Name:	filename,
+		ConfigPaths: []string{"./" + filename},
+	}
+
+	return cli.ProjectFromOptions(&options)
+}
+
+func ResolveServices(services []string) ([]string, error) {
+	var result []string
+	var key uint
+	for _, service := range services {
+		key |= ServiceDict[service]
+	}
+	for service := authservice; service <= grafana; service++ {
+		if key&(1<<service) != 0 {
+			result = append(result, service.String())
 		}
 	}
-	return nil, errs.Errorf("Service %s couldn't be found in the compose file", service)
+	return result, nil
 }
 
-// hasIndexedPrefix is true if s has prefix and remaining is a number
-func hasIndexedPrefix(s string, prefix string) bool {
-	if strings.HasPrefix(s, prefix) {
-		_, err := strconv.Atoi(s[len(prefix):])
-		if err == nil {
+func ContainsService(s []types.ServiceConfig, e string) bool {
+	for _, a := range s {
+		if a.Name == e {
 			return true
 		}
 	}
 	return false
 }
 
-// FilterPrefix returns with the list of services which matches 'service' or starts with 'service' and has a number at the end.
-func (c *SimplifiedCompose) FilterPrefix(service string) map[string]*ServiceConfig {
-	filtered := map[string]*ServiceConfig{}
-	for k, v := range c.Services {
-		if k == service || hasIndexedPrefix(k, service) {
-			filtered[k] = v
-		}
-	}
+func CreateBind(volume string) types.ServiceVolumeConfig {
+	mountPoints := strings.Split(volume, ":")
 
-	return filtered
-}
-
-// FilterPrefixAndGroup returns with the list of services which either indexed/exactly the same or part of group definition
-func (c *SimplifiedCompose) FilterPrefixAndGroup(service string, groups map[string][]string) map[string]*ServiceConfig {
-	filtered := map[string]*ServiceConfig{}
-
-	for _, part := range strings.Split(service, ",") {
-		selector := strings.TrimSpace(part)
-		for k, v := range c.Services {
-			if selector == "all" || selector == k || hasIndexedPrefix(k, selector) {
-				filtered[k] = v
-			} else if group, found := Presets[selector]; found {
-				for _, s := range group {
-					if s == k || hasIndexedPrefix(k, s) {
-						filtered[k] = v
-					}
-				}
-			}
-		}
+	return types.ServiceVolumeConfig{
+		Type: "bind",
+		Source: mountPoints[0],
+		Target: mountPoints[1],
+		ReadOnly: false,
+		Consistency: "",
+		Bind: &types.ServiceVolumeBind{
+			Propagation: "",
+			CreateHostPath: true,
+		},
 	}
-	return filtered
-}
-
-func ReadCompose(file string) (SimplifiedCompose, error) {
-	content, err := ioutil.ReadFile(file)
-	if err != nil {
-		return SimplifiedCompose{}, err
-	}
-	return ParseCompose(content)
-}
-
-func ParseCompose(raw []byte) (SimplifiedCompose, error) {
-	content := SimplifiedCompose{}
-	err := yaml.Unmarshal(raw, &content)
-	return content, err
-}
-
-func UpdateEach(selector string, updater func(service *ServiceConfig) error) error {
-	in, err := ioutil.ReadFile("docker-compose.yaml")
-	if err != nil {
-		return err
-	}
-	content := SimplifiedCompose{}
-	if err = yaml.Unmarshal(in, &content); err != nil {
-		return err
-	}
-	for _, v := range content.FilterPrefixAndGroup(selector, Presets) {
-		err := updater(v)
-		if err != nil {
-			return err
-		}
-	}
-	out, err := yaml.Marshal(content)
-	if err != nil {
-		return err
-	}
-	if err = ioutil.WriteFile("docker-compose.yaml", out, 0644); err != nil {
-		return err
-	}
-	return nil
-}
-
-func Update(selector string, updater func(compose *SimplifiedCompose) error) error {
-	in, err := ioutil.ReadFile("docker-compose.yaml")
-	if err != nil {
-		return err
-	}
-	content := SimplifiedCompose{}
-	if err = yaml.Unmarshal(in, &content); err != nil {
-		return err
-	}
-	if err = updater(&content); err != nil {
-		return err
-	}
-	out, err := yaml.Marshal(content)
-	if err != nil {
-		return err
-	}
-	if err = ioutil.WriteFile("docker-compose.yaml", out, 0644); err != nil {
-		return err
-	}
-	return nil
 }

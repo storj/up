@@ -5,9 +5,8 @@ services:
       - authservice
       - run
       - --defaults=dev
-      - --defaults=dev
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_ALLOWED_SATELLITES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_AUTH_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -26,9 +25,9 @@ services:
       - start-single-node
       - --insecure
       - --http-addr
-      - 0.0.0.0:1234
+      - 127.0.0.1:1234
     ports:
-      - 25257:26257
+      - "26257:26257"
     image: cockroachdb/cockroach
   gateway-mt:
     command:
@@ -36,7 +35,7 @@ services:
       - run
       - --defaults=dev
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_AUTH_TOKEN: super-secret
       STORJ_AUTH_URL: http://authservice:8888
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -53,7 +52,7 @@ services:
       - run
       - --defaults=dev
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -80,7 +79,7 @@ services:
       - --defaults=dev
       - --identity-dir=/var/lib/storj/identities/1
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
       STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
@@ -106,7 +105,7 @@ services:
       - --console.linksharing-url=http://127.0.0.1:8080
     environment:
       STORJ_SERVER_ADDRESS: satellite-api:7777
-      STORJ_WAIT_FOR_DB: true
+      STORJ_WAIT_FOR_DB: "true"
       STORJ_ADDRESS: 0.0.0.0:7777
       STORJ_CONSOLE_ADDRESS: 0.0.0.0:10000
       STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
@@ -141,7 +140,7 @@ services:
       - --defaults=dev
       - --identity-dir=/var/lib/storj/identities/1
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
@@ -159,7 +158,7 @@ services:
       - run
       - --defaults=dev
     environment:
-      STORJ_WAIT_FOR_SATELLITE: true
+      STORJ_WAIT_FOR_SATELLITE: "true"
       STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/web/storagenode
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
@@ -194,7 +193,7 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
     image: ghcr.io/elek/storj:1.39.6
     ports:
-      - 7070:8080
+      - "7070:8080"
   uplink:
     command:
       - /usr/bin/sleep
