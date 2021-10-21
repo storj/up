@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+
 func envCmd(service string, command *cobra.Command) {
 	command.AddCommand(&cobra.Command{
 		Use:   "env [KEY=VALUE]",
