@@ -1,4 +1,4 @@
-package recipe
+package test
 
 import (
 	"github.com/compose-spec/compose-go/types"
@@ -11,26 +11,25 @@ import (
 
 func TestScale(t *testing.T) {
 
-	k := &common.ComposeFile{
-		Version: "3.4",
+	k := &types.Project{
 		Services: []types.ServiceConfig{
 			{Name: "storagenode",
-			Image: "foobar",
+				Image: "foobar",
 			},
 			{Name: "satellite-api"},
 		},
 	}
 
 	var scale uint64 = 3
-	err := cmd.Scale([]string{strconv.Itoa(int(scale)), "storagenode"})
+	actual, err := common.UpdateEach(k, cmd.Scale, strconv.Itoa(int(scale)), []string{"storagenode"})
 	require.Nil(t, err)
 
-	expected := &common.ComposeFile{
-		Version: "3.4",
+	expected := &types.Project{
 		Services: []types.ServiceConfig{
 			{Name: "storagenode",
 				Image: "foobar",
 				Deploy: &types.DeployConfig{
+					Mode: "",
 					Replicas: &scale,
 				},
 			},
@@ -38,19 +37,19 @@ func TestScale(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, expected, k)
+	require.Equal(t, expected, actual)
 }
 
 func TestScaleDown(t *testing.T) {
 
 	var scaleUp uint64 = 3
 	var scaleDown uint64 = 1
-	k := &common.ComposeFile{
-		Version: "3.4",
+	k := &types.Project{
 		Services: []types.ServiceConfig{
 			{Name: "storagenode",
 				Image: "foobar",
 				Deploy: &types.DeployConfig{
+					Mode: "",
 					Replicas: &scaleUp,
 				},
 			},
@@ -58,11 +57,10 @@ func TestScaleDown(t *testing.T) {
 		},
 	}
 
-	err := cmd.Scale([]string{strconv.Itoa(int(scaleDown)), "storagenode"})
+	actual, err := common.UpdateEach(k, cmd.Scale, strconv.Itoa(int(scaleDown)), []string{"storagenode"})
 	require.Nil(t, err)
 
-	expected := &common.ComposeFile{
-		Version: "3.4",
+	expected := &types.Project{
 		Services: []types.ServiceConfig{
 			{Name: "storagenode",
 				Image: "foobar",
@@ -71,5 +69,5 @@ func TestScaleDown(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, expected, k)
+	require.Equal(t, expected, actual)
 }

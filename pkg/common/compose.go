@@ -28,9 +28,9 @@ func ResolveServices(services []string) ([]string, error) {
 	for _, service := range services {
 		key |= ServiceDict[service]
 	}
-	for service := authservice; service <= grafana; service++ {
+	for service := authservice; service <= appstorj; service++ {
 		if key&(1<<service) != 0 {
-			result = append(result, service.String())
+			result = append(result, serviceNameHelper[service.String()])
 		}
 	}
 	return result, nil
@@ -67,23 +67,27 @@ func WriteComposeFile(compose *types.Project) error {
 	return nil
 }
 
-func UpdateEach(composeDir string, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
+func LoadCompose(composeDir string) (*types.Project, error) {
 	currentComposeProject, err := CreateComposeProject(composeDir)
 	if err != nil {
 		return nil, err
 	}
 
+	return currentComposeProject, nil
+}
+
+func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
 	resolvedServices, err := ResolveServices(services)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, service := range resolvedServices {
-		for i, composeService := range currentComposeProject.AllServices() {
-			if strings.EqualFold(service, strings.ReplaceAll(composeService.Name, "-", "")) {
-				cmd(&currentComposeProject.Services[i], arg)
+		for i, composeService := range compose.AllServices() {
+			if strings.EqualFold(service, composeService.Name) {
+				cmd(&compose.Services[i], arg)
 			}
 		}
 	}
-	return currentComposeProject, nil
+	return compose, nil
 }

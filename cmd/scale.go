@@ -8,25 +8,28 @@ import (
 	"strconv"
 )
 
-var scaleCmd = &cobra.Command{
-	Use:   "scale <number> [service ...]",
-	Short: "Static scale of service or services",
-	Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker-compose scale any more`. " +
-		"But also not required to scale up and down and it's possible to do per instance local bindmount",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := common.UpdateEach(ComposeFile, scale, args[0], args[1:])
-		if err != nil {
-			return err
-		}
-		return common.WriteComposeFile(composeProject)
-	},
+func ScaleCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "scale <number> [service ...]",
+		Short: "static scale of services",
+		Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker-compose scale any more`. " +
+			"But also not required to scale up and down and it's possible to do per instance local bindmount",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			composeProject, err := common.LoadCompose(ComposeFile)
+			updatedComposeProject, err := common.UpdateEach(composeProject, Scale, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+			return common.WriteComposeFile(updatedComposeProject)
+		},
+	}
 }
 
 func init() {
-	rootCmd.AddCommand(scaleCmd)
+	rootCmd.AddCommand(ScaleCmd())
 }
 
-func scale(composeService *types.ServiceConfig, scale string) error {
+func Scale(composeService *types.ServiceConfig, scale string) error {
 	instances, err := strconv.ParseUint(scale, 10, 64)
 	if err != nil {
 		return errs.Wrap(err)

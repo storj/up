@@ -8,20 +8,23 @@ import (
 	"strings"
 )
 
-var entryPointCmd = &cobra.Command{
-	Use:   "local-entrypoint [service ...]",
-	Short: "Bind mount entrypoint.sh to use local modifications",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := common.UpdateEach(ComposeFile, updateEntryPoint, fmt.Sprintf("%s**%s", "./entrypoint.sh", "/var/lib/storj/entrypoint.sh"), args)
-		if err != nil {
-			return err
-		}
-		return common.WriteComposeFile(composeProject)
-	},
+func EntryPointCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "local-entrypoint [service ...]",
+		Short: "bind mount entrypoint.sh to use local modifications",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			composeProject, err := common.LoadCompose(ComposeFile)
+			updatedComposeProject, err := common.UpdateEach(composeProject, updateEntryPoint, fmt.Sprintf("%s**%s", "./entrypoint.sh", "/var/lib/storj/entrypoint.sh"), args)
+			if err != nil {
+				return err
+			}
+			return common.WriteComposeFile(updatedComposeProject)
+		},
+	}
 }
 
 func init() {
-	rootCmd.AddCommand(entryPointCmd)
+	rootCmd.AddCommand(EntryPointCmd())
 }
 
 func updateEntryPoint(composeService *types.ServiceConfig, arg string) error {

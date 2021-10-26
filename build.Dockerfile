@@ -1,7 +1,7 @@
 ARG TYPE
 
 FROM ubuntu:21.04 as base
-ARG BRANCH=v1.39.6
+ARG BRANCH=main
 ARG REF=refs/changes/26/5826/12
 ARG REPO=https://github.com/storj/storj
 RUN apt-get update
@@ -14,12 +14,10 @@ WORKDIR /var/lib/storj
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
 FROM base AS github
-#internal go mod chache
 RUN git clone ${REPO} --depth=1 --branch ${BRANCH}
 WORKDIR storj
 
 FROM base AS gerrit
-#internal go mod chache
 RUN git clone ${REPO} --branch ${BRANCH}
 WORKDIR storj
 RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD

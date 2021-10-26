@@ -8,21 +8,22 @@ import (
 	"strings"
 )
 
-var initCmd = &cobra.Command{
-	Use:   "init [service ...]",
-	Short: "Creates/overwrites local docker-compose.yaml with service. You can use predefined groups as arguments.",
-	Args:  cobra.MaximumNArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := initCompose(TemplateFile, args)
-		if err != nil {
-			return err
-		}
-		return common.WriteComposeFile(composeProject)
-	},
+func InitCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "init [service ...]",
+		Short: "creates/overwrites local docker compose file with services",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			composeProject, err := initCompose(TemplateFile, args)
+			if err != nil {
+				return err
+			}
+			return common.WriteComposeFile(composeProject)
+		},
+	}
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(InitCmd())
 }
 
 func initCompose(templateDir string, services []string) (*types.Project, error) {
@@ -39,7 +40,7 @@ func initCompose(templateDir string, services []string) (*types.Project, error) 
 
 	composeServices := templateComposeProject.AllServices()[:0]
 	for _, service := range templateComposeProject.AllServices() {
-		if strings.Contains(servicesString, strings.ReplaceAll(service.Name, "-", "")) {
+		if strings.Contains(servicesString, service.Name) {
 			composeServices = append(composeServices, service)
 		}
 	}
