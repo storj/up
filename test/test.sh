@@ -12,7 +12,7 @@ if [ ! "$(which uplink)" ]; then
 fi
 
 sjr init minimal,db
-sjr storagenode scale 10
+sjr scale storagenode 10
 
 docker-compose down -v
 docker-compose up -d --scale storagenode=10
