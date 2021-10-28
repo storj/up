@@ -12,7 +12,7 @@ func DebugCmd() *cobra.Command {
 		Use:   "debug [service ...]",
 		Short: "turn on local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, SetDebug, "GO_DLV=true", args)
 			if err != nil {
 				return err
@@ -27,7 +27,7 @@ func NoDebugCmd() *cobra.Command {
 		Use:   "no-debug [service ...]",
 		Short: "turn off local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetDebug, "GO_DLV", args)
 			if err != nil {
 				return err
@@ -46,10 +46,10 @@ func SetDebug(composeService *types.ServiceConfig, arg string) error {
 	parts := strings.SplitN(arg, "=", 2)
 	composeService.Environment[parts[0]] = &parts[1]
 	composeService.Ports = append(composeService.Ports, types.ServicePortConfig{
-		Mode: "ingress",
-		Target: 2345,
+		Mode:      "ingress",
+		Target:    2345,
 		Published: 2345,
-		Protocol: "tcp",
+		Protocol:  "tcp",
 	})
 	return nil
 }

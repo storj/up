@@ -1,16 +1,15 @@
 ARG TYPE
 
 FROM devbase AS base
-ARG BRANCH=main
-ARG REF=refs/changes/96/5696/31
-ARG REPO=https://github.com/storj/gateway-mt
 
 FROM base AS github
-RUN git clone --depth=1 ${REPO} --branch ${BRANCH}
+ARG BRANCH
+RUN git clone --depth=1 https://github.com/storj/gateway-mt.git --branch ${BRANCH}
 WORKDIR gateway-mt
 
 FROM base AS gerrit
-RUN git clone ${REPO} --branch ${BRANCH}
+ARG REF
+RUN git clone https://github.com/storj/gateway-mt.git
 WORKDIR gateway-mt
 RUN git fetch https://review.dev.storj.io/storj/gateway-mt ${REF} && git checkout FETCH_HEAD
 

@@ -4,7 +4,7 @@ services:
     profiles:
     - base
     build:
-      context: .
+      context: ./cmd/files/docker/
       dockerfile: base.Dockerfile
       args:
         TYPE: TYPE
@@ -15,7 +15,7 @@ services:
     profiles:
     - base
     build:
-      context: .
+      context: ./cmd/files/docker/
       dockerfile: build.Dockerfile
       args:
         TYPE: TYPE

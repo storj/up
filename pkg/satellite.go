@@ -48,7 +48,6 @@ func GetSatelliteId(ctx context.Context, address string) (string, error) {
 	return "", fmt.Errorf("Couldn't find the right certiticate")
 }
 
-
 func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {
 
 	ident, err := identity.NewFullIdentity(ctx, identity.NewCAOptions{

@@ -11,7 +11,7 @@ func ImageCmd() *cobra.Command {
 		Use:   "image <image> [service ...]",
 		Short: "Use a prebuilt docker image",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, setImage, args[0], args[1:])
 			if err != nil {
 				return err

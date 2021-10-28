@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-var satelliteHost,email,authService string
+var satelliteHost, email, authService string
 var export, write bool
 
 func CredentialsCmd() *cobra.Command {

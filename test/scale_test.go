@@ -29,7 +29,7 @@ func TestScale(t *testing.T) {
 			{Name: "storagenode",
 				Image: "foobar",
 				Deploy: &types.DeployConfig{
-					Mode: "",
+					Mode:     "",
 					Replicas: &scale,
 				},
 			},
@@ -49,7 +49,7 @@ func TestScaleDown(t *testing.T) {
 			{Name: "storagenode",
 				Image: "foobar",
 				Deploy: &types.DeployConfig{
-					Mode: "",
+					Mode:     "",
 					Replicas: &scaleUp,
 				},
 			},

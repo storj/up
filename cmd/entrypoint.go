@@ -13,7 +13,7 @@ func EntryPointCmd() *cobra.Command {
 		Use:   "local-entrypoint [service ...]",
 		Short: "bind mount entrypoint.sh to use local modifications",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, updateEntryPoint, fmt.Sprintf("%s**%s", "./entrypoint.sh", "/var/lib/storj/entrypoint.sh"), args)
 			if err != nil {
 				return err

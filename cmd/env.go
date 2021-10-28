@@ -12,7 +12,7 @@ func SetEnvCmd() *cobra.Command {
 		Use:   "setenv [KEY=VALUE] [service ...]",
 		Short: "set environment variable / parameter in a container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, SetEnv, args[0], args[1:])
 			if err != nil {
 				return err
@@ -27,7 +27,7 @@ func UnsetEnvCmd() *cobra.Command {
 		Use:   "unsetenv [KEY] [service ...]",
 		Short: "remove environment variable / parameter in a container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetEnv, args[0], args[1:])
 			if err != nil {
 				return err

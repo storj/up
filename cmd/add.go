@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/cmd/files/templates"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 )
@@ -11,8 +12,8 @@ func AddCmd() *cobra.Command {
 		Use:   "add [service ...]",
 		Short: "add more services to the docker compose file",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
-			templateProject, err := common.LoadCompose(TemplateFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			templateProject, err := common.LoadComposeFromBytes(templates.ComposeTemplate)
 			updatedComposeProject, err := AddToCompose(composeProject, templateProject, args)
 			if err != nil {
 				return err

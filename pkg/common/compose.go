@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/compose-spec/compose-go/cli"
+	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/goccy/go-yaml"
 	"io/ioutil"
@@ -9,17 +10,36 @@ import (
 )
 
 type ComposeFile struct {
-	Version   string
-	Services  types.Services
+	Version  string
+	Services types.Services
 }
 
-func CreateComposeProject(filename string) (*types.Project, error) {
+func LoadComposeFromFile(filename string) (*types.Project, error) {
 	options := cli.ProjectOptions{
-		Name:	filename,
+		Name:        filename,
 		ConfigPaths: []string{"./" + filename},
 	}
 
 	return cli.ProjectFromOptions(&options)
+}
+
+func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
+	return loader.Load(types.ConfigDetails{
+		ConfigFiles: []types.ConfigFile{
+			{
+				Content: composeBytes,
+			},
+		},
+		WorkingDir: ".",
+	})
+}
+
+func ResolveBuilds(services []string) map[string]string {
+	result := make(map[string]string)
+	for _, service := range services {
+		result[strings.Split(BuildDict[service], "-")[1]] = ""
+	}
+	return result
 }
 
 func ResolveServices(services []string) ([]string, error) {
@@ -47,13 +67,13 @@ func ContainsService(s []types.ServiceConfig, e string) bool {
 
 func CreateBind(source string, target string) types.ServiceVolumeConfig {
 	return types.ServiceVolumeConfig{
-		Type: "bind",
-		Source: source,
-		Target: target,
-		ReadOnly: false,
+		Type:        "bind",
+		Source:      source,
+		Target:      target,
+		ReadOnly:    false,
 		Consistency: "",
 		Bind: &types.ServiceVolumeBind{
-			Propagation: "",
+			Propagation:    "",
 			CreateHostPath: true,
 		},
 	}
@@ -65,15 +85,6 @@ func WriteComposeFile(compose *types.Project) error {
 		return err
 	}
 	return nil
-}
-
-func LoadCompose(composeDir string) (*types.Project, error) {
-	currentComposeProject, err := CreateComposeProject(composeDir)
-	if err != nil {
-		return nil, err
-	}
-
-	return currentComposeProject, nil
 }
 
 func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {

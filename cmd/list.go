@@ -13,7 +13,7 @@ func ListCmd() *cobra.Command {
 		Short: "print all the configured services from the dockerfile",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Use all services to allow checking for any possible service
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, list, "", []string{"storj", "db"})
 			if err != nil {
 				return err

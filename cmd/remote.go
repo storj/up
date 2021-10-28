@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/cmd/files/docker"
+	"github.com/elek/sjr/cmd/files/templates"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 	"strings"
@@ -25,10 +27,20 @@ func GithubCmd() *cobra.Command {
 		Use:   "github",
 		Short: "build github src repo for use inside the container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return updateCompose(args, github)
+			err := updateCompose(args, github)
+			if err != nil {
+				return err
+			}
+			for buildType := range common.ResolveBuilds(args) {
+				err = updateDockerFile(buildType, github)
+			}
+
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
-	githubCmd.PersistentFlags().StringVarP(&repository, "repository", "r", "https://github.com/storj/{gateway-mt/storj}.git", "Git repository to clone before build.")
 	githubCmd.PersistentFlags().StringVarP(&branch, "branch", "b", "main", "The branch to checkout and build")
 	return githubCmd
 }
@@ -38,7 +50,17 @@ func GerritCmd() *cobra.Command {
 		Use:   "gerrit",
 		Short: "build gerrit src repo for use inside the container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return updateCompose(args, gerrit)
+			err := updateCompose(args, gerrit)
+			if err != nil {
+				return err
+			}
+			for buildType := range common.ResolveBuilds(args) {
+				err = updateDockerFile(buildType, gerrit)
+			}
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 	gerritCmd.PersistentFlags().StringVarP(&ref, "refspec", "f", "", "The github refspec to checkout and build")
@@ -53,8 +75,8 @@ func init() {
 }
 
 func updateCompose(args []string, remoteType string) error {
-	composeProject, err := common.LoadCompose(ComposeFile)
-	templateProject, err := common.LoadCompose(TemplateFile)
+	composeProject, err := common.LoadComposeFromFile(ComposeFile)
+	templateProject, err := common.LoadComposeFromBytes(templates.ComposeTemplate)
 	buildServicesToAdd := []string{"app-base-dev", "app-base-ubuntu"}
 	for _, arg := range args {
 		buildServicesToAdd = append(buildServicesToAdd, common.BuildDict[arg])
@@ -64,6 +86,29 @@ func updateCompose(args []string, remoteType string) error {
 		return err
 	}
 	return common.WriteComposeFile(updatedComposeProject)
+}
+
+func updateDockerFile(buildType string, remoteType string) error {
+	buildArgs := map[string]*string{
+		"TYPE" : &remoteType,
+		"BRANCH" : &branch,
+		"REPO" : &repository,
+		"REF" : &ref,
+	}
+	client, err := common.CreateClient()
+	if err != nil {
+		return err
+	}
+	var dockerBytes []byte
+	if buildType == "edge" {
+		dockerBytes = dockerfiles.StorjDocker
+	} else if buildType == "storj" {
+		dockerBytes = dockerfiles.EdgeDocker
+	}
+	common.BuildImage(client, []string{"ubuntubase"}, "base.Dockerfile", dockerfiles.BaseDocker, map[string]*string{})
+	common.BuildImage(client, []string{"devbase"}, "build.Dockerfile", dockerfiles.BuildDocker, map[string]*string{})
+	common.BuildImage(client, []string{buildType}, buildType + ".Dockerfile", dockerBytes, buildArgs)
+	return nil
 }
 
 func addBuildServices(compose *types.Project, template *types.Project, services []string, remoteType string, args []string) (*types.Project, error) {

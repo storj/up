@@ -3,6 +3,7 @@ package cmd
 import (
 	_ "embed"
 	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/cmd/files/templates"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 	"strings"
@@ -13,7 +14,7 @@ func InitCmd() *cobra.Command {
 		Use:   "init [service ...]",
 		Short: "creates/overwrites local docker compose file with services",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := initCompose(TemplateFile, args)
+			composeProject, err := initCompose(templates.ComposeTemplate, args)
 			if err != nil {
 				return err
 			}
@@ -26,8 +27,8 @@ func init() {
 	rootCmd.AddCommand(InitCmd())
 }
 
-func initCompose(templateDir string, services []string) (*types.Project, error) {
-	templateComposeProject, err := common.CreateComposeProject(templateDir)
+func initCompose(templateBytes []byte, services []string) (*types.Project, error) {
+	templateComposeProject, err := common.LoadComposeFromBytes(templateBytes)
 	if err != nil {
 		return nil, err
 	}

@@ -1,16 +1,15 @@
 ARG TYPE
 
 FROM devbase AS base
-ARG BRANCH=main
-ARG REF=refs/changes/61/5961/9
-ARG REPO=https://github.com/storj/storj
 
 FROM base AS github
-RUN git clone ${REPO} --depth=1 --branch ${BRANCH}
+ARG BRANCH
+RUN git clone https://github.com/storj/storj.git --depth=1 --branch ${BRANCH}
 WORKDIR storj
 
 FROM base AS gerrit
-RUN git clone ${REPO} --branch ${BRANCH}
+ARG REF
+RUN git clone https://github.com/storj/storj.git
 WORKDIR storj
 RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD
 

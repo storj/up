@@ -15,7 +15,7 @@ func MountCmd() *cobra.Command {
 		Use:   "mount",
 		Short: "mount local binaries to the default docker image",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, mountBinaries, "", args)
 			if err != nil {
 				return err

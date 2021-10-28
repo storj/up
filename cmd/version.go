@@ -12,7 +12,7 @@ func VersionCmd() *cobra.Command {
 		Use:   "version <version> [service ...]",
 		Short: "set version (docker image tag) for specified services",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadCompose(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			updatedComposeProject, err := common.UpdateEach(composeProject, updateVersion, args[0], args[1:])
 			if err != nil {
 				return err
