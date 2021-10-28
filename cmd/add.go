@@ -12,7 +12,7 @@ var addCmd = &cobra.Command{
 	Short: "Add more services to the docker-compose.yaml. You can use predefined groups as arguments.",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := AddToCompose(ComposeFile, TemplateFile, args)
+		composeProject, err := AddToCompose(ComposeFile, args)
 		if err != nil {
 			return err
 		}
@@ -24,7 +24,7 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 }
 
-func AddToCompose(composeDir string, templateDir string, services []string) (*types.Project, error) {
+func AddToCompose(composeDir string, services []string) (*types.Project, error) {
 	templateComposeProject, err := common.ComposeProjectFromBytes(templates.ComposeTemplate)
 	if err != nil {
 		return nil, err

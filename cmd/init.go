@@ -14,7 +14,7 @@ var initCmd = &cobra.Command{
 	Short: "Creates/overwrites local docker-compose.yaml with service. You can use predefined groups as arguments.",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := initCompose(TemplateFile, args)
+		composeProject, err := initCompose(args)
 		if err != nil {
 			return err
 		}
@@ -26,7 +26,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
-func initCompose(templateDir string, services []string) (*types.Project, error) {
+func initCompose(services []string) (*types.Project, error) {
 	templateComposeProject, err := common.ComposeProjectFromBytes(templates.ComposeTemplate)
 	if err != nil {
 		return nil, err

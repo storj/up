@@ -10,7 +10,6 @@ import (
 )
 
 var ComposeFile ="docker-compose.yaml"
-var TemplateFile = "cmd/files/templates/docker-compose.template.yaml"
 
 //go:embed files/*
 var TemplateFs embed.FS
