@@ -12,7 +12,7 @@ if [ ! "$(which uplink)" ]; then
 fi
 
 if [ ! "$(which rclone)" ]; then
-  go install github.com/rclone/rclone@master
+  go install github.com/rclone/rclone@v1.56.2
 fi
 
 sjr init
