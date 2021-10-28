@@ -3,6 +3,7 @@ package cmd
 import (
 	_ "embed"
 	"github.com/compose-spec/compose-go/types"
+	"github.com/elek/sjr/cmd/files/templates"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
 	"strings"
@@ -26,7 +27,7 @@ func init() {
 }
 
 func initCompose(templateDir string, services []string) (*types.Project, error) {
-	templateComposeProject, err := common.CreateComposeProject(templateDir)
+	templateComposeProject, err := common.ComposeProjectFromBytes(templates.ComposeTemplate)
 	if err != nil {
 		return nil, err
 	}
