@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"github.com/compose-spec/compose-go/cli"
 	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
@@ -90,10 +91,17 @@ func UpdateEach(composeDir string, cmd func(*types.ServiceConfig, string) error,
 		return nil, err
 	}
 
+	if len(resolvedServices) == 0 {
+		return nil, fmt.Errorf("no service is selected for update. Try to use the right selector instead of \"%s\"", strings.Join(services, ","))
+	}
+
 	for _, service := range resolvedServices {
 		for i, composeService := range currentComposeProject.AllServices() {
 			if strings.EqualFold(service, strings.ReplaceAll(composeService.Name, "-", "")) {
-				cmd(&currentComposeProject.Services[i], arg)
+				err = cmd(&currentComposeProject.Services[i], arg)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
