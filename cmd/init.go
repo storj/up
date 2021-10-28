@@ -12,7 +12,6 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init [service ...]",
 	Short: "Creates/overwrites local docker-compose.yaml with service. You can use predefined groups as arguments.",
-	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		composeProject, err := initCompose(args)
 		if err != nil {
@@ -32,6 +31,9 @@ func initCompose(services []string) (*types.Project, error) {
 		return nil, err
 	}
 
+	if len(services) == 0 {
+		services = []string{"storj", "db"}
+	}
 	resolvedServices, err := common.ResolveServices(services)
 	if err != nil {
 		return nil, err
