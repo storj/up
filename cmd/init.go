@@ -12,7 +12,7 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init [service ...]",
 	Short: "Creates/overwrites local docker-compose.yaml with service. You can use predefined groups as arguments.",
-	Args:  cobra.MaximumNArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		composeProject, err := initCompose(TemplateFile, args)
 		if err != nil {

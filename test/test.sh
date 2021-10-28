@@ -11,7 +11,7 @@ if [ ! "$(which uplink)" ]; then
    go install storj.io/storj/cmd/uplink@latest
 fi
 
-sjr init minimal,db
+sjr init minimal db
 sjr scale storagenode 10
 
 docker-compose down -v
