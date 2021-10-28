@@ -16,7 +16,7 @@ if [ ! "$(which rclone)" ]; then
 fi
 
 sjr init
-sjr scale storagenode 10
+sjr scale 10 storagenode
 
 docker-compose down -v
 docker-compose up -d
