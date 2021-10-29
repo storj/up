@@ -7,6 +7,11 @@ import (
 	"fmt"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
 //Test executes all unit and integration tests
@@ -52,7 +57,11 @@ func GenBuild() error {
 }
 
 func DockerBaseBuild() error {
-	err := sh.RunV("docker", "build", "-t", "ghcr.io/elek/storj-base", "-f", "base.Dockerfile", ".")
+	tag, err := getNextDockerTag("storj-build.last")
+	if err != nil {
+		return err
+	}
+	err = sh.RunV("docker", "build", "-t", "ghcr.io/elek/storj-base:"+tag, "-f", "base.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
@@ -60,11 +69,18 @@ func DockerBaseBuild() error {
 }
 
 func DockerBuildBuild() error {
-	err := sh.RunV(
+	tag, err := getNextDockerTag("storj-build.last")
+	if err != nil {
+		return err
+	}
+	err = sh.RunV(
 		"docker",
 		"build",
-		"-t", "ghcr.io/elek/storj-build",
-		"-f", "build.Dockerfile", ".")
+		"--build-arg", "BRANCH=main",
+		"--build-arg", "TYPE=github",
+		"--build-arg", "REPO=https://github.com/storj/storj.git",
+		"-t", "ghcr.io/elek/storj-build:"+tag,
+		"-f", "cmd/files/docker/build.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
@@ -142,18 +158,70 @@ func Publish() error {
 	return nil
 }
 
+func dockerPushWithNextTag(image string) error {
+	tagFile := fmt.Sprintf("%s.last", image)
+	tag, err := getNextDockerTag(tagFile)
+	if err != nil {
+		return err
+	}
+	err = sh.RunV("docker", "push", fmt.Sprintf("ghcr.io/elek/%s:%s", image, tag))
+	if err != nil {
+		return err
+	}
+	return writeDockerTag(tagFile, tag)
+}
+
+func dockerPush(image string, tag string) error {
+	err := sh.RunV("docker", "push", fmt.Sprintf("ghcr.io/elek/%s:%s", image, tag))
+	if err != nil {
+		return err
+	}
+	return err
+}
+
 func DockerCorePublish(version string) error {
-	return sh.RunV("docker", "push", "ghcr.io/elek/storj:"+version)
+	return dockerPush("storj", version)
 }
 
 func DockerEdgePublish(version string) error {
-	return sh.RunV("docker", "push", "ghcr.io/elek/storj:"+version)
+	return dockerPush("storj-edge", version)
 }
 
 func DockerBuildPublish() error {
-	return sh.RunV("docker", "push", "ghcr.io/elek/storj-build")
+	return dockerPushWithNextTag("storj-build")
 }
 
 func DockerBasePublish() error {
-	return sh.RunV("docker", "push", "ghcr.io/elek/storj-base")
+	return dockerPushWithNextTag("storj-base")
+}
+
+// getNextDockerTag generates docker tag with the pattern yyyymmdd-n.
+//last used tag is saved to the file and supposed to be committed
+func getNextDockerTag(tagFile string) (string, error) {
+	datePattern := time.Now().Format("20060102")
+
+	if _, err := os.Stat(tagFile); os.IsNotExist(err) {
+		return datePattern + "-1", nil
+	} else {
+		content, err := ioutil.ReadFile(tagFile)
+		if err != nil {
+			return "", err
+		}
+		parts := strings.Split(string(content), "-")
+		if parts[0] == datePattern {
+			i, err := strconv.Atoi(parts[1])
+			if err != nil {
+				return "", err
+			}
+			return fmt.Sprintf("%s-%d", datePattern, i+1), err
+
+		} else {
+			return datePattern + "-1", nil
+		}
+	}
+}
+
+// writeDockerTag persist the last used docker tag to a file.
+func writeDockerTag(tagFile string, tag string) error {
+	return ioutil.WriteFile(tagFile, []byte(tag), 0644)
 }
