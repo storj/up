@@ -1,9 +1,6 @@
 ARG TYPE
 
 FROM ubuntu:21.04 as base
-ARG BRANCH=main
-ARG REF=refs/changes/26/5826/12
-ARG REPO=https://github.com/storj/storj
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install golang git sudo npm make gcc brotli
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
@@ -14,11 +11,13 @@ WORKDIR /var/lib/storj
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
 FROM base AS github
-RUN git clone ${REPO} --depth=1 --branch ${BRANCH}
+ARG BRANCH
+RUN git clone https://github.com/storj/storj.git --depth=1 --branch ${BRANCH}
 WORKDIR storj
 
 FROM base AS gerrit
-RUN git clone ${REPO} --branch ${BRANCH}
+ARG REF
+RUN git clone https://github.com/storj/storj.git
 WORKDIR storj
 RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD
 
