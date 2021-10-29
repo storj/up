@@ -12,7 +12,6 @@ import (
 	"github.com/docker/docker/client"
 )
 
-
 func CreateClient() (*client.Client, error) {
 	client, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -21,7 +20,7 @@ func CreateClient() (*client.Client, error) {
 	return client, nil
 }
 
-func BuildImage(client *client.Client, tags []string, dockerFileName string, dockerFileBytes []byte, buildArgs map[string]*string)  error {
+func BuildImage(client *client.Client, tags []string, dockerFileName string, dockerFileBytes []byte, buildArgs map[string]*string) error {
 	ctx := context.Background()
 
 	// Create a buffer
@@ -55,8 +54,8 @@ func BuildImage(client *client.Client, tags []string, dockerFileName string, doc
 		Context:    dockerFileTarReader,
 		Dockerfile: dockerFileName,
 		Remove:     true,
-		Tags: 		tags,
-		BuildArgs: buildArgs,
+		Tags:       tags,
+		BuildArgs:  buildArgs,
 	}
 
 	// Build the actual image

@@ -12,7 +12,7 @@ func AddCmd() *cobra.Command {
 		Use:   "add [service ...]",
 		Short: "add more services to the docker compose file. You can use predefined groups as arguments.",
 		Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			templateProject, err := common.LoadComposeFromBytes(templates.ComposeTemplate)
 			updatedComposeProject, err := AddToCompose(composeProject, templateProject, args)

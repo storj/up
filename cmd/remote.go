@@ -90,10 +90,10 @@ func updateCompose(args []string, remoteType string) error {
 
 func updateDockerFile(buildType string, remoteType string) error {
 	buildArgs := map[string]*string{
-		"TYPE" : &remoteType,
-		"BRANCH" : &branch,
-		"REPO" : &repository,
-		"REF" : &ref,
+		"TYPE":   &remoteType,
+		"BRANCH": &branch,
+		"REPO":   &repository,
+		"REF":    &ref,
 	}
 	client, err := common.CreateClient()
 	if err != nil {
@@ -107,7 +107,7 @@ func updateDockerFile(buildType string, remoteType string) error {
 	}
 	common.BuildImage(client, []string{"ubuntubase"}, "base.Dockerfile", dockerfiles.BaseDocker, map[string]*string{})
 	common.BuildImage(client, []string{"devbase"}, "build.Dockerfile", dockerfiles.BuildDocker, map[string]*string{})
-	common.BuildImage(client, []string{buildType}, buildType + ".Dockerfile", dockerBytes, buildArgs)
+	common.BuildImage(client, []string{buildType}, buildType+".Dockerfile", dockerBytes, buildArgs)
 	return nil
 }
 
