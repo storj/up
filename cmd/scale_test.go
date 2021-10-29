@@ -13,7 +13,7 @@ func TestScale(t *testing.T) {
 		Image: "foobar",
 	}
 
-	err := scale(&k, "10")
+	err := Scale(&k, "10")
 	require.NoError(t, err)
 
 	require.Equal(t, uint64(10), *k.Deploy.Replicas)
