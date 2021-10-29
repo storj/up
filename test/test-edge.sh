@@ -15,7 +15,7 @@ if [ ! "$(which rclone)" ]; then
   go install github.com/rclone/rclone@v1.56.2
 fi
 
-sjr init
+sjr init edge
 sjr scale 10 storagenode
 
 docker-compose down -v

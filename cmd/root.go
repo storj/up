@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"embed"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -9,10 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var ComposeFile ="docker-compose.yaml"
-
-//go:embed files/*
-var TemplateFs embed.FS
+var ComposeFile = "docker-compose.yaml"
 
 var cfgFile string
 
@@ -25,7 +21,6 @@ leverages existing binaries, or even references code to be built in docker and c
 For example:
 
 sjr build remote gerrit 5826`,
-
 }
 
 func Execute() {

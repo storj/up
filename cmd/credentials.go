@@ -16,30 +16,32 @@ import (
 	"time"
 )
 
-var satelliteHost,email,authService string
+var satelliteHost, email, authService string
 var export, write bool
 
-var credentialsCmd = &cobra.Command{
-	Use:   "credentials",
-	Short: "Generate test user with credentialsCmd",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		return addCredentials(ctx)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(credentialsCmd)
-
+func CredentialsCmd() *cobra.Command {
+	credentialsCmd := &cobra.Command{
+		Use:   "credentials",
+		Short: "generate test user with credentialsCmd",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+			return addCredentials(ctx)
+		},
+	}
 	credentialsCmd.PersistentFlags().StringVarP(&email, "email", "m", "test@storj.io", "The email of the test user to use/create")
 	credentialsCmd.PersistentFlags().StringVarP(&satelliteHost, "satellite", "s", "localhost", "The host of the satellite api to connect")
 	credentialsCmd.PersistentFlags().StringVarP(&authService, "authservice", "a", "http://localhost:8888", "Host of the auth service")
 	credentialsCmd.PersistentFlags().BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
 	credentialsCmd.PersistentFlags().BoolVarP(&write, "write", "w", false, "Write the right entries to rclone config file (storjdev, storj")
+	return credentialsCmd
+}
+
+func init() {
+	rootCmd.AddCommand(CredentialsCmd())
 }
 
 func addCredentials(ctx context.Context) error {
-	sateliteNodeUrl, err := pkg.GetSatelliteId(ctx, satelliteHost+":7777")
+	satelliteNodeUrl, err := pkg.GetSatelliteId(ctx, satelliteHost+":7777")
 	if err != nil {
 		return err
 	}
@@ -66,7 +68,7 @@ func addCredentials(ctx context.Context) error {
 
 	secret := "Welcome1"
 
-	internalSatelliteUrl := strings.ReplaceAll(sateliteNodeUrl, satelliteHost, "satellite-api")
+	internalSatelliteUrl := strings.ReplaceAll(satelliteNodeUrl, satelliteHost, "satellite-api")
 	internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteUrl, apiKey, secret, projectID)
 	if err != nil {
 		return errs.Wrap(err)
@@ -87,7 +89,7 @@ func addCredentials(ctx context.Context) error {
 
 	}
 
-	grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, secret, projectID)
+	grant, err := consolewasm.GenAccessGrant(satelliteNodeUrl, apiKey, secret, projectID)
 	if err != nil {
 		return errs.Wrap(err)
 	}

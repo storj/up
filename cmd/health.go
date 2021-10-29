@@ -8,16 +8,18 @@ import (
 	"time"
 )
 
-var healthCmd = &cobra.Command{
-	Use:   "health",
-	Short: "Wait until cluster is healthy (storagenodes are registered in the db)",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return checkHealth(10)
-	},
+func HealthCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "health",
+		Short: "wait until cluster is healthy (storagenodes are registered in the db)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return checkHealth(10)
+		},
+	}
 }
 
 func init() {
-	rootCmd.AddCommand(healthCmd)
+	rootCmd.AddCommand(HealthCmd())
 }
 
 func checkHealth(requiredStorageNodes int) error {

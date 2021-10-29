@@ -6,20 +6,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var imageCmd = &cobra.Command{
-	Use:   "image <image> [service ...]",
-	Short: "use a prebuilt docker image",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		composeProject, err := common.UpdateEach(ComposeFile, setImage, args[0], args[1:])
-		if err != nil {
-			return err
-		}
-		return common.WriteComposeFile(composeProject)
-	},
+func ImageCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "image <image> [service ...]",
+		Short: "Use a prebuilt docker image",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			updatedComposeProject, err := common.UpdateEach(composeProject, setImage, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+			return common.WriteComposeFile(updatedComposeProject)
+		},
+	}
 }
 
 func init() {
-	rootCmd.AddCommand(imageCmd)
+	rootCmd.AddCommand(ImageCmd())
 }
 
 func setImage(composeService *types.ServiceConfig, image string) error {

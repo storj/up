@@ -15,7 +15,7 @@ sjr init minimal db
 sjr scale 10 storagenode
 
 docker-compose down -v
-docker-compose up -d --scale storagenode=10
+docker-compose up -d
 
 sjr health
 dd if=/dev/random of=data count=10240 bs=1024

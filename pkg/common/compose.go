@@ -15,7 +15,7 @@ type ComposeFile struct {
 	Services types.Services
 }
 
-func ComposeProjectFromFile(filename string) (*types.Project, error) {
+func LoadComposeFromFile(filename string) (*types.Project, error) {
 	options := cli.ProjectOptions{
 		Name:        filename,
 		ConfigPaths: []string{"./" + filename},
@@ -24,15 +24,23 @@ func ComposeProjectFromFile(filename string) (*types.Project, error) {
 	return cli.ProjectFromOptions(&options)
 }
 
-func ComposeProjectFromBytes(content []byte) (*types.Project, error) {
+func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 	return loader.Load(types.ConfigDetails{
 		ConfigFiles: []types.ConfigFile{
 			{
-				Content: content,
+				Content: composeBytes,
 			},
 		},
 		WorkingDir: ".",
 	})
+}
+
+func ResolveBuilds(services []string) map[string]string {
+	result := make(map[string]string)
+	for _, service := range services {
+		result[strings.Split(BuildDict[service], "-")[1]] = ""
+	}
+	return result
 }
 
 func ResolveServices(services []string) ([]string, error) {
@@ -41,9 +49,9 @@ func ResolveServices(services []string) ([]string, error) {
 	for _, service := range services {
 		key |= ServiceDict[service]
 	}
-	for service := authservice; service <= grafana; service++ {
+	for service := authservice; service <= appstorj; service++ {
 		if key&(1<<service) != 0 {
-			result = append(result, service.String())
+			result = append(result, serviceNameHelper[service.String()])
 		}
 	}
 	return result, nil
@@ -80,12 +88,7 @@ func WriteComposeFile(compose *types.Project) error {
 	return nil
 }
 
-func UpdateEach(composeDir string, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
-	currentComposeProject, err := ComposeProjectFromFile(composeDir)
-	if err != nil {
-		return nil, err
-	}
-
+func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
 	resolvedServices, err := ResolveServices(services)
 	if err != nil {
 		return nil, err
@@ -96,14 +99,14 @@ func UpdateEach(composeDir string, cmd func(*types.ServiceConfig, string) error,
 	}
 
 	for _, service := range resolvedServices {
-		for i, composeService := range currentComposeProject.AllServices() {
-			if strings.EqualFold(service, strings.ReplaceAll(composeService.Name, "-", "")) {
-				err = cmd(&currentComposeProject.Services[i], arg)
+		for i, composeService := range compose.AllServices() {
+			if strings.EqualFold(service, composeService.Name) {
+				err = cmd(&compose.Services[i], arg)
 				if err != nil {
 					return nil, err
 				}
 			}
 		}
 	}
-	return currentComposeProject, nil
+	return compose, nil
 }
