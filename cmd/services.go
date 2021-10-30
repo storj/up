@@ -12,9 +12,8 @@ func SvcCmd() *cobra.Command {
 		Short: "return service names given in args",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			services, err := common.ResolveServices(args)
-			fmt.Println(services)
-			return err
+			fmt.Println(common.ResolveServices(args))
+			return nil
 		},
 	}
 }

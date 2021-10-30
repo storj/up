@@ -1,46 +1,16 @@
 version: "3.4"
 services:
-  app-base-ubuntu:
-    profiles:
-    - base
-    build:
-      context: ./cmd/files/docker/
-      dockerfile: base.Dockerfile
-      args:
-        TYPE: TYPE
-    image: ubuntubase
-    networks:
-      default: null
-  app-base-dev:
-    profiles:
-    - base
-    build:
-      context: ./cmd/files/docker/
-      dockerfile: build.Dockerfile
-      args:
-        TYPE: TYPE
-    image: devbase
-    networks:
-      default: null
   app-edge:
-    profiles:
-    - sim
     build:
       context: ./cmd/files/docker/
       dockerfile: edge.Dockerfile
-      args:
-        TYPE: TYPE
     image: edge
     networks:
       default: null
   app-storj:
-    profiles:
-    - sim
     build:
       context: ./cmd/files/docker/
       dockerfile: storj.Dockerfile
-      args:
-        TYPE: TYPE
     image: storj
     networks:
       default: null

@@ -155,10 +155,6 @@ services:
       target: 10000
       published: 10000
       protocol: tcp
-    - mode: ingress
-      target: 2345
-      published: 2345
-      protocol: tcp
   satellite-core:
     command:
     - satellite

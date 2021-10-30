@@ -37,13 +37,13 @@ func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 
 func ResolveBuilds(services []string) map[string]string {
 	result := make(map[string]string)
-	for _, service := range services {
-		result[strings.Split(BuildDict[service], "-")[1]] = ""
+	for _, service := range ResolveServices(services) {
+		result[BuildDict[service]] = ""
 	}
 	return result
 }
 
-func ResolveServices(services []string) ([]string, error) {
+func ResolveServices(services []string) []string {
 	var result []string
 	var key uint
 	for _, service := range services {
@@ -54,7 +54,7 @@ func ResolveServices(services []string) ([]string, error) {
 			result = append(result, serviceNameHelper[service.String()])
 		}
 	}
-	return result, nil
+	return result
 }
 
 func ContainsService(s []types.ServiceConfig, e string) bool {
@@ -89,10 +89,7 @@ func WriteComposeFile(compose *types.Project) error {
 }
 
 func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
-	resolvedServices, err := ResolveServices(services)
-	if err != nil {
-		return nil, err
-	}
+	resolvedServices := ResolveServices(services)
 
 	if len(resolvedServices) == 0 {
 		return nil, fmt.Errorf("no service is selected for update. Try to use the right selector instead of \"%s\"", strings.Join(services, ","))
@@ -101,7 +98,7 @@ func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) e
 	for _, service := range resolvedServices {
 		for i, composeService := range compose.AllServices() {
 			if strings.EqualFold(service, composeService.Name) {
-				err = cmd(&compose.Services[i], arg)
+				err := cmd(&compose.Services[i], arg)
 				if err != nil {
 					return nil, err
 				}

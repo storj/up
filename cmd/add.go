@@ -29,12 +29,7 @@ func init() {
 }
 
 func AddToCompose(compose *types.Project, template *types.Project, services []string) (*types.Project, error) {
-	resolvedServices, err := common.ResolveServices(services)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, service := range resolvedServices {
+	for _, service := range common.ResolveServices(services) {
 		if !common.ContainsService(compose.Services, service) {
 			newService, err := template.GetService(service)
 			if err != nil {

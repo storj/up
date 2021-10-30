@@ -12,7 +12,7 @@ func ImageCmd() *cobra.Command {
 		Short: "Use a prebuilt docker image",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, setImage, args[0], args[1:])
+			updatedComposeProject, err := common.UpdateEach(composeProject, SetImage, args[0], args[1:])
 			if err != nil {
 				return err
 			}
@@ -25,7 +25,7 @@ func init() {
 	rootCmd.AddCommand(ImageCmd())
 }
 
-func setImage(composeService *types.ServiceConfig, image string) error {
+func SetImage(composeService *types.ServiceConfig, image string) error {
 	composeService.Image = image
 	return nil
 }

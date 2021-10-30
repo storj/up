@@ -36,11 +36,7 @@ func initCompose(templateBytes []byte, services []string) (*types.Project, error
 	if len(services) == 0 {
 		services = []string{"storj", "db"}
 	}
-	resolvedServices, err := common.ResolveServices(services)
-	if err != nil {
-		return nil, err
-	}
-	servicesString := strings.Join(resolvedServices[:], ",")
+	servicesString := strings.Join(common.ResolveServices(services)[:], ",")
 
 	composeServices := templateComposeProject.AllServices()[:0]
 	for _, service := range templateComposeProject.AllServices() {

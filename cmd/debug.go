@@ -45,6 +45,14 @@ func init() {
 func SetDebug(composeService *types.ServiceConfig, arg string) error {
 	parts := strings.SplitN(arg, "=", 2)
 	composeService.Environment[parts[0]] = &parts[1]
+	for _, portConfig := range composeService.Ports {
+		if portConfig.Mode == "ingress" &&
+			portConfig.Target == 2345 &&
+			portConfig.Published == 2345 &&
+			portConfig.Protocol == "tcp" {
+			return nil
+		}
+	}
 	composeService.Ports = append(composeService.Ports, types.ServicePortConfig{
 		Mode:      "ingress",
 		Target:    2345,
