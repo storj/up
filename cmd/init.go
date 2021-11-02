@@ -11,13 +11,21 @@ import (
 
 func InitCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "init [service ...]",
-		Short: "creates/overwrites local docker compose file with services",
+		Use: "init [selector]",
+		Short: "Generate docker-compose file with selected services. " + selectorHelp + ". Without argument it generates " +
+			"full Storj cluster with databases (storj,db)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := initCompose(templates.ComposeTemplate, args)
+
+			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
 			if err != nil {
 				return err
 			}
+
+			composeProject, err := initCompose(templates.ComposeTemplate, selector)
+			if err != nil {
+				return err
+			}
+
 			return common.WriteComposeFile(composeProject)
 		},
 	}

@@ -13,10 +13,19 @@ var subdir string
 func MountCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
 		Use:   "mount",
-		Short: "mount local binaries to the default docker image",
+		Short: "Use local compiled binares, bind-mounted to the containers",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, mountBinaries, "", args)
+			if err != nil {
+				return err
+			}
+
+			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, mountBinaries, "", selector)
 			if err != nil {
 				return err
 			}

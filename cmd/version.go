@@ -9,11 +9,20 @@ import (
 
 func VersionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "version <version> [service ...]",
+		Use:   "version <selector> <version>",
 		Short: "set version (docker image tag) for specified services",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, updateVersion, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+
+			selector, parsedArgs, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, updateVersion, parsedArgs[0], selector)
 			if err != nil {
 				return err
 			}

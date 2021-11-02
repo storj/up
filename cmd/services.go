@@ -4,15 +4,34 @@ import (
 	"fmt"
 	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 func SvcCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "services",
-		Short: "return service names given in args",
-		Args:  cobra.MinimumNArgs(1),
+		Use:   "services <selector>",
+		Short: "return service names given in args. Without argument it prints out all the possble service selectors",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(common.ResolveServices(args))
+
+			if len(args) > 0 {
+				fmt.Println(strings.Join(common.ResolveServices(args), "\n"))
+			} else {
+				for k, v := range common.GetSelectors() {
+					if len(v) == 0 {
+						fmt.Printf("%s\n", k)
+					}
+
+				}
+				fmt.Println()
+
+				for k, v := range common.GetSelectors() {
+					if len(v) > 0 {
+						fmt.Printf("%s => %s\n", k, v)
+					}
+
+				}
+			}
+
 			return nil
 		},
 	}

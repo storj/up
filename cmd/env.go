@@ -9,11 +9,22 @@ import (
 
 func SetEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "setenv [KEY=VALUE] [service ...]",
-		Short: "set environment variable / parameter in a container",
+		Use:   "setenv <selector> KEY=VALUE",
+		Short: "Set environment variable / parameter in a container",
+		Long:  selectorHelp,
+		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetEnv, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+
+			selector, args, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, SetEnv, args[0], selector)
 			if err != nil {
 				return err
 			}
@@ -24,11 +35,22 @@ func SetEnvCmd() *cobra.Command {
 
 func UnsetEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "unsetenv [KEY] [service ...]",
+		Use:   "unsetenv <selector> KEY",
 		Short: "remove environment variable / parameter in a container",
+		Long:  "Remove environment variable from selected containers. " + selectorHelp,
+		Args: cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetEnv, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+
+			selector, args, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetEnv, args[0], selector)
 			if err != nil {
 				return err
 			}

@@ -9,11 +9,21 @@ import (
 
 func DebugCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "debug [service ...]",
+		Use:   "debug <selector> ",
 		Short: "turn on local debugging with DLV",
+		Long:  "Add environment variable which will activate the DLV debug. Container won't start until the agent is connected. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetDebug, "GO_DLV=true", args)
+			if err != nil {
+				return err
+			}
+
+			selector, _, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, SetDebug, "GO_DLV=true", selector)
 			if err != nil {
 				return err
 			}
@@ -28,7 +38,15 @@ func NoDebugCmd() *cobra.Command {
 		Short: "turn off local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetDebug, "GO_DLV", args)
+			if err != nil {
+				return err
+			}
+
+			selector, _, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetDebug, "GO_DLV", selector)
 			if err != nil {
 				return err
 			}

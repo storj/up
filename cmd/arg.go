@@ -9,11 +9,19 @@ import (
 
 func SetArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "setarg [KEY=VALUE] [service ...]",
-		Short: "set container arg",
+		Use:   "setarg <selector> KEY=VALUE",
+		Short: "Set arguments (startup command) on service. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetArg, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+			selector, args, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, SetArg, args[0], selector)
 			if err != nil {
 				return err
 			}
@@ -24,11 +32,19 @@ func SetArgCmd() *cobra.Command {
 
 func UnsetArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "unsetarg [KEY] [service ...]",
+		Use:   "unsetarg <selector> KEY",
 		Short: "remove container arg",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
-			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetArg, args[0], args[1:])
+			if err != nil {
+				return err
+			}
+			selector, args, err := common.ParseArgumentsWithSelector(args, 1)
+			if err != nil {
+				return err
+			}
+
+			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetArg, args[0], selector)
 			if err != nil {
 				return err
 			}

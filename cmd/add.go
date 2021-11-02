@@ -9,12 +9,18 @@ import (
 
 func AddCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "add [service ...]",
-		Short: "add more services to the docker compose file. You can use predefined groups as arguments.",
-		Args:  cobra.ExactArgs(1),
+		Use:   "add <selector>",
+		Short: "add more services to the docker compose file. " + selectorHelp,
+		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			if err != nil {
+				return err
+			}
 			templateProject, err := common.LoadComposeFromBytes(templates.ComposeTemplate)
+			if err != nil {
+				return err
+			}
 			updatedComposeProject, err := AddToCompose(composeProject, templateProject, args)
 			if err != nil {
 				return err

@@ -35,27 +35,6 @@ func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 	})
 }
 
-func ResolveBuilds(services []string) map[string]string {
-	result := make(map[string]string)
-	for _, service := range ResolveServices(services) {
-		result[BuildDict[service]] = ""
-	}
-	return result
-}
-
-func ResolveServices(services []string) []string {
-	var result []string
-	var key uint
-	for _, service := range services {
-		key |= ServiceDict[service]
-	}
-	for service := authservice; service <= appstorj; service++ {
-		if key&(1<<service) != 0 {
-			result = append(result, serviceNameHelper[service.String()])
-		}
-	}
-	return result
-}
 
 func ContainsService(s []types.ServiceConfig, e string) bool {
 	for _, a := range s {

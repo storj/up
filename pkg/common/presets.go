@@ -96,4 +96,46 @@ const (
 	appstorj                  // 65536
 )
 
+func ResolveBuilds(services []string) map[string]string {
+	result := make(map[string]string)
+	for _, service := range ResolveServices(services) {
+		result[BuildDict[service]] = ""
+	}
+	return result
+}
+
+func ResolveServices(services []string) []string {
+	var result []string
+	var key uint
+	for _, service := range services {
+		key |= ServiceDict[service]
+	}
+	for service := authservice; service <= appstorj; service++ {
+		if key&(1<<service) != 0 {
+			result = append(result, serviceNameHelper[service.String()])
+		}
+	}
+	return result
+}
+
+// GetSelectors returns with selectors and associated services (in case of group definition).
+func GetSelectors() map[string][]string {
+	valueToName := map[uint]string{}
+	for name, value := range ServiceDict {
+		valueToName[value] = name
+	}
+
+	selectors := map[string][]string{}
+	for name, value := range ServiceDict {
+		services := []string{}
+		for v, n := range valueToName {
+			if value&v == v && n != name {
+				services = append(services, n)
+			}
+		}
+		selectors[name] = services
+	}
+	return selectors
+}
+
 //go:generate stringer -type=Key
