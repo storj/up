@@ -1,61 +1,48 @@
 
-#
+# docker-compose based Storj environment
 
-This is a quick prototype of running Storj cluster in docker. (Not just the storagenodes but full cluster).
+`storj-up` is a swiss-army tool to create / customize Storj clusters with the help of `docker-compose` (not just storagenode but all satellite and edge services).
 
-Today it depends on my own local containers (see `rebuild.sh`) but it may work with any official image...
+This is useful for Storj development and not for Storage Node operator.
 
+## Getting started
 
-## Quick start
-
-Just start the cluster:
+Install the tool:
 
 ```
-#remove previous state
-docker-compose down
+go install `storj.io/storj-up
+```
+
+Go an empty directory an initialize docker-compose:
+
+```
+storj-up init
+```
+
+Start the cluster:
+
+```
 docker-compose up -d
+docker-compose ps
 ```
 
-Check the log files:
+You can check the generated credentials with:
 
 ```
-docker-compose logs satellite-api
+storj-up credentials
 ```
 
-Use the cluster:
+You can set the required environment variables with `eval $(storj-up credentials -e)`.
+
+Or you can update the credentials of local `rclone` setup with `storj-up credentials -w`
+
+## More features
+
+There are dedicated subcommands to modify the `docker-compose` easily. The generic form of these commands:
 
 ```
-docker-compose exec satellite-api bash
-devrun credentials satellite-api test@mailinator.com
-export STORJ_ACCESS=...
-
-uplink mb sj://bucket1
-
-uplink share --auth-service http://authservice:8000 --url --not-after=none sj://bucket1/file1
+storj-up <subcommand> <selector> <argument>
 ```
 
-## Modifications
+Here `selector` can be either a service (like `storagenode`) or a name of a service group. (like `edge`). To find out all the groups, please use `storj-up services` 
 
-Use local version from any of the services:
-
-```
-volumes:
-    - /home/elek/go/bin/storagenode:/var/lib/storj/go/bin/storagenode
-
-```
-
-
-Local development if entrypoint can be done with:
-
-```
-volumes:
-    - ./runner/entrypoint.sh:/var/lib/storj/entrypoint.sh
-```
-
-
-Remote debug is can be turned on with
-
-```
-environment:
-   GO_DLV: "true"
-```
