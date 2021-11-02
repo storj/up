@@ -7,7 +7,7 @@ import (
 
 // ParseArgumentsWithSelector separate the selector and real arguments from os args.
 func ParseArgumentsWithSelector(args []string, argNo int) ([]string, []string, error) {
-	if argNo+1 > len(args) {
+	if argNo > len(args) {
 		return nil, nil, fmt.Errorf("not enough arguments (required <selector> + %d)", argNo)
 	}
 	realArgs := args[len(args)-argNo:]

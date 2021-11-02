@@ -47,7 +47,7 @@ func TestParseArgumentsWithSelector(t *testing.T) {
 		{
 			name: "not enough arguments",
 			args: args{
-				args:  []string{"satellite-api", "10"},
+				args:  []string{"10"},
 				argNo: 2,
 			},
 			wantErr: true,
