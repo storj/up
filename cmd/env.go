@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/pkg/common"
 	"strings"
 )
 
@@ -38,7 +38,7 @@ func UnsetEnvCmd() *cobra.Command {
 		Use:   "unsetenv <selector> KEY",
 		Short: "remove environment variable / parameter in a container",
 		Long:  "Remove environment variable from selected containers. " + selectorHelp,
-		Args: cobra.MinimumNArgs(2),
+		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			if err != nil {
@@ -60,8 +60,13 @@ func UnsetEnvCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(SetEnvCmd())
-	rootCmd.AddCommand(UnsetEnvCmd())
+	envCmd := cobra.Command{
+		Use:   "env",
+		Short: "add/remove environment variables (configuration parameter) to specified services",
+	}
+	envCmd.AddCommand(SetEnvCmd())
+	envCmd.AddCommand(UnsetEnvCmd())
+	rootCmd.AddCommand(&envCmd)
 }
 
 func SetEnv(composeService *types.ServiceConfig, arg string) error {

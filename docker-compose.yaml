@@ -66,6 +66,9 @@ services:
       published: 10000
       protocol: tcp
   storagenode:
+    build:
+      args:
+        A: X
     command:
     - storagenode
     - run

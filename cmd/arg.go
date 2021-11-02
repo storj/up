@@ -2,14 +2,24 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/pkg/common"
 	"strings"
 )
 
+func init() {
+	argCmd := cobra.Command{
+		Use:   "args",
+		Short: "set/unset arguments (startup command) to sepcificed services",
+	}
+	rootCmd.AddCommand(&argCmd)
+	argCmd.AddCommand(SetArgCmd())
+	argCmd.AddCommand(UnsetArgCmd())
+}
+
 func SetArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "setarg <selector> KEY=VALUE",
+		Use:   "set <selector> KEY=VALUE",
 		Short: "Set arguments (startup command) on service. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
@@ -32,7 +42,7 @@ func SetArgCmd() *cobra.Command {
 
 func UnsetArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "unsetarg <selector> KEY",
+		Use:   "remove <selector> KEY",
 		Short: "remove container arg",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
@@ -51,11 +61,6 @@ func UnsetArgCmd() *cobra.Command {
 			return common.WriteComposeFile(updatedComposeProject)
 		},
 	}
-}
-
-func init() {
-	rootCmd.AddCommand(SetArgCmd())
-	rootCmd.AddCommand(UnsetArgCmd())
 }
 
 func SetArg(composeService *types.ServiceConfig, arg string) error {

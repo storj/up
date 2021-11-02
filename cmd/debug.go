@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/pkg/common"
 	"strings"
 )
 
 func DebugCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "debug <selector> ",
+		Use:   "enable <selector> ",
 		Short: "turn on local debugging with DLV",
 		Long:  "Add environment variable which will activate the DLV debug. Container won't start until the agent is connected. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,7 +34,7 @@ func DebugCmd() *cobra.Command {
 
 func NoDebugCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "no-debug [service ...]",
+		Use:   "disable [service ...]",
 		Short: "turn off local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
@@ -56,8 +56,14 @@ func NoDebugCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(DebugCmd())
-	rootCmd.AddCommand(NoDebugCmd())
+	debugCmd := cobra.Command{
+		Use:   "debug",
+		Short: "enable/disable local DLV based go debug",
+	}
+
+	debugCmd.AddCommand(DebugCmd())
+	debugCmd.AddCommand(NoDebugCmd())
+	rootCmd.AddCommand(&debugCmd)
 }
 
 func SetDebug(composeService *types.ServiceConfig, arg string) error {
