@@ -2,18 +2,19 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
 	"os"
 	"path"
+	"storj.io/storj-up/pkg/common"
 )
 
 var subdir string
 
-func MountCmd() *cobra.Command {
+func LocalBinCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
-		Use:   "mount",
-		Short: "Use local compiled binares, bind-mounted to the containers",
+		Use:     "local-bin <selector>",
+		Aliases: []string{"local", "localbin"},
+		Short:   "Use local compiled binares, bind-mounted to the containers.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(ComposeFile)
 			if err != nil {
@@ -37,7 +38,7 @@ func MountCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(MountCmd())
+	rootCmd.AddCommand(LocalBinCmd())
 }
 
 func mountBinaries(composeService *types.ServiceConfig, _ string) error {
