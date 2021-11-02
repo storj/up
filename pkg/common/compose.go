@@ -35,7 +35,6 @@ func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 	})
 }
 
-
 func ContainsService(s []types.ServiceConfig, e string) bool {
 	for _, a := range s {
 		if a.Name == e {

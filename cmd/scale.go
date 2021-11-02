@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
+	"storj.io/storj-up/pkg/common"
 	"strconv"
 )
 

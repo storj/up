@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/pkg/common"
 )
 
 func LocalCmd() *cobra.Command {

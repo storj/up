@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"storj.io/storj-up/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/pkg/common"
 	"strings"
 )
 

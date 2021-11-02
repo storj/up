@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"github.com/spf13/cobra"
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
-	"github.com/spf13/cobra"
 	"strings"
 )
 

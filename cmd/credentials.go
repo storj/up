@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	pkg "storj.io/storj-up/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 	"io/ioutil"
@@ -11,6 +10,7 @@ import (
 	"os/user"
 	"path"
 	"regexp"
+	pkg "storj.io/storj-up/pkg"
 	"storj.io/storj/satellite/console/consolewasm"
 	"strings"
 	"time"

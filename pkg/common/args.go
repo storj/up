@@ -10,7 +10,7 @@ func ParseArgumentsWithSelector(args []string, argNo int) ([]string, []string, e
 	if argNo+1 > len(args) {
 		return nil, nil, fmt.Errorf("not enough arguments (required <selector> + %d)", argNo)
 	}
-	realArgs := args[len(args)-argNo : len(args)]
+	realArgs := args[len(args)-argNo:]
 
 	selectors := make([]string, 0)
 	for i := 0; i < len(args)-argNo; i++ {
