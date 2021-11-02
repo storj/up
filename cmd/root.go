@@ -14,9 +14,9 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "sjr",
+	Use:   "storj-up",
 	Short: "A golang wrapper for creating customized docker and docker-compose files",
-	Long: `sjr can be used to create a docker-compose file that leverages existing images,
+	Long: `storj-up can be used to create a docker-compose file that leverages existing images,
 leverages existing binaries, or even references code to be built in docker and create images.
 For example:
 
