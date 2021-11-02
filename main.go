@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/elek/sjr/cmd"
+	"storj.io/storj-up/cmd"
 )
 
 func main() {

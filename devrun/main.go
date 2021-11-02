@@ -7,7 +7,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	sjr "github.com/elek/sjr/pkg"
+	up "github.com/elek/sjr/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 	"net"
@@ -63,7 +63,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			for {
-				satellite, err := sjr.GetSatelliteId(ctx, args[0])
+				satellite, err := up.GetSatelliteId(ctx, args[0])
 				if err != nil {
 					println("Couldn't connect to satellite. Retrying... " + err.Error())
 					time.Sleep(1 * time.Second)
@@ -84,11 +84,11 @@ var (
 			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := sjr.GetSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeUrl, err := up.GetSatelliteId(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
-			console := sjr.NewConsoleEndpoints(satelliteHost+":10000", args[1])
+			console := up.NewConsoleEndpoints(satelliteHost+":10000", args[1])
 
 			err = console.Login(ctx)
 			if err != nil {
@@ -121,11 +121,11 @@ var (
 			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := sjr.GetSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeUrl, err := up.GetSatelliteId(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
-			console := sjr.NewConsoleEndpoints(satelliteHost+":10000", args[1])
+			console := up.NewConsoleEndpoints(satelliteHost+":10000", args[1])
 
 			err = console.Login(ctx)
 			if err != nil {

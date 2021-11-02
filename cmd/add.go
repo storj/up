@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"github.com/elek/sjr/cmd/files/templates"
-	"github.com/elek/sjr/pkg/common"
 	"github.com/spf13/cobra"
+	"storj.io/storj-up/cmd/files/templates"
+	"storj.io/storj-up/pkg/common"
 )
 
 func AddCmd() *cobra.Command {

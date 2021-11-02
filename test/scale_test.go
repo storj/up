@@ -2,8 +2,8 @@ package test
 
 import (
 	"github.com/compose-spec/compose-go/types"
-	"github.com/elek/sjr/cmd"
-	"github.com/elek/sjr/pkg/common"
+	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"github.com/stretchr/testify/require"
 	"strconv"
 	"testing"
