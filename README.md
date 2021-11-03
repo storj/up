@@ -10,7 +10,7 @@ This is useful for Storj development and not for Storage Node operator.
 Install the tool:
 
 ```
-go install `storj.io/storj-up
+go install storj.io/storj-up@latest
 ```
 
 Go an empty directory an initialize docker-compose:
