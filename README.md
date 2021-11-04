@@ -10,7 +10,7 @@ This is useful for Storj development and not for Storage Node operator.
 Install the tool:
 
 ```
-go install `storj.io/storj-up
+go install storj.io/storj-up@latest
 ```
 
 Go an empty directory an initialize docker-compose:
@@ -32,7 +32,7 @@ You can check the generated credentials with:
 storj-up credentials
 ```
 
-You can set the required environment variables with `eval $(storj-up credentials -e)`.
+You can set the required environment variables with `eval $(storj-up credentials -e)` (at least on Linux/OSX)
 
 Or you can update the credentials of local `rclone` setup with `storj-up credentials -w`
 
