@@ -20,7 +20,7 @@ func DebugCmd() *cobra.Command {
 				return err
 			}
 
-			selector, _, err := common.ParseArgumentsWithSelector(args, 1)
+			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
 			if err != nil {
 				return err
 			}
@@ -44,7 +44,7 @@ func NoDebugCmd() *cobra.Command {
 				return err
 			}
 
-			selector, _, err := common.ParseArgumentsWithSelector(args, 1)
+			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
 			if err != nil {
 				return err
 			}
