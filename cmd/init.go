@@ -2,11 +2,13 @@ package cmd
 
 import (
 	_ "embed"
+	"strings"
+
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
+
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
-	"strings"
 )
 
 func InitCmd() *cobra.Command {

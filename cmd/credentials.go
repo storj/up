@@ -3,17 +3,19 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/zeebo/errs/v2"
 	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
 	"regexp"
-	pkg "storj.io/storj-up/pkg"
-	"storj.io/storj/satellite/console/consolewasm"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/zeebo/errs/v2"
+
+	pkg "storj.io/storj-up/pkg"
+	"storj.io/storj/satellite/console/consolewasm"
 )
 
 var satelliteHost, email, authService string

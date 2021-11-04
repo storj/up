@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
+
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
-	"strings"
 )
 
 var repository, branch, ref string

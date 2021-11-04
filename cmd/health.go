@@ -3,9 +3,10 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"time"
+
 	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 func HealthCmd() *cobra.Command {

@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"testing"
+
 	"github.com/compose-spec/compose-go/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestScale(t *testing.T) {

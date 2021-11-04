@@ -2,12 +2,13 @@ package common
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
+
 	"github.com/compose-spec/compose-go/cli"
 	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/goccy/go-yaml"
-	"io/ioutil"
-	"strings"
 )
 
 type ComposeFile struct {

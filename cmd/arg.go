@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
+
 	"storj.io/storj-up/pkg/common"
-	"strings"
 )
 
 func init() {

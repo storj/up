@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"storj.io/storj-up/pkg/common"
 	"strings"
+
+	"github.com/spf13/cobra"
+
+	"storj.io/storj-up/pkg/common"
 )
 
 func SvcCmd() *cobra.Command {

@@ -7,14 +7,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net"
+	"time"
+
 	up "github.com/elek/sjr/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
-	"net"
+
 	"storj.io/common/identity"
 	"storj.io/private/process"
 	"storj.io/storj/satellite/console/consolewasm"
-	"time"
 )
 
 var (

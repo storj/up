@@ -1,10 +1,12 @@
 package cmd
 
 import (
-	"github.com/compose-spec/compose-go/types"
-	"github.com/spf13/cobra"
 	"os"
 	"path"
+
+	"github.com/compose-spec/compose-go/types"
+	"github.com/spf13/cobra"
+
 	"storj.io/storj-up/pkg/common"
 )
 

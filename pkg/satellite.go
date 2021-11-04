@@ -3,12 +3,13 @@ package up
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"storj.io/common/identity"
 	"storj.io/common/pb"
 	"storj.io/common/peertls/tlsopts"
 	"storj.io/common/rpc"
 	"storj.io/common/socket"
-	"time"
 )
 
 func GetSatelliteId(ctx context.Context, address string) (string, error) {

@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"strconv"
+
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
+
 	"storj.io/storj-up/pkg/common"
-	"strconv"
 )
 
 func ScaleCmd() *cobra.Command {
