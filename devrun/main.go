@@ -10,7 +10,7 @@ import (
 	"net"
 	"time"
 
-	up "github.com/elek/sjr/pkg"
+	up "storj.io/storj-up/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 

@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/compose-spec/compose-go v1.0.3
-	github.com/elek/sjr v0.0.0-20211031023840-8ac2a405ae10
 	github.com/goccy/go-yaml v1.9.3
 	github.com/lib/pq v1.10.3
 	github.com/magefile/mage v1.11.0
@@ -78,6 +77,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
 	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/tools v0.1.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
