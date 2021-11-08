@@ -1,0 +1,47 @@
+http:
+  routers:
+    AuthServiceHttpsRouter:
+      entryPoints:
+        - "HttpsEntrypoint"
+      service: AuthServiceHttpService
+      rule: "Host(`localhost`, `authservice`, `traefik-authservice`)"
+      tls: { }
+    AuthServiceHttpRouter:
+      entryPoints:
+        - HttpEntrypoint
+      rule: "Host(`localhost`, `authservice`, `traefik-authservice`)"
+      service: AuthServiceHttpService
+  #      middlewares:
+  #        - genericRedirectScheme
+  services:
+    AuthServiceHttpService:
+      loadBalancer:
+        servers:
+          - url: "http://authservice:8000"
+
+tcp:
+  routers:
+    AuthServiceDrpcsRouter:
+      entryPoints:
+        - DrpcsEntrypoint
+      service: AuthServiceDrpcService
+      rule: "HostSNI(`localhost`, `authservice`, `traefik-authservice`)"
+      tls: { }
+    AuthServiceDrpcRouter:
+      entryPoints:
+        - DrpcEntrypoint
+      service: AuthServiceDrpcService
+      rule: "HostSNI(`*`)"
+  services:
+    AuthServiceDrpcService:
+      loadBalancer:
+        servers:
+          - address: "authservice:6666"
+
+tls:
+  certificates:
+    - certFile: "/etc/traefik/certificates/authservice-cert.pem"
+      keyFile: "/etc/traefik/certificates/authservice-key.pem"
+  options:
+    default:
+      minVersion: VersionTLS12
