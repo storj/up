@@ -16,8 +16,14 @@ func SvcCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			if len(args) > 0 {
-				fmt.Println(strings.Join(common.ResolveServices(args), "\n"))
+				resolvedServices, err := common.ResolveServices(args)
+				if err != nil {
+					return err
+				}
+				fmt.Println(strings.Join(resolvedServices, "\n"))
 			} else {
+				fmt.Println("Available services:")
+				fmt.Println()
 				for k, v := range common.GetSelectors() {
 					if len(v) == 0 {
 						fmt.Printf("%s\n", k)
@@ -25,7 +31,8 @@ func SvcCmd() *cobra.Command {
 
 				}
 				fmt.Println()
-
+				fmt.Println("Available group selectors (and resolutions):")
+				fmt.Println()
 				for k, v := range common.GetSelectors() {
 					if len(v) > 0 {
 						fmt.Printf("%s => %s\n", k, v)

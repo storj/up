@@ -2,6 +2,7 @@ package cmd
 
 import (
 	_ "embed"
+	"fmt"
 	"strings"
 
 	"github.com/compose-spec/compose-go/types"
@@ -46,7 +47,12 @@ func initCompose(templateBytes []byte, services []string) (*types.Project, error
 	if len(services) == 0 {
 		services = []string{"storj", "db"}
 	}
-	servicesString := strings.Join(common.ResolveServices(services)[:], ",")
+	resolvedServices, err := common.ResolveServices(services)
+	if err != nil {
+		return nil, err
+	}
+
+	servicesString := strings.Join(resolvedServices[:], ",")
 
 	composeServices := templateComposeProject.AllServices()[:0]
 	for _, service := range templateComposeProject.AllServices() {
@@ -54,6 +60,11 @@ func initCompose(templateBytes []byte, services []string) (*types.Project, error
 			composeServices = append(composeServices, service)
 		}
 	}
+
+	if len(composeServices) == 0 {
+		return nil, fmt.Errorf("no service is selected by selector \"%s\", please use `storj-up services` to check available service and group selectors to be used", strings.Join(services, ","))
+	}
+
 	templateComposeProject.Services = composeServices
 
 	return templateComposeProject, nil

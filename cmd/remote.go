@@ -70,7 +70,12 @@ func updateCompose(services []string, remoteType string) error {
 	if err != nil {
 		return err
 	}
-	for buildType := range common.ResolveBuilds(services) {
+	resolvedBuilds, err := common.ResolveBuilds(services)
+	if err != nil {
+		return err
+	}
+
+	for buildType := range resolvedBuilds {
 		AddToCompose(composeProject, templateProject, []string{buildType})
 		if err != nil {
 			return err
@@ -86,7 +91,13 @@ func updateCompose(services []string, remoteType string) error {
 			}
 		}
 	}
-	for _, service := range common.ResolveServices(services) {
+
+	resolvedServices, err := common.ResolveServices(services)
+	if err != nil {
+		return err
+	}
+
+	for _, service := range resolvedServices {
 		for i, composeService := range composeProject.AllServices() {
 			if strings.EqualFold(composeService.Name, service) {
 				SetImage(&composeProject.Services[i], strings.Split(common.BuildDict[service], "-")[1])

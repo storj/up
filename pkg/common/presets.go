@@ -1,5 +1,7 @@
 package common
 
+import "fmt"
+
 type Key uint
 
 var ServiceDict = map[string]uint{
@@ -96,26 +98,35 @@ const (
 	appstorj                  // 65536
 )
 
-func ResolveBuilds(services []string) map[string]string {
+// ResolveBuilds return with container names for given services.
+func ResolveBuilds(services []string) (map[string]string, error) {
 	result := make(map[string]string)
-	for _, service := range ResolveServices(services) {
+	resolvedServices, err := ResolveServices(services)
+	if err != nil {
+		return result, err
+	}
+	for _, service := range resolvedServices {
 		result[BuildDict[service]] = ""
 	}
-	return result
+	return result, nil
 }
 
-func ResolveServices(services []string) []string {
+func ResolveServices(services []string) ([]string, error) {
 	var result []string
 	var key uint
 	for _, service := range services {
-		key |= ServiceDict[service]
+		value, found := ServiceDict[service]
+		if !found {
+			return nil, fmt.Errorf("invalid service selector %s, please run `storj-up services` to find supported values", service)
+		}
+		key |= value
 	}
 	for service := authservice; service <= appstorj; service++ {
 		if key&(1<<service) != 0 {
 			result = append(result, serviceNameHelper[service.String()])
 		}
 	}
-	return result
+	return result, nil
 }
 
 // GetSelectors returns with selectors and associated services (in case of group definition).

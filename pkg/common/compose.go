@@ -68,7 +68,10 @@ func WriteComposeFile(compose *types.Project) error {
 }
 
 func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
-	resolvedServices := ResolveServices(services)
+	resolvedServices, err := ResolveServices(services)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(resolvedServices) == 0 {
 		return nil, fmt.Errorf("no service is selected for update. Try to use the right selector instead of \"%s\"", strings.Join(services, ","))
