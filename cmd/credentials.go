@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -21,12 +24,13 @@ import (
 var satelliteHost, email, authService string
 var export, write bool
 
-func CredentialsCmd() *cobra.Command {
+func credentialsCmd() *cobra.Command {
 	credentialsCmd := &cobra.Command{
 		Use:   "credentials",
 		Short: "generate test user with credentialsCmd",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
 			return addCredentials(ctx)
 		},
 	}
@@ -39,11 +43,11 @@ func CredentialsCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(CredentialsCmd())
+	rootCmd.AddCommand(credentialsCmd())
 }
 
 func addCredentials(ctx context.Context) error {
-	satelliteNodeUrl, err := pkg.GetSatelliteId(ctx, satelliteHost+":7777")
+	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satelliteHost+":7777")
 	if err != nil {
 		return err
 	}
@@ -70,8 +74,8 @@ func addCredentials(ctx context.Context) error {
 
 	secret := "Welcome1"
 
-	internalSatelliteUrl := strings.ReplaceAll(satelliteNodeUrl, satelliteHost, "satellite-api")
-	internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteUrl, apiKey, secret, projectID)
+	internalSatelliteURL := strings.ReplaceAll(satelliteNodeURL, satelliteHost, "satellite-api")
+	internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteURL, apiKey, secret, projectID)
 	if err != nil {
 		return errs.Wrap(err)
 	}
@@ -79,19 +83,15 @@ func addCredentials(ctx context.Context) error {
 	if !export {
 		fmt.Printf("API key: %s\n", apiKey)
 		fmt.Println()
-	}
 
-	if !export {
 		fmt.Println("[internal access from containers]")
 		fmt.Printf("Encryption secret: %s \n", secret)
 		fmt.Printf("Grant: %s\n", internalGrant)
 		fmt.Println()
 
-	} else {
-
 	}
 
-	grant, err := consolewasm.GenAccessGrant(satelliteNodeUrl, apiKey, secret, projectID)
+	grant, err := consolewasm.GenAccessGrant(satelliteNodeURL, apiKey, secret, projectID)
 	if err != nil {
 		return errs.Wrap(err)
 	}
@@ -147,7 +147,7 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 		return errs.Wrap(err)
 	}
 
-	section := regexp.MustCompile("\\[(.*)\\]")
+	section := regexp.MustCompile(`\[(.*)]`)
 	currentSection := ""
 	updatedS3 := false
 	updatedNative := false

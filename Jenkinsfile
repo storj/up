@@ -30,6 +30,14 @@ pipeline {
             }
         }
 
+        stage('Lint') {
+            steps {
+                sh "go install github.com/magefile/mage@v1.11.0"
+                sh "mage -v lint"
+            }
+       }
+
+
         stage('Test') {
             steps {
                 sh "go install github.com/magefile/mage@v1.11.0"

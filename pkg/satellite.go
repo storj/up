@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package up
 
 import (
@@ -12,7 +15,9 @@ import (
 	"storj.io/common/socket"
 )
 
-func GetSatelliteId(ctx context.Context, address string) (string, error) {
+// GetSatelliteID retrieves node identity from SSL endpoint.
+// Only for testing. Using identified node id is not reliable.
+func GetSatelliteID(ctx context.Context, address string) (string, error) {
 	tlsOptions, err := getProcessTLSOptions(ctx)
 	if err != nil {
 		return "", err
@@ -29,7 +34,7 @@ func GetSatelliteId(ctx context.Context, address string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	req := pb.GetTimeRequest{}
 	client := pb.NewDRPCNodeClient(conn)
@@ -46,7 +51,7 @@ func GetSatelliteId(ctx context.Context, address string) (string, error) {
 			return fmt.Sprintf("%s@%s", id, address), nil
 		}
 	}
-	return "", fmt.Errorf("Couldn't find the right certiticate")
+	return "", fmt.Errorf("couldn't find the right certiticate")
 }
 
 func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {

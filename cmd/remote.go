@@ -1,28 +1,34 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
 )
 
-var repository, branch, ref string
-var github = "github"
-var gerrit = "gerrit"
+var branch, ref string
+
+const (
+	github = "github"
+	gerrit = "gerrit"
+)
 
 var remoteCmd = &cobra.Command{
 	Use:   "remote",
 	Short: "build from a remote src repo for use inside the container",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.Help()
-		return nil
+		return cmd.Help()
 	},
 }
 
-func GithubCmd() *cobra.Command {
+func githubCmd() *cobra.Command {
 	githubCmd := &cobra.Command{
 		Use:   "github",
 		Short: "build github src repo for use inside the container",
@@ -38,7 +44,7 @@ func GithubCmd() *cobra.Command {
 	return githubCmd
 }
 
-func GerritCmd() *cobra.Command {
+func gerritCmd() *cobra.Command {
 	gerritCmd := &cobra.Command{
 		Use:   "gerrit",
 		Short: "build gerrit src repo for use inside the container",
@@ -51,18 +57,18 @@ func GerritCmd() *cobra.Command {
 		},
 	}
 	gerritCmd.PersistentFlags().StringVarP(&ref, "refspec", "f", "", "The github refspec to checkout and build")
-	gerritCmd.MarkPersistentFlagRequired("refspec")
+	_ = gerritCmd.MarkPersistentFlagRequired("refspec")
 	return gerritCmd
 }
 
 func init() {
-	BuildCmd.AddCommand(remoteCmd)
-	remoteCmd.AddCommand(GithubCmd())
-	remoteCmd.AddCommand(GerritCmd())
+	buildCmd.AddCommand(remoteCmd)
+	remoteCmd.AddCommand(githubCmd())
+	remoteCmd.AddCommand(gerritCmd())
 }
 
 func updateCompose(services []string, remoteType string) error {
-	composeProject, err := common.LoadComposeFromFile(ComposeFile)
+	composeProject, err := common.LoadComposeFromFile(composeFile)
 	if err != nil {
 		return err
 	}
@@ -70,24 +76,38 @@ func updateCompose(services []string, remoteType string) error {
 	if err != nil {
 		return err
 	}
+
 	resolvedBuilds, err := common.ResolveBuilds(services)
 	if err != nil {
 		return err
 	}
 
 	for buildType := range resolvedBuilds {
-		AddToCompose(composeProject, templateProject, []string{buildType})
+		_, err = addToCompose(composeProject, templateProject, []string{buildType})
 		if err != nil {
 			return err
 		}
 		for i, service := range composeProject.AllServices() {
 			if strings.EqualFold(service.Name, buildType) {
-				SetArg(&composeProject.Services[i], "TYPE="+remoteType)
-				if remoteType == github {
-					SetArg(&composeProject.Services[i], "BRANCH="+branch)
-				} else if remoteType == gerrit {
-					SetArg(&composeProject.Services[i], "REF="+ref)
+				err = setArg(&composeProject.Services[i], "TYPE="+remoteType)
+				if err != nil {
+					return errs.Wrap(err)
 				}
+				switch remoteType {
+				case github:
+					err = setArg(&composeProject.Services[i], "BRANCH="+branch)
+					if err != nil {
+						return errs.Wrap(err)
+					}
+				case gerrit:
+					err = setArg(&composeProject.Services[i], "REF="+ref)
+					if err != nil {
+						return errs.Wrap(err)
+					}
+				default:
+					return errs.Errorf("Unsupported remote: %s", remoteType)
+				}
+
 			}
 		}
 	}
@@ -100,7 +120,10 @@ func updateCompose(services []string, remoteType string) error {
 	for _, service := range resolvedServices {
 		for i, composeService := range composeProject.AllServices() {
 			if strings.EqualFold(composeService.Name, service) {
-				SetImage(&composeProject.Services[i], strings.Split(common.BuildDict[service], "-")[1])
+				err = setImage(&composeProject.Services[i], strings.Split(common.BuildDict[service], "-")[1])
+				if err != nil {
+					return errs.Wrap(err)
+				}
 			}
 		}
 	}

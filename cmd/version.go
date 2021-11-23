@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -9,12 +12,12 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func VersionCmd() *cobra.Command {
+func versionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version <selector> <version>",
 		Short: "set version (docker image tag) for specified services",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(composeFile)
 			if err != nil {
 				return err
 			}
@@ -34,7 +37,7 @@ func VersionCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(VersionCmd())
+	rootCmd.AddCommand(versionCmd())
 }
 
 func updateVersion(composeService *types.ServiceConfig, version string) error {

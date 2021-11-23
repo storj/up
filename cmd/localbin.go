@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -12,13 +15,13 @@ import (
 
 var subdir string
 
-func LocalBinCmd() *cobra.Command {
+func localBinCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
 		Use:     "local-bin <selector>",
 		Aliases: []string{"local", "localbin"},
 		Short:   "Use local compiled binares, bind-mounted to the containers.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(composeFile)
 			if err != nil {
 				return err
 			}
@@ -40,7 +43,7 @@ func LocalBinCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(LocalBinCmd())
+	rootCmd.AddCommand(localBinCmd())
 }
 
 func mountBinaries(composeService *types.ServiceConfig, _ string) error {

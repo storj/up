@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -5,11 +8,13 @@ import (
 	"fmt"
 	"time"
 
+	// imported for using postgres.
 	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
+	"github.com/zeebo/errs/v2"
 )
 
-func HealthCmd() *cobra.Command {
+func healthCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "health",
 		Short: "wait until cluster is healthy (10 storagenodes are registered in the db)",
@@ -20,9 +25,10 @@ func HealthCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(HealthCmd())
+	rootCmd.AddCommand(healthCmd())
 }
 
+// checkHealth polls the database until all storagenodes are checked in.
 func checkHealth(requiredStorageNodes int) error {
 	for {
 		time.Sleep(1 * time.Second)
@@ -32,19 +38,11 @@ func checkHealth(requiredStorageNodes int) error {
 			continue
 		}
 
-		defer db.Close()
-		res, err := db.Query("select count(*) from nodes")
+		count, err := registeredNodeCount(db)
+		_ = db.Close()
 		if err != nil {
-			fmt.Printf("Couldn't query the database: %s\n", err.Error())
+			fmt.Printf("Couldn't query database for nodes: %s\n", err.Error())
 			continue
-		}
-		defer res.Close()
-		res.Next()
-		var count int
-		err = res.Scan(&count)
-		if err != nil {
-			fmt.Printf("Couldn't read results from the database: %s\n", err.Error())
-
 		}
 		if count == requiredStorageNodes {
 			fmt.Println("Storj cluster is healthy")
@@ -52,4 +50,14 @@ func checkHealth(requiredStorageNodes int) error {
 		}
 		fmt.Printf("Found only %d storagenodes in the database\n", count)
 	}
+}
+
+func registeredNodeCount(db *sql.DB) (int, error) {
+	row := db.QueryRow("select count(*) from nodes")
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, errs.Wrap(err)
+	}
+	return count, nil
 }

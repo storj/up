@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 //go:build mage
 // +build mage
 
@@ -15,13 +18,13 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-//Test executes all unit and integration tests
+// Test executes all unit and integration tests.
 func Test() error {
 	err := sh.RunV("go", "test", "./...")
 	return err
 }
 
-//Test executes all unit and integration tests
+// Test executes all unit and integration tests.
 func Coverage() error {
 	fmt.Println("Executing tests and generate coverate information")
 	err := sh.RunV("go", "test", "-coverprofile=/tmp/coverage.out", "./...")
@@ -31,12 +34,12 @@ func Coverage() error {
 	return sh.RunV("go", "tool", "cover", "-html=/tmp/coverage.out", "-o", "coverage.html")
 }
 
-//Lint executes all the linters with golangci-lint
+// Lint executes all the linters with golangci-lint
 func Lint() error {
-	return sh.RunV("golangci-lint", "run")
+	return sh.RunV("./scripts/lint.sh")
 }
 
-//Format reformat code automatically
+// Format reformat code automatically
 func Format() error {
 	err := sh.RunV("gofmt", "-w", ".")
 	if err != nil {
@@ -46,7 +49,7 @@ func Format() error {
 
 }
 
-//GenBuild re-generates `./build` helper binary
+// GenBuild re-generates `./build` helper binary
 func GenBuild() error {
 	envs := map[string]string{
 		"CGO_ENABLED": "0",

@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -9,7 +12,7 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func SvcCmd() *cobra.Command {
+func serviceCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "services <selector>",
 		Short: "return service names given in args. Without argument it prints out all the possble service selectors",
@@ -47,5 +50,5 @@ func SvcCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(SvcCmd())
+	rootCmd.AddCommand(serviceCmd())
 }

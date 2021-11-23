@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -8,13 +11,13 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func AddCmd() *cobra.Command {
+func addCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "add <selector>",
 		Short: "add more services to the docker compose file. " + selectorHelp,
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(composeFile)
 			if err != nil {
 				return err
 			}
@@ -22,7 +25,7 @@ func AddCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			updatedComposeProject, err := AddToCompose(composeProject, templateProject, args)
+			updatedComposeProject, err := addToCompose(composeProject, templateProject, args)
 			if err != nil {
 				return err
 			}
@@ -32,10 +35,10 @@ func AddCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(AddCmd())
+	rootCmd.AddCommand(addCmd())
 }
 
-func AddToCompose(compose *types.Project, template *types.Project, services []string) (*types.Project, error) {
+func addToCompose(compose *types.Project, template *types.Project, services []string) (*types.Project, error) {
 	resolvedServices, err := common.ResolveServices(services)
 	if err != nil {
 		return nil, err

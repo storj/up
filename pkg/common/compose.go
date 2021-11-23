@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package common
 
 import (
@@ -9,13 +12,16 @@ import (
 	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/goccy/go-yaml"
+	"github.com/zeebo/errs/v2"
 )
 
+// ComposeFile is the simplified structure of one compose file.
 type ComposeFile struct {
 	Version  string
 	Services types.Services
 }
 
+// LoadComposeFromFile parses docker-compose file from the current directory.
 func LoadComposeFromFile(filename string) (*types.Project, error) {
 	options := cli.ProjectOptions{
 		Name:        filename,
@@ -25,6 +31,7 @@ func LoadComposeFromFile(filename string) (*types.Project, error) {
 	return cli.ProjectFromOptions(&options)
 }
 
+// LoadComposeFromBytes loads docker-compose definition from bytes.
 func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 	return loader.Load(types.ConfigDetails{
 		ConfigFiles: []types.ConfigFile{
@@ -36,6 +43,7 @@ func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 	})
 }
 
+// ContainsService check if the service is included in the list.
 func ContainsService(s []types.ServiceConfig, e string) bool {
 	for _, a := range s {
 		if a.Name == e {
@@ -45,6 +53,7 @@ func ContainsService(s []types.ServiceConfig, e string) bool {
 	return false
 }
 
+// CreateBind can create a new volume binding object.
 func CreateBind(source string, target string) types.ServiceVolumeConfig {
 	return types.ServiceVolumeConfig{
 		Type:        "bind",
@@ -59,14 +68,19 @@ func CreateBind(source string, target string) types.ServiceVolumeConfig {
 	}
 }
 
+// WriteComposeFile persists current docker-compose project to docker-compose.yaml.
 func WriteComposeFile(compose *types.Project) error {
 	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services})
+	if err != nil {
+		return errs.Wrap(err)
+	}
 	if err = ioutil.WriteFile("docker-compose.yaml", resolvedServices, 0644); err != nil {
 		return err
 	}
 	return nil
 }
 
+// UpdateEach can apply update function to the selected services.
 func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
 	resolvedServices, err := ResolveServices(services)
 	if err != nil {

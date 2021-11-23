@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Storj Labs, Inc.
+// Copyright (C) 2021 Storj Labs, Inc.
 // See LICENSE for copying information.
 
 package main
@@ -10,12 +10,12 @@ import (
 	"net"
 	"time"
 
-	up "storj.io/storj-up/pkg"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 
 	"storj.io/common/identity"
 	"storj.io/private/process"
+	"storj.io/storj-up/pkg"
 	"storj.io/storj/satellite/console/consolewasm"
 )
 
@@ -65,7 +65,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 			for {
-				satellite, err := up.GetSatelliteId(ctx, args[0])
+				satellite, err := up.GetSatelliteID(ctx, args[0])
 				if err != nil {
 					println("Couldn't connect to satellite. Retrying... " + err.Error())
 					time.Sleep(1 * time.Second)
@@ -83,10 +83,11 @@ var (
 		Short: "Generate test user with credentialsCmd",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := up.GetSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeURL, err := up.GetSatelliteID(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
@@ -106,7 +107,7 @@ var (
 				return errs.Wrap(err)
 			}
 			fmt.Printf("API key: %s\n", apiKey)
-			grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, "Welcome1", projectID)
+			grant, err := consolewasm.GenAccessGrant(sateliteNodeURL, apiKey, "Welcome1", projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}
@@ -120,10 +121,11 @@ var (
 		Use:   "grant",
 		Short: "Generate GRANT and prints out in console compatible format (use `eval $(devrun credentialsCmd grant ...)`",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
 
 			satelliteHost := args[0]
-			sateliteNodeUrl, err := up.GetSatelliteId(ctx, satelliteHost+":7777")
+			sateliteNodeURL, err := up.GetSatelliteID(ctx, satelliteHost+":7777")
 			if err != nil {
 				return err
 			}
@@ -141,7 +143,7 @@ var (
 			if err != nil {
 				return errs.Wrap(err)
 			}
-			grant, err := consolewasm.GenAccessGrant(sateliteNodeUrl, apiKey, "Welcome1", projectID)
+			grant, err := consolewasm.GenAccessGrant(sateliteNodeURL, apiKey, "Welcome1", projectID)
 			if err != nil {
 				return errs.Wrap(err)
 			}

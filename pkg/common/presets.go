@@ -1,9 +1,14 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package common
 
 import "fmt"
 
+// Key is an identfier of one service or service group.
 type Key uint
 
+// ServiceDict maps each service and groups to bitmap.
 var ServiceDict = map[string]uint{
 	"authservice":     1,
 	"cockroach":       2,
@@ -34,6 +39,7 @@ var ServiceDict = map[string]uint{
 	"storj":           1 + 4 + 8 + 32 + 64 + 128 + 256 + 512 + 1024,
 }
 
+// BinaryDict contains the name of executable binaries for Storj service.
 var BinaryDict = map[string]string{
 	"authservice":     "authservice",
 	"gateway-mt":      "gateway-mt",
@@ -46,6 +52,7 @@ var BinaryDict = map[string]string{
 	"versioncontrol":  "versioncontrol",
 }
 
+// BuildDict stores the name of the container to build for Storj services.
 var BuildDict = map[string]string{
 	"authservice":     "app-edge",
 	"gateway-mt":      "app-edge",
@@ -98,7 +105,7 @@ const (
 	appstorj                  // 65536
 )
 
-// ResolveBuilds return with container names for given services.
+// ResolveBuilds returns with the required docker images to build (as keys in the maps).
 func ResolveBuilds(services []string) (map[string]string, error) {
 	result := make(map[string]string)
 	resolvedServices, err := ResolveServices(services)
@@ -111,6 +118,7 @@ func ResolveBuilds(services []string) (map[string]string, error) {
 	return result, nil
 }
 
+// ResolveServices replaces group definition with exact services in the list.
 func ResolveServices(services []string) ([]string, error) {
 	var result []string
 	var key uint

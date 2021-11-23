@@ -1,7 +1,9 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
-	_ "embed"
 	"fmt"
 	"strings"
 
@@ -12,7 +14,7 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func InitCmd() *cobra.Command {
+func initCmd() *cobra.Command {
 	return &cobra.Command{
 		Use: "init [selector]",
 		Short: "Generate docker-compose file with selected services. " + selectorHelp + ". Without argument it generates " +
@@ -35,7 +37,7 @@ func InitCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(InitCmd())
+	rootCmd.AddCommand(initCmd())
 }
 
 func initCompose(templateBytes []byte, services []string) (*types.Project, error) {
@@ -52,7 +54,7 @@ func initCompose(templateBytes []byte, services []string) (*types.Project, error
 		return nil, err
 	}
 
-	servicesString := strings.Join(resolvedServices[:], ",")
+	servicesString := strings.Join(resolvedServices, ",")
 
 	composeServices := templateComposeProject.AllServices()[:0]
 	for _, service := range templateComposeProject.AllServices() {

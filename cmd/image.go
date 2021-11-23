@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -9,14 +12,14 @@ import (
 
 const selectorHelp = "<selector> is a service name or group (use `storj-up service` to list available services)"
 
-func ImageCmd() *cobra.Command {
+func imageCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "image <selector> <image>",
 		Short: "Change container image for one more more services",
 		Long:  "Change image of specified services." + selectorHelp,
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(composeFile)
 			if err != nil {
 				return err
 			}
@@ -26,7 +29,7 @@ func ImageCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetImage, arguments[0], selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, setImage, arguments[0], selector)
 			if err != nil {
 				return err
 			}
@@ -36,10 +39,10 @@ func ImageCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(ImageCmd())
+	rootCmd.AddCommand(imageCmd())
 }
 
-func SetImage(composeService *types.ServiceConfig, image string) error {
+func setImage(composeService *types.ServiceConfig, image string) error {
 	composeService.Image = image
 	return nil
 }
