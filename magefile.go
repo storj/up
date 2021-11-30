@@ -7,14 +7,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/valyala/fastjson"
+	"github.com/zeebo/errs"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
@@ -24,7 +28,7 @@ func Test() error {
 	return err
 }
 
-// Test executes all unit and integration tests.
+// Coverage executes all unit test with coverage measurement.
 func Coverage() error {
 	fmt.Println("Executing tests and generate coverate information")
 	err := sh.RunV("go", "test", "-coverprofile=/tmp/coverage.out", "./...")
@@ -91,30 +95,26 @@ func DockerBuildBuild() error {
 	return nil
 }
 
-func DockerCoreBuild(version string) error {
-	version = "1.39.6"
-	mg.Deps(DockerBaseBuild)
-	mg.Deps(DockerBuildBuild)
+func dockerCoreBuild(version string) error {
 	err := sh.RunV("docker",
 		"build",
 		"-t", "ghcr.io/elek/storj:"+version,
 		"--build-arg", "BRANCH=v"+version,
-		"-f", "pkg/storj.Dockerfile", ".")
+		"--build-arg", "TYPE=github",
+		"-f", "cmd/files/docker/storj.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func DockerEdgeBuild(version string) error {
-	version = "1.14.0"
-	mg.Deps(DockerBaseBuild)
-	mg.Deps(DockerBuildBuild)
+func dockerEdgeBuild(version string) error {
 	err := sh.RunV("docker",
 		"build",
 		"-t", "ghcr.io/elek/storj-edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
-		"-f", "pkg/edge.Dockerfile", ".")
+		"--build-arg", "TYPE=github",
+		"-f", "cmd/files/docker/edge.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
@@ -125,40 +125,29 @@ func Integration() error {
 	return sh.RunV("test/test.sh")
 }
 
-func Publish() error {
-	coreVersion := "1.39.6"
-	edgeVersion := "1.14.0"
-	err := DockerCoreBuild(coreVersion)
+func Images() error {
+	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
+		err := dockerCoreBuild(version)
+		if err != nil {
+			return err
+		}
+		return DockerCorePublish(version)
+	})
 	if err != nil {
 		return err
 	}
 
-	err = DockerEdgeBuild(edgeVersion)
+	err = doOnMissing("storj-edge", "gateway-mt", func(container string, repo string, version string) error {
+		err := dockerEdgeBuild(version)
+		if err != nil {
+			return err
+		}
+		return DockerEdgePublish(version)
+	})
 	if err != nil {
 		return err
 	}
 
-	err = Integration()
-	if err != nil {
-		return err
-	}
-
-	err = DockerBasePublish()
-	if err != nil {
-		return err
-	}
-	err = DockerBuildPublish()
-	if err != nil {
-		return err
-	}
-	err = DockerCorePublish(coreVersion)
-	if err != nil {
-		return err
-	}
-	err = DockerEdgePublish(edgeVersion)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -200,7 +189,7 @@ func DockerBasePublish() error {
 }
 
 // getNextDockerTag generates docker tag with the pattern yyyymmdd-n.
-//last used tag is saved to the file and supposed to be committed
+// last used tag is saved to the file and supposed to be committed
 func getNextDockerTag(tagFile string) (string, error) {
 	datePattern := time.Now().Format("20060102")
 
@@ -225,7 +214,164 @@ func getNextDockerTag(tagFile string) (string, error) {
 	}
 }
 
+func doOnMissing(containerName string, repoName string, action func(string, string, string) error) error {
+	containerVersions := make(map[string]bool)
+	versions, err := listContainerVersions(containerName)
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		containerVersions[v] = true
+	}
+
+	releases, err := listReleaseVersions(repoName)
+	if err != nil {
+		return err
+	}
+	for _, v := range releases {
+		if _, found := containerVersions[v]; !found {
+			err = action(containerName, repoName, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // writeDockerTag persist the last used docker tag to a file.
 func writeDockerTag(tagFile string, tag string) error {
 	return ioutil.WriteFile(tagFile, []byte(tag), 0644)
+}
+
+// ListVersions prints out the available container / release versions
+func ListVersions() error {
+	fmt.Println("container: elek/storj")
+	versions, err := listContainerVersions("storj")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Println("   " + v)
+	}
+	fmt.Println("container: elek/storj-edge")
+	versions, err = listContainerVersions("storj-edge")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Println("   " + v)
+	}
+	fmt.Println("repo: storj/storj")
+	versions, err = listReleaseVersions("storj")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Println("   " + v)
+	}
+	fmt.Println("repo: storj/gateway-mt")
+	versions, err = listReleaseVersions("gateway-mt")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Println("   " + v)
+	}
+	return nil
+}
+
+func listReleaseVersions(name string) ([]string, error) {
+	var parser fastjson.Parser
+	url := fmt.Sprintf("https://api.github.com/repos/storj/%s/releases?per_page=10", name)
+	rawVersions, err := callGithubAPIV3(context.Background(), "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	parsed, err := parser.ParseBytes(rawVersions)
+	if err != nil {
+		return nil, err
+	}
+	versions, err := parsed.Array()
+	if err != nil {
+		return nil, err
+	}
+	var res []string
+	for _, v := range versions {
+		val := string(v.GetStringBytes("name"))
+		if strings.Contains(val, "rc") {
+			continue
+		}
+		if val[0] == 'v' {
+			val = val[1:]
+		}
+		res = append(res, val)
+	}
+	return res, nil
+}
+
+func listContainerVersions(name string) ([]string, error) {
+	var parser fastjson.Parser
+	url := fmt.Sprintf("https://api.github.com/users/elek/packages/container/%s/versions", name)
+	rawVersions, err := callGithubAPIV3(context.Background(), "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	parsed, err := parser.ParseBytes(rawVersions)
+	if err != nil {
+		return nil, err
+	}
+	versions, err := parsed.Array()
+	if err != nil {
+		return nil, err
+	}
+	res := []string{}
+	for _, v := range versions {
+		for _, t := range v.GetArray("metadata", "container", "tags") {
+			val, err := t.StringBytes()
+			if err != nil {
+				return nil, err
+			}
+			if string(val) == "latest" {
+				continue
+			}
+			res = append(res, string(val))
+		}
+	}
+	return res, nil
+}
+
+// callGithubAPIV3 is a wrapper around the HTTP method call.
+func callGithubAPIV3(ctx context.Context, method string, url string, body io.Reader) ([]byte, error) {
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	if err != nil {
+		return nil, errs.Wrap(err)
+	}
+	token, err := getToken()
+	if err != nil {
+		return nil, errs.Wrap(err)
+	}
+	req.Header.Add("Authorization", "token "+token)
+	req.Header.Add("Accept", "application/vnd.github.v3+json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errs.Wrap(err)
+	}
+
+	if resp.StatusCode > 299 {
+		return nil, errs.Combine(errs.New("%s url is failed (%s): %s", method, resp.Status, url), resp.Body.Close())
+	}
+	responseBody, err := ioutil.ReadAll(resp.Body)
+	return responseBody, errs.Combine(err, resp.Body.Close())
+}
+
+// getToken retrieves the GITHUB_TOKEN for API usage.
+func getToken() (string, error) {
+	token := os.Getenv("GITHUB_TOKEN")
+	if token != "" {
+		return token, nil
+	}
+	return "", fmt.Errorf("GITHUB_TOKEN environment variable must set")
 }
