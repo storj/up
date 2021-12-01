@@ -59,3 +59,23 @@ storj-up build remote gerrit -f refs/changes/65/6365/1 satellite-api satellite-c
 You will need to change `refs/changes/65/6365/1` to the Gerrit patchset you want to use, and change the binaries that follow it based on what you are trying to replace.
 
 Then, run `docker-compose build` followed by `docker-compose up` in order to spin everything up.
+
+### Modify the configuration variable of a service
+
+You can modify configuration variable by setting the environment variables:
+
+```
+storj-up env setenv satellite-api STORJ_CONSOLE_CREDENTIALS_REQUEST_URL=http://myservername
+```
+
+Available configuration (for selected services) can be listed by `storj-up configs <service>`, for example:
+
+```
+storj-up configs storagenode
+
+STORJ_IDENTITY_CERT_PATH                                               path to the certificate chain for this identity (default: $IDENTITYDIR/identity.cert)
+STORJ_IDENTITY_KEY_PATH                                                path to the private key for this identity (default: $IDENTITYDIR/identity.key)
+STORJ_SERVER_CONFIG_REVOCATION_DBURL                                   url for revocation database (e.g. bolt://some.db OR redis://127.0.0.1:6378?db=2&password=abc123) *(default: bolt://$CONFDIR/revocations.db)
+STORJ_SERVER_CONFIG_PEER_CAWHITELIST_PATH                              path to the CA cert whitelist (peer identities must be signed by one these to be verified). this will override the default peer whitelist
+...
+```
