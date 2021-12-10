@@ -120,6 +120,11 @@ services:
       STORJ_ROLE: satellite-admin
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: ghcr.io/elek/storj:1.39.6
+    ports:
+      - mode: ingress
+        target: 8080
+        published: 9080
+        protocol: tcp
     networks:
       default: null
   satellite-api:
