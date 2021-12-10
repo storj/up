@@ -65,6 +65,9 @@ func addCredentials(ctx context.Context) error {
 		fmt.Printf("User: %s\n", email)
 		fmt.Printf("Password: %s\n", "123a123")
 		fmt.Printf("ProjectID: %s\n", projectID)
+	} else {
+		fmt.Printf("export STORJ_USER=%s\n", email)
+		fmt.Printf("export STORJ_PROJECT_ID=%s\n", projectID)
 	}
 
 	apiKey, err := console.CreateAPIKey(ctx, projectID)
