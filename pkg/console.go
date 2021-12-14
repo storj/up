@@ -406,11 +406,11 @@ func (ce *ConsoleEndpoint) registrationTokenPath() string {
 }
 
 func (ce *ConsoleEndpoint) registerEndpointPath() string {
-	return ce.appendPath("/api/v0/auth/registerEndpoint")
+	return ce.appendPath("/api/v0/auth/register")
 }
 
 func (ce *ConsoleEndpoint) activationEndpointPath(token string) string {
-	return ce.appendPath("/activationEndpoint/?token=" + token)
+	return ce.appendPath("/activation/?token=" + token)
 }
 
 func (ce *ConsoleEndpoint) tokenEndpointPath() string {
