@@ -60,7 +60,10 @@ services:
     - --defaults=dev
     environment:
       STORJ_AUTH_TOKEN: super-secret
+      #before 1.17
       STORJ_AUTH_URL: http://authservice:8888
+      #from 1.17
+      STORJ_AUTH_BASE_URL: http://authservice:8888
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_LOG_LEVEL: debug
