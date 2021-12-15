@@ -2,14 +2,14 @@ version: "3.4"
 services:
   app-edge:
     build:
-      context: ./cmd/files/docker/
+      context: .
       dockerfile: edge.Dockerfile
     image: edge
     networks:
       default: null
   app-storj:
     build:
-      context: ./cmd/files/docker/
+      context: .
       dockerfile: storj.Dockerfile
     image: storj
     networks:

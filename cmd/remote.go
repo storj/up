@@ -4,11 +4,14 @@
 package cmd
 
 import (
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 
+	"storj.io/storj-up/cmd/files/docker"
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
 )
@@ -68,6 +71,17 @@ func init() {
 }
 
 func updateCompose(services []string, remoteType string) error {
+
+	err := ExtractFile("storj.Dockerfile", dockerfiles.StorjDocker)
+	if err != nil {
+		return err
+	}
+
+	err = ExtractFile("edge.Dockerfile", dockerfiles.EdgeDocker)
+	if err != nil {
+		return err
+	}
+
 	composeProject, err := common.LoadComposeFromFile(composeFile)
 	if err != nil {
 		return err
@@ -128,4 +142,12 @@ func updateCompose(services []string, remoteType string) error {
 		}
 	}
 	return common.WriteComposeFile(composeProject)
+}
+
+// ExtractFile extract embedded file, if doesn't exist.
+func ExtractFile(fileName string, content []byte) error {
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		return ioutil.WriteFile(fileName, content, 0644)
+	}
+	return nil
 }
