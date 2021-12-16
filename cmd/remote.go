@@ -32,9 +32,15 @@ var remoteCmd = &cobra.Command{
 }
 
 func githubCmd() *cobra.Command {
+	// NOTE cobra doesn't have a way to document positional parameters:
+	// https://github.com/spf13/cobra/issues/378
 	githubCmd := &cobra.Command{
-		Use:   "github",
+		Use:   "github <selector>",
 		Short: "build github src repo for use inside the container",
+		Long: `build github src repo for use inside the container for the indicated
+services through positional arguments. See the list of supported service running
+` + "`storj-up services`.",
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := updateCompose(args, github)
 			if err != nil {
@@ -48,9 +54,15 @@ func githubCmd() *cobra.Command {
 }
 
 func gerritCmd() *cobra.Command {
+	// NOTE cobra doesn't have a way to document positional parameters:
+	// https://github.com/spf13/cobra/issues/378
 	gerritCmd := &cobra.Command{
-		Use:   "gerrit",
+		Use:   "gerrit <selector>",
 		Short: "build gerrit src repo for use inside the container",
+		Long: `build gerrit src repo for use inside the container for the indicated
+services through positional arguments. See the list of supported service running
+` + "`storj-up services`.",
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := updateCompose(args, gerrit)
 			if err != nil {
