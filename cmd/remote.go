@@ -56,7 +56,7 @@ func gerritCmd() *cobra.Command {
 			return nil
 		},
 	}
-	gerritCmd.PersistentFlags().StringVarP(&ref, "refspec", "f", "", "The github refspec to checkout and build")
+	gerritCmd.PersistentFlags().StringVarP(&ref, "refspec", "f", "", "The gerrit refspec to checkout and build")
 	_ = gerritCmd.MarkPersistentFlagRequired("refspec")
 	return gerritCmd
 }
