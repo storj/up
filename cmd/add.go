@@ -6,7 +6,6 @@ package cmd
 import (
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
-
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
 )
@@ -50,6 +49,13 @@ func addToCompose(compose *types.Project, template *types.Project, services []st
 				return nil, err
 			}
 			compose.Services = append(compose.Services, newService)
+		}
+		if service == "prometheus" {
+			err := ExtractFile("prometheus.yml", templates.PrometheusYaml)
+			if err != nil {
+				return nil, err
+			}
+
 		}
 	}
 	return compose, nil
