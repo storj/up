@@ -15,7 +15,7 @@ import (
 func init() {
 	argCmd := cobra.Command{
 		Use:   "args",
-		Short: "set/unset arguments (startup command) to sepcificed services",
+		Short: "set/unset build arguments on specified services",
 	}
 	rootCmd.AddCommand(&argCmd)
 	argCmd.AddCommand(setArgCmd())
@@ -25,7 +25,7 @@ func init() {
 func setArgCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "set <selector> KEY=VALUE",
-		Short: "Set arguments (startup command) on service. " + selectorHelp,
+		Short: "Set build arguments on service. Build arguments should be supported by referenced Dockerfile " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			composeProject, err := common.LoadComposeFromFile(composeFile)
 			if err != nil {
