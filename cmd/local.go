@@ -15,7 +15,7 @@ func localCmd() *cobra.Command {
 		Use:   "local",
 		Short: "build local src directories for use inside the container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

@@ -18,7 +18,7 @@ func entryPointCmd() *cobra.Command {
 		Use:   "local-entrypoint [service ...]",
 		Short: "bind mount entrypoint.sh to use local modifications",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

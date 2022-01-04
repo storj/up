@@ -19,7 +19,7 @@ func imageCmd() *cobra.Command {
 		Long:  "Change image of specified services." + selectorHelp,
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

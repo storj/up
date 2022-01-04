@@ -21,7 +21,7 @@ func localBinCmd() *cobra.Command {
 		Aliases: []string{"local", "localbin"},
 		Short:   "Use local compiled binares, bind-mounted to the containers.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

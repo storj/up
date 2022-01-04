@@ -94,7 +94,7 @@ func updateCompose(services []string, remoteType string) error {
 		return err
 	}
 
-	composeProject, err := common.LoadComposeFromFile(composeFile)
+	composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 	if err != nil {
 		return err
 	}

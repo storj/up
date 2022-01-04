@@ -29,7 +29,7 @@ func setFlagCmd() *cobra.Command {
 		Aliases: []string{"add"},
 		Short:   "Set (or add) command line flags on the startup command on the container(s). " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -56,7 +56,7 @@ func removeFlagCmd() *cobra.Command {
 		Aliases: []string{"rm", "delete"},
 		Short:   "Remove command line flags of the startup command on the container(s). " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

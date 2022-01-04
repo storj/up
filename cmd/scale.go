@@ -21,7 +21,7 @@ func scaleCmd() *cobra.Command {
 		Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker compose scale` any more. " +
 			"But also not required to scale up and down and it's possible to do per instance local bindmount",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

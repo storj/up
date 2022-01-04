@@ -11,10 +11,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	composeFile = "docker-compose.yaml"
-)
-
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands.

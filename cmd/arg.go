@@ -27,7 +27,7 @@ func setArgCmd() *cobra.Command {
 		Use:   "set <selector> KEY=VALUE",
 		Short: "Set build arguments on service. Build arguments should be supported by referenced Dockerfile " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -50,7 +50,7 @@ func unsetArgCmd() *cobra.Command {
 		Use:   "remove <selector> KEY",
 		Short: "remove container arg",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

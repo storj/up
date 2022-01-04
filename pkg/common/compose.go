@@ -13,7 +13,17 @@ import (
 	"github.com/compose-spec/compose-go/types"
 	"github.com/goccy/go-yaml"
 	"github.com/zeebo/errs/v2"
+
+	"storj.io/storj-up/pkg/common/composedb"
 )
+
+const (
+	// ComposeFileName filename used for the docker compose file.
+	ComposeFileName = "docker-compose.yaml"
+)
+
+// Store is the VersionStore used for compose file history.
+var Store = composedb.ComposeHistory{DB: composedb.FileDatabase{}}
 
 // ComposeFile is the simplified structure of one compose file.
 type ComposeFile struct {
@@ -70,6 +80,27 @@ func CreateBind(source string, target string) types.ServiceVolumeConfig {
 
 // WriteComposeFile persists current docker-compose project to docker-compose.yaml.
 func WriteComposeFile(compose *types.Project) error {
+	prevCompose, _ := LoadComposeFromFile(ComposeFileName)
+	err := WriteComposeFileNoHistory(compose)
+	if err != nil {
+		return err
+	}
+	if prevCompose != nil {
+		prevComposeBytes, err := yaml.Marshal(prevCompose)
+		if err != nil {
+			return err
+		}
+		_, err = Store.SaveCurrentVersion(prevComposeBytes)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// WriteComposeFileNoHistory persists current docker-compose project to docker-compose.yaml without saving a record
+// of the current compose file.
+func WriteComposeFileNoHistory(compose *types.Project) error {
 	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services})
 	if err != nil {
 		return errs.Wrap(err)

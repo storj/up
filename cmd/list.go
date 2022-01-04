@@ -19,7 +19,7 @@ func listCmd() *cobra.Command {
 		Short: "print all the configured services from the docker-compose file with user versions",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Use all services to allow checking for any possible service
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return errs.Wrap(err)
 			}

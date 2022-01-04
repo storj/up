@@ -17,7 +17,7 @@ func addCmd() *cobra.Command {
 		Short: "add more services to the docker compose file. " + selectorHelp,
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}

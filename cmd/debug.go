@@ -18,7 +18,7 @@ func enableDebugCmd() *cobra.Command {
 		Short: "turn on local debugging with DLV",
 		Long:  "Add environment variable which will activate the DLV debug. Container won't start until the agent is connected. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -42,7 +42,7 @@ func disableDebugCmd() *cobra.Command {
 		Use:   "disable [service ...]",
 		Short: "turn off local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(composeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
