@@ -17,8 +17,8 @@ fi
 
 storj-up init
 
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 
 storj-up health
 
@@ -36,4 +36,4 @@ rm data
 rclone copy storjdevs3:$BUCKET/data download
 mv download/data ./
 sha256sum -c sha256.sum
-docker-compose down -v
+docker compose down -v
