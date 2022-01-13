@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ghcr.io/elek/storj-build:20211029-1 AS base
+FROM ghcr.io/elek/storj-build:20220113-1 AS base
 
 FROM base AS github
 ARG BRANCH
@@ -20,7 +20,7 @@ RUN cd web/storagenode && npm install && npm install && npm install @vue/cli-ser
 RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
 RUN go install ./cmd/...
 
-FROM ghcr.io/elek/storj-base:20211029-1 AS final
+FROM ghcr.io/elek/storj-base:20220113-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist

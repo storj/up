@@ -69,13 +69,18 @@ func DockerBaseBuild() error {
 	if err != nil {
 		return err
 	}
-	err = sh.RunV("docker", "build", "-t", "ghcr.io/elek/storj-base:"+tag, "-f", "base.Dockerfile", ".")
+	err = sh.RunV("docker", "build", "-t", "ghcr.io/elek/storj-base:"+tag, "-f", "cmd/files/docker/base.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+func DockerBasePublish() error {
+	return dockerPushWithNextTag("storj-base")
+}
+
+// DockerBuildBuild builds the storj-build docker image
 func DockerBuildBuild() error {
 	tag, err := getNextDockerTag("storj-build.last")
 	if err != nil {
@@ -93,6 +98,11 @@ func DockerBuildBuild() error {
 		return err
 	}
 	return nil
+}
+
+// DockerBuildPublish pushes the storj-build docker image
+func DockerBuildPublish() error {
+	return dockerPushWithNextTag("storj-build")
 }
 
 func dockerCoreBuild(version string) error {
@@ -125,6 +135,43 @@ func Integration() error {
 	return sh.RunV("test/test.sh")
 }
 
+// RebuildImages rebuild all core and edge images.
+func RebuildImages() error {
+	versions, err := listContainerVersions("storj")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		err := dockerCoreBuild(v)
+		if err != nil {
+			return err
+		}
+		err = DockerCorePublish(v)
+		if err != nil {
+			return err
+		}
+	}
+
+	versions, err = listContainerVersions("storj-edge")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		err := dockerEdgeBuild(v)
+		if err != nil {
+			return err
+		}
+		err = DockerEdgePublish(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+
+
+// Images build missing images for existing git tags
 func Images() error {
 	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
 		err := dockerCoreBuild(version)
@@ -151,6 +198,24 @@ func Images() error {
 	return nil
 }
 
+func ListImages() error {
+	versions, err := listContainerVersions("storj")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Printf("elek/storj:%s\n",v)
+	}
+
+	versions, err = listContainerVersions("storj")
+	if err != nil {
+		return err
+	}
+	for _, v := range versions {
+		fmt.Printf("elek/storj-edge:%s\n",v)
+	}
+	return nil
+}
 func dockerPushWithNextTag(image string) error {
 	tagFile := fmt.Sprintf("%s.last", image)
 	tag, err := getNextDockerTag(tagFile)
@@ -178,14 +243,6 @@ func DockerCorePublish(version string) error {
 
 func DockerEdgePublish(version string) error {
 	return dockerPush("storj-edge", version)
-}
-
-func DockerBuildPublish() error {
-	return dockerPushWithNextTag("storj-build")
-}
-
-func DockerBasePublish() error {
-	return dockerPushWithNextTag("storj-base")
 }
 
 // getNextDockerTag generates docker tag with the pattern yyyymmdd-n.

@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ghcr.io/elek/storj-build:20211029-1 AS base
+FROM ghcr.io/elek/storj-build:20220113-1 AS base
 
 FROM base AS github
 ARG BRANCH
@@ -16,7 +16,7 @@ RUN git fetch https://review.dev.storj.io/storj/gateway-mt ${REF} && git checkou
 FROM ${TYPE} AS binaries
 RUN go install ./cmd/...
 
-FROM ghcr.io/elek/storj-base:20211029-1 AS final
+FROM ghcr.io/elek/storj-base:20220113-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/gateway-mt/pkg/linksharing/web /var/lib/storj/pkg/linksharing/web
 COPY --from=binaries --chown=storj /var/lib/storj/identities /var/lib/storj/identities
