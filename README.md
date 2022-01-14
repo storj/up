@@ -7,7 +7,7 @@ This is useful for Storj development and not for Storage Node operator.
 
 ## Getting started
 
-You will need [Docker Compose V2](https://docs.docker.com/compose/cli-command/) and may also need to [enable Docker BuildKit builds](https://docs.docker.com/develop/develop-images/build_enhancements/) for certain features to work correctly (e.g. creating an environment based partially on a Gerrit change).
+It is recommended that you use [Docker Compose V2](https://docs.docker.com/compose/cli-command/) as well as [enable Docker BuildKit builds](https://docs.docker.com/develop/develop-images/build_enhancements/) for all features to work correctly.
 
 Install the tool:
 

@@ -17,6 +17,7 @@ import (
 
 // ComposeFile is the simplified structure of one compose file.
 type ComposeFile struct {
+	Version  string // used for compatibility with Compose V1
 	Services types.Services
 }
 
@@ -69,7 +70,7 @@ func CreateBind(source string, target string) types.ServiceVolumeConfig {
 
 // WriteComposeFile persists current docker-compose project to docker-compose.yaml.
 func WriteComposeFile(compose *types.Project) error {
-	resolvedServices, err := yaml.Marshal(&ComposeFile{Services: compose.Services})
+	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services})
 	if err != nil {
 		return errs.Wrap(err)
 	}
