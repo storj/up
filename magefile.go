@@ -8,8 +8,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/valyala/fastjson"
 	"github.com/zeebo/errs"
 	"io"
 	"io/ioutil"
@@ -23,12 +23,14 @@ import (
 )
 
 // Test executes all unit and integration tests.
+//nolint:deadcode
 func Test() error {
 	err := sh.RunV("go", "test", "./...")
 	return err
 }
 
 // Coverage executes all unit test with coverage measurement.
+//nolint:deadcode
 func Coverage() error {
 	fmt.Println("Executing tests and generate coverate information")
 	err := sh.RunV("go", "test", "-coverprofile=/tmp/coverage.out", "./...")
@@ -38,12 +40,14 @@ func Coverage() error {
 	return sh.RunV("go", "tool", "cover", "-html=/tmp/coverage.out", "-o", "coverage.html")
 }
 
-// Lint executes all the linters with golangci-lint
+// Lint executes all the linters with golangci-lint.
+//nolint:deadcode
 func Lint() error {
 	return sh.RunV("./scripts/lint.sh")
 }
 
-// Format reformat code automatically
+// Format reformats code automatically.
+//nolint:deadcode
 func Format() error {
 	err := sh.RunV("gofmt", "-w", ".")
 	if err != nil {
@@ -53,7 +57,8 @@ func Format() error {
 
 }
 
-// GenBuild re-generates `./build` helper binary
+// GenBuild re-generates `./build` helper binary.
+//nolint:deadcode
 func GenBuild() error {
 	envs := map[string]string{
 		"CGO_ENABLED": "0",
@@ -64,6 +69,8 @@ func GenBuild() error {
 
 }
 
+// DockerBaseBuild builds storj-base image.
+//nolint:deadcode
 func DockerBaseBuild() error {
 	tag, err := getNextDockerTag("storj-build.last")
 	if err != nil {
@@ -76,11 +83,14 @@ func DockerBaseBuild() error {
 	return nil
 }
 
+// DockerBasePublish pushes storj-base image.
+//nolint:deadcode
 func DockerBasePublish() error {
 	return dockerPushWithNextTag("storj-base")
 }
 
-// DockerBuildBuild builds the storj-build docker image
+// DockerBuildBuild builds the storj-build docker image.
+//nolint:deadcode
 func DockerBuildBuild() error {
 	tag, err := getNextDockerTag("storj-build.last")
 	if err != nil {
@@ -101,6 +111,7 @@ func DockerBuildBuild() error {
 }
 
 // DockerBuildPublish pushes the storj-build docker image
+//nolint:deadcode
 func DockerBuildPublish() error {
 	return dockerPushWithNextTag("storj-build")
 }
@@ -131,11 +142,14 @@ func dockerEdgeBuild(version string) error {
 	return nil
 }
 
+// Integration executes integration tests.
+//nolint:deadcode
 func Integration() error {
 	return sh.RunV("test/test.sh")
 }
 
-// RebuildImages rebuild all core and edge images.
+// RebuildImages rebuilds all core and edge images.
+//nolint:deadcode
 func RebuildImages() error {
 	versions, err := listContainerVersions("storj")
 	if err != nil {
@@ -146,7 +160,7 @@ func RebuildImages() error {
 		if err != nil {
 			return err
 		}
-		err = DockerCorePublish(v)
+		err = dockerCorePublish(v)
 		if err != nil {
 			return err
 		}
@@ -161,7 +175,7 @@ func RebuildImages() error {
 		if err != nil {
 			return err
 		}
-		err = DockerEdgePublish(v)
+		err = dockerEdgePublish(v)
 		if err != nil {
 			return err
 		}
@@ -169,16 +183,15 @@ func RebuildImages() error {
 	return nil
 }
 
-
-
 // Images build missing images for existing git tags
+//nolint:deadcode
 func Images() error {
 	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
 		err := dockerCoreBuild(version)
 		if err != nil {
 			return err
 		}
-		return DockerCorePublish(version)
+		return dockerCorePublish(version)
 	})
 	if err != nil {
 		return err
@@ -189,7 +202,7 @@ func Images() error {
 		if err != nil {
 			return err
 		}
-		return DockerEdgePublish(version)
+		return dockerEdgePublish(version)
 	})
 	if err != nil {
 		return err
@@ -198,13 +211,15 @@ func Images() error {
 	return nil
 }
 
+// ListImages prints all the existing storj and storj-edge images in the repo.
+//nolint:deadcode
 func ListImages() error {
 	versions, err := listContainerVersions("storj")
 	if err != nil {
 		return err
 	}
 	for _, v := range versions {
-		fmt.Printf("elek/storj:%s\n",v)
+		fmt.Printf("elek/storj:%s\n", v)
 	}
 
 	versions, err = listContainerVersions("storj")
@@ -212,7 +227,7 @@ func ListImages() error {
 		return err
 	}
 	for _, v := range versions {
-		fmt.Printf("elek/storj-edge:%s\n",v)
+		fmt.Printf("elek/storj-edge:%s\n", v)
 	}
 	return nil
 }
@@ -237,38 +252,38 @@ func dockerPush(image string, tag string) error {
 	return err
 }
 
-func DockerCorePublish(version string) error {
+func dockerCorePublish(version string) error {
 	return dockerPush("storj", version)
 }
 
-func DockerEdgePublish(version string) error {
+func dockerEdgePublish(version string) error {
 	return dockerPush("storj-edge", version)
 }
 
 // getNextDockerTag generates docker tag with the pattern yyyymmdd-n.
-// last used tag is saved to the file and supposed to be committed
+// last used tag is saved to the file and supposed to be committed.
 func getNextDockerTag(tagFile string) (string, error) {
 	datePattern := time.Now().Format("20060102")
 
 	if _, err := os.Stat(tagFile); os.IsNotExist(err) {
 		return datePattern + "-1", nil
-	} else {
-		content, err := ioutil.ReadFile(tagFile)
+	}
+
+	content, err := ioutil.ReadFile(tagFile)
+	if err != nil {
+		return "", err
+	}
+	parts := strings.Split(string(content), "-")
+	if parts[0] == datePattern {
+		i, err := strconv.Atoi(parts[1])
 		if err != nil {
 			return "", err
 		}
-		parts := strings.Split(string(content), "-")
-		if parts[0] == datePattern {
-			i, err := strconv.Atoi(parts[1])
-			if err != nil {
-				return "", err
-			}
-			return fmt.Sprintf("%s-%d", datePattern, i+1), err
+		return fmt.Sprintf("%s-%d", datePattern, i+1), err
 
-		} else {
-			return datePattern + "-1", nil
-		}
 	}
+	return datePattern + "-1", nil
+
 }
 
 func doOnMissing(containerName string, repoName string, action func(string, string, string) error) error {
@@ -301,7 +316,8 @@ func writeDockerTag(tagFile string, tag string) error {
 	return ioutil.WriteFile(tagFile, []byte(tag), 0644)
 }
 
-// ListVersions prints out the available container / release versions
+// ListVersions prints out the available container / release versions.
+//nolint:deadcode
 func ListVersions() error {
 	fmt.Println("container: elek/storj")
 	versions, err := listContainerVersions("storj")
@@ -339,60 +355,52 @@ func ListVersions() error {
 }
 
 func listReleaseVersions(name string) ([]string, error) {
-	var parser fastjson.Parser
 	url := fmt.Sprintf("https://api.github.com/repos/storj/%s/releases?per_page=10", name)
 	rawVersions, err := callGithubAPIV3(context.Background(), "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	parsed, err := parser.ParseBytes(rawVersions)
+
+	var releases []release
+	err = json.Unmarshal(rawVersions, &releases)
 	if err != nil {
 		return nil, err
 	}
-	versions, err := parsed.Array()
-	if err != nil {
-		return nil, err
-	}
+
 	var res []string
-	for _, v := range versions {
-		val := string(v.GetStringBytes("name"))
-		if strings.Contains(val, "rc") {
+	for _, v := range releases {
+		name := v.Name
+		if strings.Contains(name, "rc") {
 			continue
 		}
-		if val[0] == 'v' {
-			val = val[1:]
+		if name[0] == 'v' {
+			name = name[1:]
 		}
-		res = append(res, val)
+		res = append(res, name)
 	}
 	return res, nil
 }
 
 func listContainerVersions(name string) ([]string, error) {
-	var parser fastjson.Parser
 	url := fmt.Sprintf("https://api.github.com/users/elek/packages/container/%s/versions", name)
 	rawVersions, err := callGithubAPIV3(context.Background(), "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	parsed, err := parser.ParseBytes(rawVersions)
+
+	var versions []version
+	err = json.Unmarshal(rawVersions, &versions)
 	if err != nil {
 		return nil, err
 	}
-	versions, err := parsed.Array()
-	if err != nil {
-		return nil, err
-	}
-	res := []string{}
-	for _, v := range versions {
-		for _, t := range v.GetArray("metadata", "container", "tags") {
-			val, err := t.StringBytes()
-			if err != nil {
-				return nil, err
-			}
-			if string(val) == "latest" {
+
+	var res []string
+	for _, version := range versions {
+		for _, t := range version.Metadata.Container.Tags {
+			if t == "latest" {
 				continue
 			}
-			res = append(res, string(val))
+			res = append(res, t)
 		}
 	}
 	return res, nil
@@ -431,4 +439,42 @@ func getToken() (string, error) {
 		return token, nil
 	}
 	return "", fmt.Errorf("GITHUB_TOKEN environment variable must set")
+}
+
+// release is a Github API response object.
+type release struct {
+	URL             string    `json:"url"`
+	AssetsURL       string    `json:"assets_url"`
+	UploadURL       string    `json:"upload_url"`
+	HTMLURL         string    `json:"html_url"`
+	ID              int       `json:"id"`
+	NodeID          string    `json:"node_id"`
+	TagName         string    `json:"tag_name"`
+	TargetCommitish string    `json:"target_commitish"`
+	Name            string    `json:"name"`
+	Draft           bool      `json:"draft"`
+	Prerelease      bool      `json:"prerelease"`
+	CreatedAt       time.Time `json:"created_at"`
+	PublishedAt     time.Time `json:"published_at"`
+	TarballURL      string    `json:"tarball_url"`
+	ZipballURL      string    `json:"zipball_url"`
+	Body            string    `json:"body"`
+	MentionsCount   int       `json:"mentions_count,omitempty"`
+}
+
+// version is a Github API response object.
+type version struct {
+	ID             int       `json:"id"`
+	Name           string    `json:"name"`
+	URL            string    `json:"url"`
+	PackageHTMLURL string    `json:"package_html_url"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	HTMLURL        string    `json:"html_url"`
+	Metadata       struct {
+		PackageType string `json:"package_type"`
+		Container   struct {
+			Tags []string `json:"tags"`
+		} `json:"container"`
+	} `json:"metadata"`
 }

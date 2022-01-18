@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
-set -x
-check-copyright
-check-large-files
-check-imports ./...
-check-peer-constraints
-check-atomic-align ./...
-check-errs ./...
-check-monkit ./...
-staticcheck ./...
-golangci-lint -j=2 run
-check-mod-tidy -mod .build/go.mod.orig
+RESULT=0
+
+function runtest(){
+echo "=======$@======="
+if ! "$@"; then
+   echo "FAILED"
+   RESULT=1
+fi
+}
+
+runtest check-copyright
+runtest check-large-files
+runtest check-imports ./...
+runtest check-peer-constraints
+runtest check-atomic-align ./...
+runtest check-errs ./...
+runtest check-monkit ./...
+runtest staticcheck ./...
+runtest golangci-lint --build-tags mage -j=2 run
+runtest check-mod-tidy -mod .build/go.mod.orig
+exit $RESULT
