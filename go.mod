@@ -7,11 +7,13 @@ require (
 	github.com/goccy/go-yaml v1.9.3
 	github.com/lib/pq v1.10.3
 	github.com/magefile/mage v1.11.0
+	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/zeebo/errs v1.2.2
 	github.com/zeebo/errs/v2 v2.0.3
+	go.uber.org/zap v1.17.0
 	golang.org/x/tools v0.1.7 // indirect
 	storj.io/common v0.0.0-20211111143956-15b749504e31
 	storj.io/gateway-mt v1.18.0
@@ -80,7 +82,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pquerna/otp v1.3.0 // indirect
 	github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 // indirect
-	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/spacemonkeygo/monkit/v3 v3.0.17 // indirect
@@ -105,7 +106,6 @@ require (
 	go.opentelemetry.io/otel/trace v0.18.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
