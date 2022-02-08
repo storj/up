@@ -15,8 +15,8 @@ RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FET
 
 FROM ${TYPE} AS binaries
 RUN cd web/satellite && npm install && npm run build
-RUN cd web/multinode && npm install && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
-RUN cd web/storagenode && npm install && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
+RUN cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
+RUN cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
 RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
 RUN go install ./cmd/...
 
