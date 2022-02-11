@@ -87,7 +87,7 @@ services:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
-      STORJ_PUBLIC_URL: http://linksharing:8080,http://localhost:8080
+      STORJ_PUBLIC_URL: http://linksharing:9090,http://localhost:9090
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: ghcr.io/elek/storj-edge:1.19.0
     networks:
@@ -95,7 +95,7 @@ services:
     ports:
     - mode: ingress
       target: 8080
-      published: 8080
+      published: 9090
       protocol: tcp
   redis:
     image: redis:6.0.9
@@ -164,7 +164,7 @@ services:
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
       STORJ_WAIT_FOR_DB: "true"
       STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: http://localhost:8888
-      STORJ_CONSOLE_LINKSHARING_URL: http://127.0.0.1:8080
+      STORJ_CONSOLE_LINKSHARING_URL: http://localhost:9090
     image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
