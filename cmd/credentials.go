@@ -105,6 +105,7 @@ func addCredentials(ctx context.Context) error {
 		fmt.Printf("Grant: %s\n", grant)
 	} else {
 		fmt.Printf("export STORJ_ACCESS=%s\n", grant)
+		fmt.Printf("export UPLINK_ACCESS=%s\n", grant)
 	}
 
 	accessKey, secretKey, endpoint, err := pkg.RegisterAccess(ctx, authService, internalGrant)

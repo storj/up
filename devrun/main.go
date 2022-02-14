@@ -148,6 +148,7 @@ var (
 				return errs.Wrap(err)
 			}
 			fmt.Printf("export STORJ_ACCESS=%s", grant)
+			fmt.Printf("export UPLINK_ACCESS=%s", grant)
 
 			return err
 		},
