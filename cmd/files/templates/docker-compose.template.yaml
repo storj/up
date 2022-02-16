@@ -110,6 +110,7 @@ services:
     - --identity-dir=/var/lib/storj/identities/1
     environment:
       STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
+      STORJ_ADMIN_STATIC_DIR: /var/lib/storj/storj/satellite/admin/ui/build
       STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
       STORJ_DEBUG_ADDR: 0.0.0.0:11111

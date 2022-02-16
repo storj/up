@@ -2,7 +2,8 @@ ARG TYPE
 
 FROM ubuntu:21.04 as base
 RUN apt-get update
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install golang git sudo npm make gcc brotli
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install golang git sudo nodejs make gcc brotli
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
 
 USER storj

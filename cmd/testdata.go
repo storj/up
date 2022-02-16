@@ -48,7 +48,7 @@ func testdataCmd() *cobra.Command {
 		}
 		generators = append(generators, subCmd)
 	}
-	
+
 	{
 		subCmd := &cobra.Command{
 			Use:   "project-usage",

@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ghcr.io/elek/storj-build:20220113-1 AS base
+FROM ghcr.io/elek/storj-build:20220216-1 AS base
 
 FROM base AS github
 ARG BRANCH

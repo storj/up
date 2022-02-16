@@ -28,7 +28,9 @@ func GetSatelliteID(ctx context.Context, address string) (string, error) {
 
 	dialer.DialTimeout = 10 * time.Second
 	dialContext := socket.BackgroundDialer().DialContext
-	dialer.Connector = rpc.NewDefaultTCPConnector(&rpc.ConnectorAdapter{DialContext: dialContext})
+
+	//lint:ignore SA1019 it's safe to use TCP here instead of QUIC + TCP
+	dialer.Connector = rpc.NewDefaultTCPConnector(&rpc.ConnectorAdapter{DialContext: dialContext}) //nolint:staticcheck
 
 	conn, err := dialer.DialAddressInsecure(ctx, address)
 	if err != nil {
