@@ -90,7 +90,6 @@ func printConfigStruct(prefix string, configType reflect.Type) {
 			fmt.Printf("%-70s %s %s\n", prefix+"_"+camelToUpperCase(field.Name), field.Tag.Get("help"), defaultValue)
 		}
 	}
-
 }
 
 func camelToUpperCase(name string) string {

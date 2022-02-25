@@ -83,7 +83,6 @@ func init() {
 }
 
 func updateCompose(services []string, remoteType string) error {
-
 	err := ExtractFile("storj.Dockerfile", dockerfiles.StorjDocker)
 	if err != nil {
 		return err
@@ -159,7 +158,7 @@ func updateCompose(services []string, remoteType string) error {
 // ExtractFile extract embedded file, if doesn't exist.
 func ExtractFile(fileName string, content []byte) error {
 	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		return ioutil.WriteFile(fileName, content, 0644)
+		return ioutil.WriteFile(fileName, content, 0o644)
 	}
 	return nil
 }

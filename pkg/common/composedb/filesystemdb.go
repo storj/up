@@ -15,8 +15,7 @@ const (
 )
 
 // FileDatabase implements is an abstraction of ioutil.WriterFile.
-type FileDatabase struct {
-}
+type FileDatabase struct{}
 
 // Write implements the Writer interface for a flat filesystem database.
 func (db FileDatabase) Write(filename string, data []byte) error {
@@ -28,7 +27,7 @@ func (db FileDatabase) Write(filename string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filepath.Join(path, filename)+composeHistoryFileEXT, data, 0644)
+	return ioutil.WriteFile(filepath.Join(path, filename)+composeHistoryFileEXT, data, 0o644)
 }
 
 // Read implements the Reader interface for a flat filesystem database.

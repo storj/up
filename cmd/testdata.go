@@ -65,7 +65,6 @@ func testdataCmd() *cobra.Command {
 
 	cmd.AddCommand(generators...)
 	return cmd
-
 }
 
 func generatePayments(database string) error {

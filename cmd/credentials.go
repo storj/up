@@ -21,8 +21,10 @@ import (
 	"storj.io/storj/satellite/console/consolewasm"
 )
 
-var satelliteHost, email, authService string
-var export, write bool
+var (
+	satelliteHost, email, authService string
+	export, write                     bool
+)
 
 func credentialsCmd() *cobra.Command {
 	credentialsCmd := &cobra.Command{
@@ -141,7 +143,7 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 
 	var content []byte
 
-	_ = os.MkdirAll(path.Dir(rcloneConf), 0755)
+	_ = os.MkdirAll(path.Dir(rcloneConf), 0o755)
 	if _, err := os.Stat(rcloneConf); err == nil {
 		content, err = ioutil.ReadFile(rcloneConf)
 		if err != nil {
@@ -194,6 +196,6 @@ func updateRclone(key string, secret string, endpoint string, grant string) (err
 		out.WriteString("type = tardigrade\n")
 		out.WriteString("access_grant = " + grant + "\n")
 	}
-	err = ioutil.WriteFile(rcloneConf, []byte(out.String()), 0644)
+	err = ioutil.WriteFile(rcloneConf, []byte(out.String()), 0o644)
 	return err
 }

@@ -9,7 +9,6 @@ import (
 )
 
 func Test_removeFlag(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		command []string
@@ -45,7 +44,6 @@ func Test_removeFlag(t *testing.T) {
 }
 
 func Test_setFlag(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		command []string

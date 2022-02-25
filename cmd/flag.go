@@ -119,5 +119,4 @@ func removeFlag(command []string, s string) []string {
 		}
 	}
 	return res
-
 }

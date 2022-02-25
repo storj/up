@@ -17,7 +17,6 @@ func serviceCmd() *cobra.Command {
 		Use:   "services <selector>",
 		Short: "return service names given in args. Without argument it prints out all the possble service selectors",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			if len(args) > 0 {
 				resolvedServices, err := common.ResolveServices(args)
 				if err != nil {
@@ -31,7 +30,6 @@ func serviceCmd() *cobra.Command {
 					if len(v) == 0 {
 						fmt.Printf("%s\n", k)
 					}
-
 				}
 				fmt.Println()
 				fmt.Println("Available group selectors (and resolutions):")
@@ -40,7 +38,6 @@ func serviceCmd() *cobra.Command {
 					if len(v) > 0 {
 						fmt.Printf("%s => %s\n", k, v)
 					}
-
 				}
 			}
 

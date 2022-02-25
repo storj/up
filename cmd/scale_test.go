@@ -11,7 +11,6 @@ import (
 )
 
 func TestScale(t *testing.T) {
-
 	k := types.ServiceConfig{
 		Name:  "storagenode",
 		Image: "foobar",

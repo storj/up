@@ -105,7 +105,7 @@ func WriteComposeFileNoHistory(compose *types.Project) error {
 	if err != nil {
 		return errs.Wrap(err)
 	}
-	if err = ioutil.WriteFile("docker-compose.yaml", resolvedServices, 0644); err != nil {
+	if err = ioutil.WriteFile("docker-compose.yaml", resolvedServices, 0o644); err != nil {
 		return err
 	}
 	return nil

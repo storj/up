@@ -10,7 +10,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/zeebo/errs"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +17,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/zeebo/errs"
 
 	"github.com/magefile/mage/sh"
 )
@@ -54,7 +55,6 @@ func Format() error {
 		return err
 	}
 	return sh.RunV("goimports", "-w", ".")
-
 }
 
 // GenBuild re-generates `./build` helper binary.
@@ -66,7 +66,6 @@ func GenBuild() error {
 		"GOARCH":      "amd64",
 	}
 	return sh.RunWithV(envs, "mage", "-compile", "build")
-
 }
 
 // DockerBaseBuild builds storj-base image.
@@ -231,6 +230,7 @@ func ListImages() error {
 	}
 	return nil
 }
+
 func dockerPushWithNextTag(image string) error {
 	tagFile := fmt.Sprintf("%s.last", image)
 	tag, err := getNextDockerTag(tagFile)
@@ -283,7 +283,6 @@ func getNextDockerTag(tagFile string) (string, error) {
 
 	}
 	return datePattern + "-1", nil
-
 }
 
 func doOnMissing(containerName string, repoName string, action func(string, string, string) error) error {
@@ -313,7 +312,7 @@ func doOnMissing(containerName string, repoName string, action func(string, stri
 
 // writeDockerTag persist the last used docker tag to a file.
 func writeDockerTag(tagFile string, tag string) error {
-	return ioutil.WriteFile(tagFile, []byte(tag), 0644)
+	return ioutil.WriteFile(tagFile, []byte(tag), 0o644)
 }
 
 // ListVersions prints out the available container / release versions.

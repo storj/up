@@ -55,7 +55,6 @@ func GetSatelliteID(ctx context.Context, address string) (string, error) {
 }
 
 func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {
-
 	ident, err := identity.NewFullIdentity(ctx, identity.NewCAOptions{
 		Difficulty:  0,
 		Concurrency: 1,

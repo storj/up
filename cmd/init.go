@@ -20,7 +20,6 @@ func initCmd() *cobra.Command {
 		Short: "Generate docker-compose file with selected services. " + selectorHelp + ". Without argument it generates " +
 			"full Storj cluster with databases (storj,db)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
 			if err != nil {
 				return err

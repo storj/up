@@ -20,7 +20,7 @@ linters:
     - gocritic                # checks for style, performance issues, and common programming errors
     - godot                   # dots for everything
     - goerr113                # check error expressions
-    - gofmt                   # sanity check formatting
+    - gofumpt                 # gofmt with stricter formatting requirements
     - goprintffuncname        # checks that printf-like functions are named with `f` at the end [fast: true, auto-fix: false]
     - govet                   # check standard vet rules
     - importas                # verify that imports are consistent
@@ -40,7 +40,6 @@ linters:
     #TODO#- forcetypeassert   # needs work to replace unchecked interface type assertion
     #TODO#- gochecknoglobals  # needs work to remove globals
     #TODO#- gochecknoinits    # needs work to remove init()
-    #TODO#- gofumpt           # not sure whether it's useful
     #TODO#- nestif            # looks useful, however needs work
     #TODO#- prealloc          # easy optimizations
     #TODO#- unparam           # check for unused parameters
@@ -59,6 +58,7 @@ linters:
     - goconst          # check for things that could be replaced by constants
     - gocyclo          # this complexity is not a good metric
     - godox            # too many false positivies
+    - gofmt            # running gofmt is covered by gofumpt
     - goheader         # separate tool
     - goimports        # disabled, because it's slow, using scripts/check-imports.go instead.
     - gomnd            # false positives
