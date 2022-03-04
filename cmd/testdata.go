@@ -13,6 +13,9 @@ import (
 	"github.com/zeebo/errs"
 	"go.uber.org/zap"
 
+	"storj.io/common/pb"
+	"storj.io/common/storj"
+	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
 	"storj.io/storj/satellite/compensation"
 	"storj.io/storj/satellite/overlay"
@@ -45,6 +48,17 @@ func testdataCmd() *cobra.Command {
 		}
 		generators = append(generators, subCmd)
 	}
+	
+	{
+		subCmd := &cobra.Command{
+			Use:   "project-usage",
+			Short: "Generated bandwidth rollups for buckets and projects",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return generateProjectUsage(*database)
+			},
+		}
+		generators = append(generators, subCmd)
+	}
 
 	{
 		subCmd := &cobra.Command{
@@ -65,6 +79,52 @@ func testdataCmd() *cobra.Command {
 
 	cmd.AddCommand(generators...)
 	return cmd
+}
+
+func generateProjectUsage(database string) error {
+	ctx := context.Background()
+	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	bucket, _ := db.Buckets().CreateBucket(ctx, storj.Bucket{
+		ID:                          uuid.UUID{},
+		Name:                        "practice-bucket",
+		ProjectID:                   uuid.UUID{},
+		PartnerID:                   uuid.UUID{},
+		UserAgent:                   nil,
+		Created:                     time.Time{},
+		PathCipher:                  0,
+		DefaultSegmentsSize:         0,
+		DefaultRedundancyScheme:     storj.RedundancyScheme{},
+		DefaultEncryptionParameters: storj.EncryptionParameters{},
+		Placement:                   0,
+	})
+
+	projects, err := db.Console().Projects().GetAll(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range projects {
+		intervalStart := time.Now().Round(time.Hour)
+		for i := 0; i < 24; i++ {
+			usage := rand.Intn(8192) * (1024 * 1024)
+			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
+			if err != nil {
+				return err
+			}
+			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, intervalStart)
+			if err != nil {
+				return err
+			}
+			intervalStart = intervalStart.Add(-1 * time.Hour)
+		}
+	}
+	return nil
 }
 
 func generatePayments(database string) error {
