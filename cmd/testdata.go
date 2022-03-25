@@ -59,6 +59,17 @@ func testdataCmd() *cobra.Command {
 		}
 		generators = append(generators, subCmd)
 	}
+	
+	{
+		subCmd := &cobra.Command{
+			Use:   "project-storage",
+			Short: "Generated storage for buckets and projects (configure tally interval in config)",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return generateProjectStorage(*database)
+			},
+		}
+		generators = append(generators, subCmd)
+	}
 
 	{
 		subCmd := &cobra.Command{
@@ -123,6 +134,69 @@ func generateProjectUsage(database string) error {
 			}
 			intervalStart = intervalStart.Add(-1 * time.Hour)
 		}
+	}
+	return nil
+}
+
+func generateProjectStorage(database string) error {
+	ctx := context.Background()
+	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	byEmail, err := db.Console().Users().GetByEmail(ctx, "test@storj.io")
+	if err != nil {
+		return err
+	}
+
+	projects, err := db.Console().Projects().GetAll(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range projects {
+		timeStart := time.Now().Round(time.Hour)
+
+		randomStoredDataGB := int64(rand.Intn((1000) * (1.024e9)))
+		randomMetadataSize := randomStoredDataGB/500
+		randomObject := int64(rand.Intn(100))
+		randomSegmentCount := randomStoredDataGB/(6.5e7)
+		defaultSegmentSize := int64(6.5e7)
+
+		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          byEmail.ID,
+			Name:                        "storage-bucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     timeStart,
+			PathCipher:                  0,
+			DefaultSegmentsSize:         defaultSegmentSize,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+		if err != nil {
+			return err
+		}
+		
+		tally := accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     timeStart,
+			ObjectCount:       randomObject,
+			TotalSegmentCount: randomSegmentCount,
+			TotalBytes:        randomStoredDataGB,
+			MetadataSize:      randomMetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx,tally)
+			if err != nil {
+				return err
+			}
 	}
 	return nil
 }
