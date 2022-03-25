@@ -17,6 +17,7 @@ import (
 	"storj.io/common/storj"
 	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
+	"storj.io/storj/satellite/accounting"
 	"storj.io/storj/satellite/compensation"
 	"storj.io/storj/satellite/overlay"
 	"storj.io/storj/satellite/satellitedb"
