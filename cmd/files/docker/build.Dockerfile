@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ubuntu:21.04 as base
+FROM ubuntu:21.10 as base
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install golang git sudo nodejs make gcc brotli
