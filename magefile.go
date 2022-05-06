@@ -18,9 +18,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zeebo/errs"
-
 	"github.com/magefile/mage/sh"
+	"github.com/zeebo/errs"
 )
 
 // Test executes all unit and integration tests.
