@@ -24,8 +24,8 @@ storj-up init
 Start the cluster:
 
 ```
-docker-compose up -d
-docker-compose ps
+docker compose up -d
+docker compose ps
 ```
 
 You can check the generated credentials with:
@@ -82,6 +82,8 @@ STORJ_SERVER_CONFIG_PEER_CAWHITELIST_PATH                              path to t
 
 ### Example: Using your local satellite installation rather than a remote change
 
+#### Backend
+
 After running `storj-up init`, you can use the following command to replace binaries from your local machine:
 
 **On Linux:**
@@ -106,20 +108,44 @@ You will also need to cross-compile to Linux when you update your local satellit
 GOOS=linux GOARCH=amd64 go install ./cmd/satellite
 ```
 
-Then, run `docker-compose up -d` followed to start the containers.
+Then if you are not currently running the containers, run
+
+```
+docker compose up -d
+```
+
+to start the containers.
 
 Or run 
 
 ```
-docker restart storj-satellite-core-1 storj-satellite-api-1 storj-satellite-admin-1
+docker restart up-satellite-core-1 up-satellite-api-1 up-satellite-admin-1
 ```
 
 to restart already-running containers.
 
-**Using local satellite webapp**
+#### Frontend
 
 Here, you will need to attach your local web/satellite/dist directory as a volume. Do this with
 
 ```
 storj-up local-ws /path/to/storj/web/satellite/
+```
+
+When you run `npm run build` from your local web/satellite directory, the webapp should be automatically updated, no need to restart any docker containers.
+
+The exception is if you are making a frontend change in web/satellite that requires a corresponding backend change. In this case, you will need to also run `go install ./cmd/satellite` followed by a restart of the relevant containers (see command at the end of the "Backend" section above).
+
+### Resetting your database
+
+There is a chance that due to going back and forth between database versions will result in errors that look like this in your logs:
+
+```
+up-satellite-api-1    | 2022-05-16T17:34:53.916Z        DEBUG   process/exec_conf.go:403        Unrecoverable error     {"error": "Error checking version for satellitedb: validate db version mismatch: expected 196 != 195\n\tstorj.io/storj/private/migrate.(*Migration).ValidateVersions:138\n\tstorj.io/storj/satellite/satellitedb.(*satelliteDB).CheckVersion:138
+```
+
+If you are okay with starting with a fresh satellite database, this can be accomplished by running
+
+```
+docker compose down -v
 ```
