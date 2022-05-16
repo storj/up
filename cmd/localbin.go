@@ -76,8 +76,8 @@ func init() {
 
 func mountBinaries(composeService *types.ServiceConfig, _ string) error {
 	goBinPath := path.Join(os.Getenv("GOPATH"), "bin")
-	target := path.Join("/var/lib/storj/go/bin", common.BinaryDict[composeService.Name])
 	source := path.Join(path.Join(goBinPath, subdir), common.BinaryDict[composeService.Name])
+	target := path.Join("/var/lib/storj/go/bin", common.BinaryDict[composeService.Name])
 	for _, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
 			volume.Source == source &&
