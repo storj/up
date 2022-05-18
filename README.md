@@ -122,11 +122,13 @@ Or run
 docker restart up-satellite-core-1 up-satellite-api-1 up-satellite-admin-1
 ```
 
+(the "up" prefix may be different depending on the location of your docker-compose.yaml file)
+
 to restart already-running containers.
 
 #### Frontend
 
-Here, you will need to attach your local web/satellite/dist directory as a volume. Do this with
+Here, you will need to attach your local web/satellite directory as a volume. Do this with
 
 ```
 storj-up local-ws /path/to/storj/web/satellite/

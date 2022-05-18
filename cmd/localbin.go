@@ -90,8 +90,8 @@ func mountBinaries(composeService *types.ServiceConfig, _ string) error {
 }
 
 func mountWebSatellite(composeService *types.ServiceConfig, webSatPath string) error {
-	source := path.Join(webSatPath, "dist")
-	target := "/var/lib/storj/storj/web/satellite/dist/"
+	source := webSatPath
+	target := "/var/lib/storj/storj/web/satellite/"
 	for _, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
 			volume.Source == source &&
