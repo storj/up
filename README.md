@@ -138,7 +138,25 @@ When you run `npm run build` from your local web/satellite directory, the webapp
 
 The exception is if you are making a frontend change in web/satellite that requires a corresponding backend change. In this case, you will need to also run `go install ./cmd/satellite` followed by a restart of the relevant containers (see command at the end of the "Backend" section above).
 
-### Resetting your database
+### Interacting with and resetting your Satellite database
+
+`docker compose ps` will list your running containers. Find the one that looks like `<prefix>-cockroach-1`
+
+To run sql on this container,
+
+```
+docker exec -it <prefix>-cockroach-1 ./cockroach sql --insecure 
+```
+
+`show databases;` will list all the databases you can query from. `master` will contain most satellite tables, and `metainfo` contains... metainfo tables.
+
+`use <database>;` will switch to one of those.
+
+`show tables;` will give a list of tables accessible from the selected database.
+
+Then you can run queries like `update users set project_limit=3 where ...;`
+
+#### Resetting
 
 There is a chance that due to going back and forth between database versions will result in errors that look like this in your logs:
 
