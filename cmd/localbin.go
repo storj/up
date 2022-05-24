@@ -13,7 +13,7 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-var subdir string
+var dir, subdir string
 
 func localBinCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
@@ -38,7 +38,8 @@ func localBinCmd() *cobra.Command {
 			return common.WriteComposeFile(updatedComposeProject)
 		},
 	}
-	mountCmd.PersistentFlags().StringVarP(&subdir, "subdir", "s", "", "sub directory of the go/bin folder where binaries are located")
+	mountCmd.PersistentFlags().StringVarP(&dir, "dir", "d", path.Join(os.Getenv("GOPATH"), "bin"), "path where binaries are located")
+	mountCmd.PersistentFlags().StringVarP(&subdir, "subdir", "s", "", "sub directory of the path where binaries are located")
 	return mountCmd
 }
 
@@ -75,14 +76,12 @@ func init() {
 }
 
 func mountBinaries(composeService *types.ServiceConfig, _ string) error {
-	goBinPath := path.Join(os.Getenv("GOPATH"), "bin")
-	source := path.Join(path.Join(goBinPath, subdir), common.BinaryDict[composeService.Name])
+	source := path.Join(path.Join(dir, subdir), common.BinaryDict[composeService.Name])
 	target := path.Join("/var/lib/storj/go/bin", common.BinaryDict[composeService.Name])
-	for _, volume := range composeService.Volumes {
+	for i, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
-			volume.Source == source &&
 			volume.Target == target {
-			return nil
+			composeService.Volumes = append(composeService.Volumes[:i], composeService.Volumes[i+1:]...)
 		}
 	}
 	composeService.Volumes = append(composeService.Volumes, common.CreateBind(source, target))
