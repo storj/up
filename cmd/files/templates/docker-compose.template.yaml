@@ -2,14 +2,14 @@ version: "3.4"
 services:
   app-edge:
     build:
-      context: ./cmd/files/docker/
+      context: .
       dockerfile: edge.Dockerfile
     image: edge
     networks:
       default: null
   app-storj:
     build:
-      context: ./cmd/files/docker/
+      context: .
       dockerfile: storj.Dockerfile
     image: storj
     networks:
@@ -31,7 +31,7 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ROLE: authservice
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj-edge:1.14.0
+    image: ghcr.io/elek/storj-edge:1.19.0
     networks:
       default: null
     ports:
@@ -66,14 +66,17 @@ services:
     - --defaults=dev
     environment:
       STORJ_AUTH_TOKEN: super-secret
+      #before 1.17
       STORJ_AUTH_URL: http://authservice:8888
+      #from 1.17
+      STORJ_AUTH_BASE_URL: http://authservice:8888
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_SERVER_ADDRESS: 0.0.0.0:9999
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj-edge:1.14.0
+    image: ghcr.io/elek/storj-edge:1.19.0
     networks:
       default: null
     ports:
@@ -90,15 +93,15 @@ services:
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
-      STORJ_PUBLIC_URL: http://linksharing:8080,http://localhost:8080
+      STORJ_PUBLIC_URL: http://linksharing:9090,http://localhost:9090
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj-edge:1.14.0
+    image: ghcr.io/elek/storj-edge:1.19.0
     networks:
       default: null
     ports:
     - mode: ingress
       target: 8080
-      published: 8080
+      published: 9090
       protocol: tcp
   redis:
     image: redis:6.0.9
@@ -113,6 +116,7 @@ services:
     - --identity-dir=/var/lib/storj/identities/1
     environment:
       STORJ_ADMIN_ADDRESS: 0.0.0.0:8080
+      STORJ_ADMIN_STATIC_DIR: /var/lib/storj/storj/satellite/admin/ui/build
       STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
@@ -125,7 +129,12 @@ services:
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_ROLE: satellite-admin
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj:1.39.6
+    image: ghcr.io/elek/storj:1.45.3
+    ports:
+      - mode: ingress
+        target: 8080
+        published: 9080
+        protocol: tcp
     networks:
       default: null
   satellite-api:
@@ -135,8 +144,6 @@ services:
     - api
     - --defaults=dev
     - --identity-dir=/var/lib/storj/identities/1
-    - --console.gateway-credentials-request-url=http://localhost:8888
-    - --console.linksharing-url=http://127.0.0.1:8080
     environment:
       STORJ_ADDRESS: 0.0.0.0:7777
       STORJ_CONSOLE_ADDRESS: 0.0.0.0:10000
@@ -163,7 +170,9 @@ services:
       STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
       STORJ_WAIT_FOR_DB: "true"
-    image: ghcr.io/elek/storj:1.39.6
+      STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: http://localhost:8888
+      STORJ_CONSOLE_LINKSHARING_URL: http://localhost:9090
+    image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
     ports:
@@ -193,7 +202,7 @@ services:
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
       STORJ_ROLE: satellite-core
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj:1.39.6
+    image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
   storagenode:
@@ -214,13 +223,13 @@ services:
       STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
       STORJ_ROLE: storagenode
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
-      STORJ_SERVER_USER_PEER_CA_WHITELIST: "false"
+      STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
       STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
       STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
       STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
       STORJ_WAIT_FOR_SATELLITE: "true"
-    image: ghcr.io/elek/storj:1.39.6
+    image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
   uplink:
@@ -229,7 +238,7 @@ services:
     - infinity
     environment:
       STORJ_ROLE: uplink
-    image: ghcr.io/elek/storj:1.39.6
+    image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
   versioncontrol:
@@ -248,7 +257,7 @@ services:
       STORJ_DEFAULTS: dev
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
-    image: ghcr.io/elek/storj:1.39.6
+    image: ghcr.io/elek/storj:1.45.3
     networks:
       default: null
     ports:
@@ -256,3 +265,14 @@ services:
       target: 8080
       published: 7070
       protocol: tcp
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus.yml"
+    command: [ "--config.file","/etc/prometheus.yml" ]
+    ports:
+      - 9090:9090
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000

@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -7,12 +10,15 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func LocalCmd() *cobra.Command {
+func localCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "local",
 		Short: "build local src directories for use inside the container",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
+			if err != nil {
+				return err
+			}
 			updatedComposeProject, err := common.UpdateEach(composeProject, buildLocalSrc, args[0], args[1:])
 			if err != nil {
 				return err
@@ -23,7 +29,7 @@ func LocalCmd() *cobra.Command {
 }
 
 func init() {
-	BuildCmd.AddCommand(LocalCmd())
+	buildCmd.AddCommand(localCmd())
 }
 
 func buildLocalSrc(_ *types.ServiceConfig, _ string) error {

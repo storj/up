@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -10,15 +13,15 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func ScaleCmd() *cobra.Command {
+func scaleCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scale <number> [service ...]",
 		Short: "static scale of services",
 		Args:  cobra.MinimumNArgs(2),
-		Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker-compose scale any more`. " +
+		Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker compose scale` any more. " +
 			"But also not required to scale up and down and it's possible to do per instance local bindmount",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -28,7 +31,7 @@ func ScaleCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, Scale, arguments[0], selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, scale, arguments[0], selector)
 			if err != nil {
 				return err
 			}
@@ -38,10 +41,10 @@ func ScaleCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(ScaleCmd())
+	rootCmd.AddCommand(scaleCmd())
 }
 
-func Scale(composeService *types.ServiceConfig, scale string) error {
+func scale(composeService *types.ServiceConfig, scale string) error {
 	instances, err := strconv.ParseUint(scale, 10, 64)
 	if err != nil {
 		return errs.Wrap(err)

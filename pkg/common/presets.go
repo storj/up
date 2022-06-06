@@ -1,7 +1,14 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package common
 
+import "fmt"
+
+// Key is an identfier of one service or service group.
 type Key uint
 
+// ServiceDict maps each service and groups to bitmap.
 var ServiceDict = map[string]uint{
 	"authservice":     1,
 	"cockroach":       2,
@@ -33,6 +40,7 @@ var ServiceDict = map[string]uint{
 	"storj":           1 + 4 + 8 + 32 + 64 + 128 + 256 + 512 + 1024,
 }
 
+// BinaryDict contains the name of executable binaries for Storj service.
 var BinaryDict = map[string]string{
 	"authservice":     "authservice",
 	"gateway-mt":      "gateway-mt",
@@ -45,6 +53,7 @@ var BinaryDict = map[string]string{
 	"versioncontrol":  "versioncontrol",
 }
 
+// BuildDict stores the name of the container to build for Storj services.
 var BuildDict = map[string]string{
 	"authservice":     "app-edge",
 	"gateway-mt":      "app-edge",
@@ -99,19 +108,29 @@ const (
 	traefik                   // 131072
 )
 
-func ResolveBuilds(services []string) map[string]string {
+// ResolveBuilds returns with the required docker images to build (as keys in the maps).
+func ResolveBuilds(services []string) (map[string]string, error) {
 	result := make(map[string]string)
-	for _, service := range ResolveServices(services) {
+	resolvedServices, err := ResolveServices(services)
+	if err != nil {
+		return result, err
+	}
+	for _, service := range resolvedServices {
 		result[BuildDict[service]] = ""
 	}
-	return result
+	return result, nil
 }
 
-func ResolveServices(services []string) []string {
+// ResolveServices replaces group definition with exact services in the list.
+func ResolveServices(services []string) ([]string, error) {
 	var result []string
 	var key uint
 	for _, service := range services {
-		key |= ServiceDict[service]
+		value, found := ServiceDict[service]
+		if !found {
+			return nil, fmt.Errorf("invalid service selector %s, please run `storj-up services` to find supported values", service)
+		}
+		key |= value
 	}
 
 	for service := authservice; service <= traefik; service++ {
@@ -119,7 +138,7 @@ func ResolveServices(services []string) []string {
 			result = append(result, serviceNameHelper[service.String()])
 		}
 	}
-	return result
+	return result, nil
 }
 
 // GetSelectors returns with selectors and associated services (in case of group definition).

@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -12,19 +15,19 @@ import (
 func init() {
 	argCmd := cobra.Command{
 		Use:   "args",
-		Short: "set/unset arguments (startup command) to sepcificed services",
+		Short: "set/unset build arguments on specified services",
 	}
 	rootCmd.AddCommand(&argCmd)
-	argCmd.AddCommand(SetArgCmd())
-	argCmd.AddCommand(UnsetArgCmd())
+	argCmd.AddCommand(setArgCmd())
+	argCmd.AddCommand(unsetArgCmd())
 }
 
-func SetArgCmd() *cobra.Command {
+func setArgCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "set <selector> KEY=VALUE",
-		Short: "Set arguments (startup command) on service. " + selectorHelp,
+		Short: "Set build arguments on service. Build arguments should be supported by referenced Dockerfile " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -33,7 +36,7 @@ func SetArgCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetArg, args[0], selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, setArg, args[0], selector)
 			if err != nil {
 				return err
 			}
@@ -42,12 +45,12 @@ func SetArgCmd() *cobra.Command {
 	}
 }
 
-func UnsetArgCmd() *cobra.Command {
+func unsetArgCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "remove <selector> KEY",
 		Short: "remove container arg",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -56,7 +59,7 @@ func UnsetArgCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetArg, args[0], selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, unsetArg, args[0], selector)
 			if err != nil {
 				return err
 			}
@@ -65,7 +68,7 @@ func UnsetArgCmd() *cobra.Command {
 	}
 }
 
-func SetArg(composeService *types.ServiceConfig, arg string) error {
+func setArg(composeService *types.ServiceConfig, arg string) error {
 	if composeService.Build == nil {
 		composeService.Build = &types.BuildConfig{
 			Args: map[string]*string{},
@@ -78,7 +81,7 @@ func SetArg(composeService *types.ServiceConfig, arg string) error {
 	return nil
 }
 
-func UnsetArg(composeService *types.ServiceConfig, arg string) error {
+func unsetArg(composeService *types.ServiceConfig, arg string) error {
 	delete(composeService.Build.Args, arg)
 	return nil
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Storj Labs, Inc.
+// Copyright (C) 2021 Storj Labs, Inc.
 // See LICENSE for copying information.
 
 package up
@@ -9,23 +9,21 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/zeebo/errs"
 
 	"storj.io/common/uuid"
 	"storj.io/storj/satellite/console/consoleauth"
-	"storj.io/storj/satellite/payments"
 )
 
-type consoleEndpoints struct {
+// ConsoleEndpoint represents a user session to the web console.
+type ConsoleEndpoint struct {
 	client     *http.Client
 	base       string
 	cookieName string
@@ -33,8 +31,9 @@ type consoleEndpoints struct {
 	token      string
 }
 
-func NewConsoleEndpoints(address string, email string) *consoleEndpoints {
-	return &consoleEndpoints{
+// NewConsoleEndpoints creates a new client which connects to running web console.
+func NewConsoleEndpoints(address string, email string) *ConsoleEndpoint {
+	return &ConsoleEndpoint{
 		client:     http.DefaultClient,
 		base:       "http://" + address,
 		cookieName: "_tokenKey",
@@ -42,7 +41,8 @@ func NewConsoleEndpoints(address string, email string) *consoleEndpoints {
 	}
 }
 
-func (ce *consoleEndpoints) Login(ctx context.Context) (err error) {
+// Login logins in to the web console (and creates use if it's necessary).
+func (ce *ConsoleEndpoint) Login(ctx context.Context) (err error) {
 	ce.token, err = ce.tryLogin(ctx, ce.email)
 	if err != nil {
 		_ = ce.tryCreateAndActivateUser(ctx, ce.email)
@@ -54,14 +54,7 @@ func (ce *consoleEndpoints) Login(ctx context.Context) (err error) {
 	return nil
 }
 
-func (ce *consoleEndpoints) checkLogin() error {
-	if ce.token == "" {
-		return errors.New("user is not yet logged in. please call login() first")
-	}
-	return nil
-}
-
-func (ce *consoleEndpoints) tryLogin(ctx context.Context, email string) (string, error) {
+func (ce *ConsoleEndpoint) tryLogin(ctx context.Context, email string) (string, error) {
 	var authToken struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -78,7 +71,7 @@ func (ce *consoleEndpoints) tryLogin(ctx context.Context, email string) (string,
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		ce.Token(),
+		ce.tokenEndpointPath(),
 		bytes.NewReader(res))
 	if err != nil {
 		return "", errs.Wrap(err)
@@ -106,7 +99,7 @@ func (ce *consoleEndpoints) tryLogin(ctx context.Context, email string) (string,
 	return token, nil
 }
 
-func (ce *consoleEndpoints) tryCreateAndActivateUser(ctx context.Context, email string) error {
+func (ce *ConsoleEndpoint) tryCreateAndActivateUser(ctx context.Context, email string) error {
 	regToken, err := ce.createRegistrationToken(ctx)
 	if err != nil {
 		return errs.Wrap(err)
@@ -118,11 +111,11 @@ func (ce *consoleEndpoints) tryCreateAndActivateUser(ctx context.Context, email 
 	return errs.Wrap(ce.activateUser(ctx, userID, email))
 }
 
-func (ce *consoleEndpoints) createRegistrationToken(ctx context.Context) (string, error) {
+func (ce *ConsoleEndpoint) createRegistrationToken(ctx context.Context) (string, error) {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		ce.RegToken(),
+		ce.registrationTokenPath(),
 		nil)
 	if err != nil {
 		return "", errs.Wrap(err)
@@ -153,7 +146,7 @@ func (ce *consoleEndpoints) createRegistrationToken(ctx context.Context) (string
 	return createTokenResponse.Secret, nil
 }
 
-func (ce *consoleEndpoints) createUser(ctx context.Context, regToken string, email string) (string, error) {
+func (ce *ConsoleEndpoint) createUser(ctx context.Context, regToken string, email string) (string, error) {
 	var registerData struct {
 		FullName  string `json:"fullName"`
 		ShortName string `json:"shortName"`
@@ -176,7 +169,7 @@ func (ce *consoleEndpoints) createUser(ctx context.Context, regToken string, ema
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		ce.Register(),
+		ce.registerEndpointPath(),
 		bytes.NewReader(res))
 	if err != nil {
 		return "", errs.Wrap(err)
@@ -202,7 +195,7 @@ func (ce *consoleEndpoints) createUser(ctx context.Context, regToken string, ema
 	return userID, nil
 }
 
-func (ce *consoleEndpoints) activateUser(ctx context.Context, userID string, email string) error {
+func (ce *ConsoleEndpoint) activateUser(ctx context.Context, userID string, email string) error {
 	userUUID, err := uuid.FromString(userID)
 	if err != nil {
 		return errs.Wrap(err)
@@ -216,7 +209,7 @@ func (ce *consoleEndpoints) activateUser(ctx context.Context, userID string, ema
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		ce.Activation(activationToken),
+		ce.activationEndpointPath(activationToken),
 		nil)
 	if err != nil {
 		return err
@@ -236,131 +229,8 @@ func (ce *consoleEndpoints) activateUser(ctx context.Context, userID string, ema
 	return nil
 }
 
-func (ce *consoleEndpoints) setupAccount(ctx context.Context, token string) error {
-	request, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		ce.SetupAccount(),
-		nil)
-	if err != nil {
-		return err
-	}
-
-	request.AddCookie(&http.Cookie{
-		Name:  ce.cookieName,
-		Value: token,
-	})
-
-	resp, err := ce.client.Do(request)
-	if err != nil {
-		return err
-	}
-	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
-
-	if resp.StatusCode != http.StatusOK {
-		return errs.New("unexpected status code: %d (%q)",
-			resp.StatusCode, tryReadLine(resp.Body))
-	}
-
-	return nil
-}
-
-func (ce *consoleEndpoints) addCreditCard(ctx context.Context, token, cctoken string) error {
-	request, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		ce.CreditCards(),
-		strings.NewReader(cctoken))
-	if err != nil {
-		return err
-	}
-
-	request.AddCookie(&http.Cookie{
-		Name:  ce.cookieName,
-		Value: token,
-	})
-
-	resp, err := ce.client.Do(request)
-	if err != nil {
-		return err
-	}
-	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
-
-	if resp.StatusCode != http.StatusOK {
-		return errs.New("unexpected status code: %d (%q)",
-			resp.StatusCode, tryReadLine(resp.Body))
-	}
-
-	return nil
-}
-
-func (ce *consoleEndpoints) listCreditCards(ctx context.Context, token string) ([]payments.CreditCard, error) {
-	request, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		ce.CreditCards(),
-		nil)
-	if err != nil {
-		return nil, err
-	}
-
-	request.AddCookie(&http.Cookie{
-		Name:  ce.cookieName,
-		Value: token,
-	})
-
-	resp, err := ce.client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errs.New("unexpected status code: %d (%q)",
-			resp.StatusCode, tryReadLine(resp.Body))
-	}
-
-	var list []payments.CreditCard
-
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&list)
-	if err != nil {
-		return nil, err
-	}
-
-	return list, nil
-}
-
-func (ce *consoleEndpoints) makeCreditCardDefault(ctx context.Context, token, ccID string) error {
-	request, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPatch,
-		ce.CreditCards(),
-		strings.NewReader(ccID))
-	if err != nil {
-		return err
-	}
-
-	request.AddCookie(&http.Cookie{
-		Name:  ce.cookieName,
-		Value: token,
-	})
-
-	resp, err := ce.client.Do(request)
-	if err != nil {
-		return err
-	}
-	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
-
-	if resp.StatusCode != http.StatusOK {
-		return errs.New("unexpected status code: %d (%q)",
-			resp.StatusCode, tryReadLine(resp.Body))
-	}
-
-	return nil
-}
-
-func (ce *consoleEndpoints) GetOrCreateProject(ctx context.Context) (string, error) {
+// GetOrCreateProject return with project to use in this session.
+func (ce *ConsoleEndpoint) GetOrCreateProject(ctx context.Context) (string, error) {
 	projectID, err := ce.getProject(ctx)
 	if err == nil {
 		return projectID, nil
@@ -372,7 +242,7 @@ func (ce *consoleEndpoints) GetOrCreateProject(ctx context.Context) (string, err
 	return ce.getProject(ctx)
 }
 
-func (ce *consoleEndpoints) getProject(ctx context.Context) (string, error) {
+func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, error) {
 	query := `query {myProjects{id}}`
 	var getProjects struct {
 		MyProjects []struct {
@@ -386,7 +256,7 @@ func (ce *consoleEndpoints) getProject(ctx context.Context) (string, error) {
 	return getProjects.MyProjects[0].ID, err
 }
 
-func (ce *consoleEndpoints) createProject(ctx context.Context) (string, error) {
+func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createProjectQuery := fmt.Sprintf(
 		`mutation {createProject(input:{name:"TestProject-%d",description:""}){id}}`,
@@ -401,7 +271,8 @@ func (ce *consoleEndpoints) createProject(ctx context.Context) (string, error) {
 	return createProject.CreateProject.ID, err
 }
 
-func (ce *consoleEndpoints) CreateAPIKey(ctx context.Context, projectID string) (string, error) {
+// CreateAPIKey creates new API key to access Storj services.
+func (ce *ConsoleEndpoint) CreateAPIKey(ctx context.Context, projectID string) (string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createAPIKeyQuery := fmt.Sprintf(
 		`mutation {createAPIKey(projectID:%q,name:"TestKey-%d"){key}}`,
@@ -416,11 +287,11 @@ func (ce *consoleEndpoints) CreateAPIKey(ctx context.Context, projectID string) 
 	return createAPIKey.CreateAPIKey.Key, err
 }
 
-func (ce *consoleEndpoints) graphqlQuery(ctx context.Context, createAPIKeyQuery string, response interface{}) error {
+func (ce *ConsoleEndpoint) graphqlQuery(ctx context.Context, createAPIKeyQuery string, response interface{}) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		ce.GraphQL(),
+		ce.graphQLEndpointPath(),
 		nil)
 	if err != nil {
 		return errs.Wrap(err)
@@ -440,11 +311,11 @@ func (ce *consoleEndpoints) graphqlQuery(ctx context.Context, createAPIKeyQuery 
 	return ce.graphqlDo(request, response)
 }
 
-func (ce *consoleEndpoints) graphqlMutation(ctx context.Context, query string, response interface{}) error {
+func (ce *ConsoleEndpoint) graphqlMutation(ctx context.Context, query string, response interface{}) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
-		ce.GraphQL(),
+		ce.graphQLEndpointPath(),
 		bytes.NewReader([]byte(query)))
 	if err != nil {
 		return errs.Wrap(err)
@@ -494,7 +365,7 @@ func tryReadLine(r io.Reader) string {
 	return scanner.Text()
 }
 
-func (ce *consoleEndpoints) graphqlDo(request *http.Request, jsonResponse interface{}) error {
+func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interface{}) error {
 	resp, err := ce.client.Do(request)
 	if err != nil {
 		return err
@@ -526,38 +397,31 @@ func (ce *consoleEndpoints) graphqlDo(request *http.Request, jsonResponse interf
 	return json.NewDecoder(bytes.NewReader(response.Data)).Decode(jsonResponse)
 }
 
-func (ce *consoleEndpoints) appendPath(suffix string) string {
+func (ce *ConsoleEndpoint) appendPath(suffix string) string {
 	return ce.base + suffix
 }
 
-func (ce *consoleEndpoints) RegToken() string {
+func (ce *ConsoleEndpoint) registrationTokenPath() string {
 	return ce.appendPath("/registrationToken/?projectsLimit=1")
 }
 
-func (ce *consoleEndpoints) Register() string {
+func (ce *ConsoleEndpoint) registerEndpointPath() string {
 	return ce.appendPath("/api/v0/auth/register")
 }
 
-func (ce *consoleEndpoints) SetupAccount() string {
-	return ce.appendPath("/api/v0/payments/account")
-}
-
-func (ce *consoleEndpoints) CreditCards() string {
-	return ce.appendPath("/api/v0/payments/cards")
-}
-
-func (ce *consoleEndpoints) Activation(token string) string {
+func (ce *ConsoleEndpoint) activationEndpointPath(token string) string {
 	return ce.appendPath("/activation/?token=" + token)
 }
 
-func (ce *consoleEndpoints) Token() string {
+func (ce *ConsoleEndpoint) tokenEndpointPath() string {
 	return ce.appendPath("/api/v0/auth/token")
 }
 
-func (ce *consoleEndpoints) GraphQL() string {
+func (ce *ConsoleEndpoint) graphQLEndpointPath() string {
 	return ce.appendPath("/api/v0/graphql")
 }
 
+// RegisterAccess creates new access registered to linksharing.
 func RegisterAccess(ctx context.Context, authService string, accessSerialized string) (accessKey, secretKey, endpoint string, err error) {
 	if authService == "" {
 		return "", "", "", errs.New("no auth service address provided")

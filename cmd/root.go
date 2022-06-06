@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -8,11 +11,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var ComposeFile = "docker-compose.yaml"
-
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "storj-up",
 	Short: "A golang wrapper for creating customized docker and docker-compose files",
@@ -23,6 +24,7 @@ For example:
 sjr build remote gerrit 5826`,
 }
 
+// Execute is the execution of the top level storj-up command.
 func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }

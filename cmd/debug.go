@@ -1,3 +1,6 @@
+// Copyright (C) 2021 Storj Labs, Inc.
+// See LICENSE for copying information.
+
 package cmd
 
 import (
@@ -9,13 +12,13 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-func DebugCmd() *cobra.Command {
+func enableDebugCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "enable <selector> ",
 		Short: "turn on local debugging with DLV",
 		Long:  "Add environment variable which will activate the DLV debug. Container won't start until the agent is connected. " + selectorHelp,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -25,7 +28,7 @@ func DebugCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, SetDebug, "GO_DLV=true", selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, setDebug, "GO_DLV=true", selector)
 			if err != nil {
 				return err
 			}
@@ -34,12 +37,12 @@ func DebugCmd() *cobra.Command {
 	}
 }
 
-func NoDebugCmd() *cobra.Command {
+func disableDebugCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "disable [service ...]",
 		Short: "turn off local debugging with DLV",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			composeProject, err := common.LoadComposeFromFile(ComposeFile)
+			composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 			if err != nil {
 				return err
 			}
@@ -48,7 +51,7 @@ func NoDebugCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			updatedComposeProject, err := common.UpdateEach(composeProject, UnsetDebug, "GO_DLV", selector)
+			updatedComposeProject, err := common.UpdateEach(composeProject, unsetDebug, "GO_DLV", selector)
 			if err != nil {
 				return err
 			}
@@ -63,12 +66,13 @@ func init() {
 		Short: "enable/disable local DLV based go debug",
 	}
 
-	debugCmd.AddCommand(DebugCmd())
-	debugCmd.AddCommand(NoDebugCmd())
+	debugCmd.AddCommand(enableDebugCmd())
+	debugCmd.AddCommand(disableDebugCmd())
 	rootCmd.AddCommand(&debugCmd)
 }
 
-func SetDebug(composeService *types.ServiceConfig, arg string) error {
+// setDebug enables the port-forward and environment variable for one docker service.
+func setDebug(composeService *types.ServiceConfig, arg string) error {
 	parts := strings.SplitN(arg, "=", 2)
 	composeService.Environment[parts[0]] = &parts[1]
 	for _, portConfig := range composeService.Ports {
@@ -88,7 +92,7 @@ func SetDebug(composeService *types.ServiceConfig, arg string) error {
 	return nil
 }
 
-func UnsetDebug(composeService *types.ServiceConfig, arg string) error {
+func unsetDebug(composeService *types.ServiceConfig, arg string) error {
 	delete(composeService.Environment, arg)
 	for i, port := range composeService.Ports {
 		if port.Target == 2345 {

@@ -3,8 +3,8 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
 
-if [ ! "$(which sjr)" ]; then
-   go install github.com/elek/sjr@latest
+if [ ! "$(which storj-up)" ]; then
+   go install storj.io/storj-up@latest
 fi
 
 if [ ! "$(which uplink)" ]; then
@@ -15,18 +15,17 @@ if [ ! "$(which rclone)" ]; then
   go install github.com/rclone/rclone@v1.56.2
 fi
 
-sjr init edge
-sjr scale 10 storagenode
+storj-up init
 
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 
-sjr health
+storj-up health
 
 dd if=/dev/random of=data count=10240 bs=1024
 sha256sum data > sha256.sum
 
-sjr credentials -w
+storj-up credentials -w
 
 BUCKET=bucket$RANDOM
 rclone mkdir storjdevs3:$BUCKET
@@ -37,4 +36,4 @@ rm data
 rclone copy storjdevs3:$BUCKET/data download
 mv download/data ./
 sha256sum -c sha256.sum
-docker-compose down -v
+docker compose down -v
