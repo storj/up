@@ -39,6 +39,12 @@ services:
       target: 8888
       published: 8888
       protocol: tcp
+  traefik:
+    image: ghcr.io/elek/storj-traefik:latest
+    networks:
+      default:
+        aliases:
+          - traefik-authservice
   cockroach:
     command:
     - start-single-node

@@ -31,6 +31,7 @@ var ServiceDict = map[string]uint{
 	"app-base-ubuntu": 16384,
 	"app-edge":        32768,
 	"app-storj":       65536,
+	"traefik":         131072,
 	"minimal":         64 + 256,
 	"edge":            1 + 4 + 8,
 	"db":              2 + 16,
@@ -83,6 +84,7 @@ var serviceNameHelper = map[string]string{
 	"appbaseubuntu":  "app-base-ubuntu",
 	"appedge":        "app-edge",
 	"appstorj":       "app-storj",
+	"traefik":        "traefik",
 }
 
 const (
@@ -103,6 +105,7 @@ const (
 	appbaseubuntu             // 16384
 	appedge                   // 32768
 	appstorj                  // 65536
+	traefik                   // 131072
 )
 
 // ResolveBuilds returns with the required docker images to build (as keys in the maps).
@@ -129,7 +132,8 @@ func ResolveServices(services []string) ([]string, error) {
 		}
 		key |= value
 	}
-	for service := authservice; service <= appstorj; service++ {
+
+	for service := authservice; service <= traefik; service++ {
 		if key&(1<<service) != 0 {
 			result = append(result, serviceNameHelper[service.String()])
 		}
