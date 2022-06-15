@@ -59,6 +59,28 @@ func testdataCmd() *cobra.Command {
 		}
 		generators = append(generators, subCmd)
 	}
+	
+	{
+		subCmd := &cobra.Command{
+			Use:   "billing-deleted-bucket",
+			Short: "Generated usage on a bucket > said bucket gets deleted > bucket is recreated > check billing",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return billingDeletedBucket(*database)
+			},
+		}
+		generators = append(generators, subCmd)
+	}
+
+	{
+		subCmd := &cobra.Command{
+			Use:   "generate-project-storage",
+			Short: "Generates storage on project",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return generateProjectStorage(*database)
+			},
+		}
+		generators = append(generators, subCmd)
+	}
 
 	{
 		subCmd := &cobra.Command{
@@ -122,6 +144,155 @@ func generateProjectUsage(database string) error {
 				return err
 			}
 			intervalStart = intervalStart.Add(-1 * time.Hour)
+		}
+	}
+	return nil
+}
+
+func billingDeletedBucket(database string) error {
+	ctx := context.Background()
+	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+
+	projects, err := db.Console().Projects().GetAll(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range projects {
+
+		intervalStart := time.Now().Round(time.Hour)
+		defaultSegmentSize := int64(6.5e7)
+
+		//creates bucket called "theBucket", under any created user and uses 2TB of bandwidth
+		bucket, _ := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          uuid.UUID{},
+			Name:                        "theBucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     intervalStart,
+			PathCipher:                  0,
+			DefaultSegmentsSize:         defaultSegmentSize,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+
+		for i := 0; i < 24; i++ {
+			usage := int64(107374182400)
+			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, usage, intervalStart)
+			if err != nil {
+				return err
+			}
+			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, usage, 0, intervalStart)
+			if err != nil {
+				return err
+			}
+			intervalStart = intervalStart.Add(-1 * time.Hour)
+		}
+
+		//deletes bucket made previously, otherwise if not deleted it would show up under buckets with correct bandwidth used
+		err = db.Buckets().DeleteBucket(ctx, []byte(bucket.Name),p.ID)
+		if err != nil {
+			return err
+		}
+
+		//bucket with same name is created, and some bandwidth used, total bandwidth should include previously deleted bucket, estimated charges should reflect this
+		bucket2, _ := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          uuid.UUID{},
+			Name:                        "theBucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     intervalStart,
+			PathCipher:                  0,
+			DefaultSegmentsSize:         defaultSegmentSize,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+
+		for i := 0; i < 24; i++ {
+			mUsage := int64(0)
+			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket2.Name), pb.PieceAction_GET, mUsage, intervalStart)
+			if err != nil {
+				return err
+			}
+			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket2.Name), pb.PieceAction_GET, mUsage, 0, intervalStart)
+			if err != nil {
+				return err
+			}
+			intervalStart = intervalStart.Add(-1 * time.Hour)
+		}
+	}
+	return nil
+}
+
+func generateProjectStorage(database string) error {
+	ctx := context.Background()
+	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	projects, err := db.Console().Projects().GetAll(ctx)
+	if err != nil {
+		return err
+	}
+	for _, p := range projects {
+		timeNow := time.Now().Round(time.Hour)
+		hour := 1
+		timeThen := timeNow.Add(time.Duration(-hour) * time.Hour)
+		randomStoredDataGB := int64(rand.Intn((1000) * (1.024e9)))
+		randomMetadataSize := randomStoredDataGB/500
+		randomObject := int64(rand.Intn(100))
+		randomSegmentCount := randomStoredDataGB/(6.5e7)
+		defaultSegmentSize := int64(6.5e7)
+
+		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          uuid.UUID{},
+			Name:                        "storage-bucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     timeThen,
+			PathCipher:                  0,
+			DefaultSegmentsSize:         defaultSegmentSize,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+		if err != nil {
+			return err
+		}
+
+		tally := accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     timeThen,
+			ObjectCount:       randomObject,
+			TotalSegmentCount: randomSegmentCount,
+			TotalBytes:        randomStoredDataGB,
+			MetadataSize:      randomMetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx,tally)
+		if err != nil {
+			return err
+		}
+
+		err = db.ProjectAccounting().SaveTallies(ctx,timeNow,map[metabase.BucketLocation]*accounting.BucketTally{})
+		if err != nil {
+			return err
 		}
 	}
 	return nil
