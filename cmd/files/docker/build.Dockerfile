@@ -4,7 +4,7 @@ FROM ubuntu:22.04 as base
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli
-RUN curl -L https://go.dev/dl/go1.18.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
+RUN curl -L https://go.dev/dl/go1.17.12.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
 
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
 
@@ -26,7 +26,7 @@ RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FET
 
 FROM ${TYPE} AS binaries
 RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh && \
-    go build -buildvcs=false ./cmd/... && \
+    go build ./cmd/... && \
     cd .. && \
     rm -rf storj
 WORKDIR ../
@@ -35,5 +35,5 @@ FROM binaries AS final
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
 
 ADD . /var/lib/storj/sjr
-RUN cd /var/lib/storj/sjr/devrun && go install -buildvcs=false
+RUN cd /var/lib/storj/sjr/devrun && go install
 COPY --chown=storj identities /var/lib/storj/identities
