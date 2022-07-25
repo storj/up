@@ -1,4 +1,4 @@
-FROM ubuntu:21.04 AS final
+FROM ubuntu:22.04 AS final
 RUN apt-get update
 RUN apt-get -y install iproute2 ca-certificates
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
