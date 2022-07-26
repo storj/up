@@ -32,6 +32,11 @@ if [ "$STORJ_ROLE" == "satellite-api" ]; then
   fi
 fi
 
+if [ "$STORJ_ROLE" == "authservice" ]; then
+  export SATELLITE_IP=$(getent hosts satellite-api | awk '{ print $1 }')
+  export STORJ_ALLOWED_SATELLITES=12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@$SATELLITE_IP:7777
+fi
+
 if [ "$STORJ_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
   export STORJ_CONTACT_EXTERNAL_ADDRESS=$STORJ_NODE_IP:28967
