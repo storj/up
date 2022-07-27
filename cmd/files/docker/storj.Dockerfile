@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ghcr.io/elek/storj-build:20220216-1 AS base
+FROM ghcr.io/dlamarmorgan/storj-build:20220725-1  AS base
 
 FROM base AS github
 ARG BRANCH
@@ -21,7 +21,7 @@ RUN cd satellite/admin/ui && npm install && npm run build
 RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
 RUN go install ./cmd/...
 
-FROM ghcr.io/elek/storj-base:20220113-1 AS final
+FROM ghcr.io/dlamarmorgan/storj-base:20220725-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist

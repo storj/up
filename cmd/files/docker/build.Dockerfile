@@ -1,6 +1,6 @@
 ARG TYPE
 
-FROM ubuntu:21.10 as base
+FROM ubuntu:22.04 as base
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli
@@ -26,7 +26,7 @@ RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FET
 
 FROM ${TYPE} AS binaries
 RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh && \
-    go build ./cmd/... && \
+    go build -buildvcs=false ./cmd/... && \
     cd .. && \
     rm -rf storj
 WORKDIR ../
@@ -35,5 +35,5 @@ FROM binaries AS final
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
 
 ADD . /var/lib/storj/sjr
-RUN cd /var/lib/storj/sjr/devrun && go install
+RUN cd /var/lib/storj/sjr/devrun && go install -buildvcs=false
 COPY --chown=storj identities /var/lib/storj/identities
