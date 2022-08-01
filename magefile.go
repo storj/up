@@ -68,55 +68,72 @@ func GenBuild() error {
 	return sh.RunWithV(envs, "mage", "-compile", "build")
 }
 
+func withDockerTag(filename string, publish bool, action func(tag string) error) error {
+	tag, err := getNextDockerTag(filename)
+	if err != nil {
+		return err
+	}
+
+	err = action(tag)
+	if err != nil {
+		return err
+	}
+	if publish {
+		return writeDockerTag(filename, tag)
+	}
+	return nil
+}
+
 // DockerBaseBuild builds storj-base image.
 //nolint:deadcode
 func DockerBaseBuild() error {
-	tag, err := getNextDockerTag("storj-base.last")
-	if err != nil {
-		return err
-	}
-	err = sh.RunV("docker", "build", "-t", "img.dev.storj.io/storjup/base:"+tag, "-f", "cmd/files/docker/base.Dockerfile", ".")
-	if err != nil {
-		return err
-	}
-	return nil
+	return dockerBase(false)
 }
 
 // DockerBasePublish pushes storj-base image.
 //nolint:deadcode
 func DockerBasePublish() error {
-	return dockerPushWithNextTag("base")
+	return dockerBase(true)
+}
+
+func dockerBase(publish bool) error {
+	return withDockerTag("storj-base.last", publish, func(tag string) error {
+		return buildxRun(publish,
+			"build",
+			"--tag", "img.dev.storj.io/storjup/base:"+tag,
+			"-f", "cmd/files/docker/base.Dockerfile", ".")
+	})
 }
 
 // DockerBuildBuild builds the storj-build docker image.
 //nolint:deadcode
 func DockerBuildBuild() error {
-	tag, err := getNextDockerTag("build.last")
-	if err != nil {
-		return err
-	}
-	err = sh.RunV(
-		"docker",
-		"build",
-		"--build-arg", "BRANCH=main",
-		"--build-arg", "TYPE=github",
-		"--build-arg", "REPO=https://github.com/storj/storj.git",
-		"-t", "img.dev.storj.io/storjup/build:"+tag,
-		"-f", "cmd/files/docker/build.Dockerfile", ".")
-	if err != nil {
-		return err
-	}
-	return nil
+	return dockerBuild(false)
 }
 
 // DockerBuildPublish pushes the storj-build docker image
 //nolint:deadcode
 func DockerBuildPublish() error {
-	return dockerPushWithNextTag("build")
+	return errs.Combine(
+		dockerBuild(true),
+	)
 }
 
-func dockerCoreBuild(version string) error {
-	err := sh.RunV("docker",
+func dockerBuild(publish bool) error {
+	return withDockerTag("build.last", publish, func(tag string) error {
+		return buildxRun(publish,
+			"build",
+			"--build-arg", "TYPE=github",
+			"--build-arg", "BRANCH=main",
+			"--build-arg", "REPO=https://github.com/storj/storj.git",
+			"--tag", "img.dev.storj.io/storjup/build:"+tag,
+			"-f", "cmd/files/docker/build.Dockerfile", ".")
+	})
+}
+
+func dockerCore(version string, publish bool) error {
+	err := buildxRun(
+		publish,
 		"build",
 		"-t", "img.dev.storj.io/storjup/storj:"+version,
 		"--build-arg", "BRANCH=v"+version,
@@ -128,8 +145,27 @@ func dockerCoreBuild(version string) error {
 	return nil
 }
 
-func dockerEdgeBuild(version string) error {
-	err := sh.RunV("docker",
+func buildxRun(publish bool, args ...string) error {
+	if publish {
+		args = append(args, "--push")
+	}
+
+	hasPlatform := false
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--platform") {
+			hasPlatform = true
+		}
+	}
+	if !hasPlatform {
+		args = append(args, "--platform=linux/amd64,linux/arm64")
+	}
+
+	args = append([]string{"docker", "buildx"}, args...)
+	return sh.RunV(args[0], args[1:]...)
+}
+
+func dockerEdge(version string, publish bool) error {
+	err := buildxRun(publish,
 		"build",
 		"-t", "img.dev.storj.io/storjup/edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
@@ -155,11 +191,7 @@ func RebuildImages() error {
 		return err
 	}
 	for _, v := range versions {
-		err := dockerCoreBuild(v)
-		if err != nil {
-			return err
-		}
-		err = dockerCorePublish(v)
+		err := dockerCore(v, true)
 		if err != nil {
 			return err
 		}
@@ -170,11 +202,7 @@ func RebuildImages() error {
 		return err
 	}
 	for _, v := range versions {
-		err := dockerEdgeBuild(v)
-		if err != nil {
-			return err
-		}
-		err = dockerEdgePublish(v)
+		err := dockerEdge(v, true)
 		if err != nil {
 			return err
 		}
@@ -182,31 +210,29 @@ func RebuildImages() error {
 	return nil
 }
 
-// DockerEdgeBuild builds the edge container.
+// DockerEdge builds a Edge docker image for local use.
 //nolint:deadcode
-func DockerEdgeBuild() error {
-	version := os.Getenv("VERSION")
+func DockerEdge(version string, publish bool) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}
-	return dockerEdgeBuild(version)
+	return dockerEdge(version, publish)
 }
 
-// DockerStorjBuild builds the core storj container.
+// DockerStorj builds a Core docker image for local use.
 //nolint:deadcode
-func DockerStorjBuild() error {
-	version := os.Getenv("VERSION")
+func DockerStorj(version string, publish bool) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}
-	return dockerCoreBuild(version)
+	return dockerCore(version, publish)
 }
 
 // Images build missing images for existing git tags
 //nolint:deadcode
 func Images() error {
 	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
-		err := dockerCoreBuild(version)
+		err := dockerCore(version, true)
 		if err != nil {
 			return err
 		}
@@ -217,7 +243,7 @@ func Images() error {
 	}
 
 	err = doOnMissing("edge", "gateway-mt", func(container string, repo string, version string) error {
-		err := dockerEdgeBuild(version)
+		err := dockerEdge(version, true)
 		if err != nil {
 			return err
 		}
@@ -241,7 +267,7 @@ func ListImages() error {
 		fmt.Printf("storj:%s\n", v)
 	}
 
-	versions, err = listContainerVersions("storj-ed")
+	versions, err = listContainerVersions("edge")
 	if err != nil {
 		return err
 	}
@@ -249,19 +275,6 @@ func ListImages() error {
 		fmt.Printf("edge:%s\n", v)
 	}
 	return nil
-}
-
-func dockerPushWithNextTag(image string) error {
-	tagFile := fmt.Sprintf("%s.last", image)
-	tag, err := getNextDockerTag(tagFile)
-	if err != nil {
-		return err
-	}
-	err = sh.RunV("docker", "push", fmt.Sprintf("img.dev.storj.io/storjup/%s:%s", image, tag))
-	if err != nil {
-		return err
-	}
-	return writeDockerTag(tagFile, tag)
 }
 
 func dockerPush(image string, tag string) error {
