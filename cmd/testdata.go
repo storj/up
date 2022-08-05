@@ -110,18 +110,22 @@ func generateProjectUsage(database string) error {
 		return err
 	}
 	for _, p := range projects {
-		intervalStart := time.Now().Round(time.Hour)
+		now := time.Now()
+		currentYear, currentMonth, _ := now.Date()
+		currentLocation := now.Location()
+		lastOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -1)
 		for i := 0; i < 24; i++ {
-			usage := rand.Intn(8192) * (1024 * 1024)
-			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
+			usage := 1024000000000
+			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), lastOfMonth)
 			if err != nil {
 				return err
 			}
-			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, intervalStart)
+			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, lastOfMonth)
 			if err != nil {
 				return err
 			}
-			intervalStart = intervalStart.Add(-1 * time.Hour)
+
+			lastOfMonth = lastOfMonth.Add(-1 * time.Hour)
 		}
 	}
 	return nil
