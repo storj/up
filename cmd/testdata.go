@@ -100,15 +100,15 @@ func generateProjectUsage(database string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	for _, p := range projects {
+
 		now := time.Now()
 		currentYear, currentMonth, _ := now.Date()
 		currentLocation := now.Location()
 		lastOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -1)
-		lastOfMonth2 := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -2)
-		minuteAfterlastOfMonth := lastOfMonth2.Add(1 * time.Minute)
-		intervalStart := lastOfMonth
+		dayTen := time.Date(currentYear, currentMonth, 10, 1, 0, 0, 0, currentLocation).AddDate(0, -1, 0)
+		intervalStart := dayTen
 
 		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
 			ID:                          byEmail.ID,
@@ -116,22 +116,22 @@ func generateProjectUsage(database string) error {
 			ProjectID:                   p.ID,
 			PartnerID:                   uuid.UUID{},
 			UserAgent:                   nil,
-			Created:                     lastOfMonth,
+			Created:                     dayTen,
 			PathCipher:                  0,
 			DefaultRedundancyScheme:     storj.RedundancyScheme{},
 			DefaultEncryptionParameters: storj.EncryptionParameters{},
 			Placement:                   0,
 		})
 
-		StoredData := int64(1024000000000)
+		StoredData := int64(1583717400000)
 		MetadataSize := int64(2)
-		Object := int64(10)
+		Object := int64(1)
 		SegmentCount := int64(2)
 
 		tally := accounting.BucketStorageTally{
 			BucketName:        bucket.Name,
 			ProjectID:         p.ID,
-			IntervalStart:     lastOfMonth2,
+			IntervalStart:     dayTen,
 			ObjectCount:       Object,
 			TotalSegmentCount: SegmentCount,
 			TotalBytes:        StoredData,
@@ -142,7 +142,7 @@ func generateProjectUsage(database string) error {
 		tally = accounting.BucketStorageTally{
 			BucketName:        bucket.Name,
 			ProjectID:         p.ID,
-			IntervalStart:     minuteAfterlastOfMonth,
+			IntervalStart:     dayTen.Add(1 * time.Minute),
 			ObjectCount:       Object,
 			TotalSegmentCount: SegmentCount,
 			TotalBytes:        StoredData,
@@ -150,6 +150,27 @@ func generateProjectUsage(database string) error {
 		}
 		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
 
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     lastOfMonth,
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     lastOfMonth.Add(1 * time.Minute),
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
@@ -162,6 +183,7 @@ func generateProjectUsage(database string) error {
 			}
 			intervalStart = intervalStart.Add(-1 * time.Hour)
 		}
+
 	}
 	return nil
 }
