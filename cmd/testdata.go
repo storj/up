@@ -91,41 +91,76 @@ func generateProjectUsage(database string) error {
 		_ = db.Close()
 	}()
 
-	bucket, _ := db.Buckets().CreateBucket(ctx, storj.Bucket{
-		ID:                          uuid.UUID{},
-		Name:                        "practice-bucket",
-		ProjectID:                   uuid.UUID{},
-		PartnerID:                   uuid.UUID{},
-		UserAgent:                   nil,
-		Created:                     time.Time{},
-		PathCipher:                  0,
-		DefaultSegmentsSize:         0,
-		DefaultRedundancyScheme:     storj.RedundancyScheme{},
-		DefaultEncryptionParameters: storj.EncryptionParameters{},
-		Placement:                   0,
-	})
+	byEmail, err := db.Console().Users().GetByEmail(ctx, "test@storj.io")
+	if err != nil {
+		return err
+	}
 
 	projects, err := db.Console().Projects().GetAll(ctx)
 	if err != nil {
 		return err
 	}
+	
 	for _, p := range projects {
 		now := time.Now()
 		currentYear, currentMonth, _ := now.Date()
 		currentLocation := now.Location()
 		lastOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -1)
+		lastOfMonth2 := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -2)
+		minuteAfterlastOfMonth := lastOfMonth2.Add(1 * time.Minute)
+		intervalStart := lastOfMonth
+
+		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          byEmail.ID,
+			Name:                        "storage-bucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     lastOfMonth,
+			PathCipher:                  0,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+
+		StoredData := int64(1024000000000)
+		MetadataSize := int64(2)
+		Object := int64(10)
+		SegmentCount := int64(2)
+
+		tally := accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     lastOfMonth2,
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     minuteAfterlastOfMonth,
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
-			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), lastOfMonth)
+			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
 			if err != nil {
 				return err
 			}
-			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, lastOfMonth)
+			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, intervalStart)
 			if err != nil {
 				return err
 			}
-
-			lastOfMonth = lastOfMonth.Add(-1 * time.Hour)
+			intervalStart = intervalStart.Add(-1 * time.Hour)
 		}
 	}
 	return nil
