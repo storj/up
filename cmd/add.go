@@ -62,6 +62,36 @@ func addToCompose(compose *types.Project, template *types.Project, services []st
 			}
 
 		}
+		if service == "geth" {
+			files, err := templates.BlockchainFiles.ReadDir("test-blockchain")
+			if err != nil {
+				return nil, err
+			}
+			for _, file := range files {
+				fileContent, err := templates.BlockchainFiles.ReadFile("test-blockchain/" + file.Name())
+				if err != nil {
+					return nil, err
+				}
+				err = ExtractFile("test-blockchain", file.Name(), fileContent)
+				if err != nil {
+					return nil, err
+				}
+			}
+			files, err = templates.CethFiles.ReadDir("cethacea")
+			if err != nil {
+				return nil, err
+			}
+			for _, file := range files {
+				fileContent, err := templates.CethFiles.ReadFile("cethacea/" + file.Name())
+				if err != nil {
+					return nil, err
+				}
+				err = ExtractFile("", "."+file.Name(), fileContent)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
 	}
 	return compose, nil
 }

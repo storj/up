@@ -11,6 +11,8 @@ if [ ! "$(which uplink)" ]; then
    go install storj.io/storj/cmd/uplink@latest
 fi
 
+export STORJUP_NO_HISTORY=true
+
 storj-up init minimal,db
 storj-up scale storagenode 10
 

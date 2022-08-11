@@ -1,3 +1,8 @@
 data
 sha256.sum
 docker-compose.yaml
+test-blockchain/
+.accounts.yaml
+.ceth.yaml
+.contracts.yaml
+.mnemonic

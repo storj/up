@@ -25,16 +25,19 @@ var ServiceDict = map[string]uint{
 	"storagenode":     256,
 	"uplink":          512,
 	"versioncontrol":  1024,
-	"prometheus":      2048,
-	"grafana":         4096,
-	"app-base-dev":    8192,
-	"app-base-ubuntu": 16384,
-	"app-edge":        32768,
-	"app-storj":       65536,
+	"storjscan":       2048,
+	"geth":            4096,
+	"prometheus":      8192,
+	"grafana":         16384,
+	"app-base-dev":    32768,
+	"app-base-ubuntu": 65536,
+	"app-edge":        131072,
+	"app-storj":       262144,
 	"minimal":         64 + 256,
 	"edge":            1 + 4 + 8,
 	"db":              2 + 16,
-	"monitor":         2048 + 4096,
+	"billing":         2048 + 4096,
+	"monitor":         8192 + 16384,
 	"core":            32 + 64 + 128 + 256 + 1024,
 	"storj":           1 + 4 + 8 + 32 + 64 + 128 + 256 + 512 + 1024,
 }
@@ -50,6 +53,7 @@ var BinaryDict = map[string]string{
 	"storagenode":     "storagenode",
 	"uplink":          "uplink",
 	"versioncontrol":  "versioncontrol",
+	"storjscan":       "storjscan",
 }
 
 // BuildDict stores the name of the container to build for Storj services.
@@ -77,6 +81,8 @@ var serviceNameHelper = map[string]string{
 	"storagenode":    "storagenode",
 	"uplink":         "uplink",
 	"versioncontrol": "versioncontrol",
+	"storjscan":      "storjscan",
+	"geth":           "geth",
 	"prometheus":     "prometheus",
 	"grafana":        "grafana",
 	"appbasedev":     "app-base-dev",
@@ -97,12 +103,14 @@ const (
 	storagenode               // 256
 	uplink                    // 512
 	versioncontrol            // 1024
-	prometheus                // 2048
-	grafana                   // 4096
-	appbasedev                // 8192
-	appbaseubuntu             // 16384
-	appedge                   // 32768
-	appstorj                  // 65536
+	storjscan                 // 2048
+	geth                      // 4096
+	prometheus                // 8192
+	grafana                   // 16384
+	appbasedev                // 32768
+	appbaseubuntu             // 65536
+	appedge                   // 131072
+	appstorj                  // 262144
 )
 
 // ResolveBuilds returns with the required docker images to build (as keys in the maps).

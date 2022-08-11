@@ -78,6 +78,39 @@ services:
       target: 9999
       published: 9999
       protocol: tcp
+  geth:
+    command:
+    - --keystore=/test-blockchain
+    - --password=/test-blockchain/pass
+    - --http
+    - --ws
+    - --dev
+    - --miner.etherbase=0x158D2c25bA6107B622F288663F50f53601ab6710
+    - --http.api=eth,net,web3,txpool,admin,debug
+    - --ws.api=eth,net,web3,txpool,admin,debug
+    - --http.vhosts=*
+    - --http.addr=0.0.0.0
+    - --ws.addr=0.0.0.0
+    - --http.corsdomain
+    - "*"
+    image: ethereum/client-go
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 8545
+      published: 8545
+      protocol: tcp
+    - mode: ingress
+      target: 8546
+      published: 8546
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ./test-blockchain
+      target: /test-blockchain
+      bind:
+        create_host_path: true
   linksharing:
     command:
     - linksharing
@@ -121,16 +154,21 @@ services:
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
+      STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
+      STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
+      STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-admin
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: img.dev.storj.io/storjup/storj:1.60.3
-    ports:
-      - mode: ingress
-        target: 8080
-        published: 9080
-        protocol: tcp
     networks:
       default: null
+    ports:
+    - mode: ingress
+      target: 8080
+      published: 9080
+      protocol: tcp
   satellite-api:
     command:
     - satellite
@@ -160,6 +198,11 @@ services:
       STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
+      STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
+      STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
+      STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-api
       STORJ_SERVER_ADDRESS: satellite-api:7777
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
@@ -197,6 +240,11 @@ services:
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
+      STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
+      STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
+      STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-core
       STORJ_WAIT_FOR_SATELLITE: "true"
     image: img.dev.storj.io/storjup/storj:1.60.3
@@ -230,6 +278,27 @@ services:
     image: img.dev.storj.io/storjup/storj:1.60.3
     networks:
       default: null
+  storjscan:
+    command:
+    - /app/storjscan
+    - run
+    - --database=cockroach://root@cockroach:26257/storjscan?sslmode=disable
+    - --tokens.endpoint=http://geth:8545
+    - --tokens.contract=0x1E119A589270646585b044db12098B1e456a88Af
+    - --token-price.interval=1m
+    - --token-price.coinmarketcap-config.base-url=https://sandbox-api.coinmarketcap.com
+    - --token-price.coinmarketcap-config.api-key=b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
+    - --token-price.coinmarketcap-config.timeout=1m
+    - --api.address=0.0.0.0:12000
+    - --api.keys=eu1:eu1secret,us1:us1secret
+    image: img.dev.storj.io/storjup/storjscan:20220808-1
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 12000
+      published: 12000
+      protocol: tcp
   uplink:
     command:
     - /usr/bin/sleep

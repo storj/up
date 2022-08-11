@@ -44,7 +44,7 @@ func Coverage() error {
 // Lint executes all the linters with golangci-lint.
 //nolint:deadcode
 func Lint() error {
-	return sh.RunV("./scripts/lint.sh")
+	return sh.RunV("bash", "./scripts/lint.sh")
 }
 
 // Format reformats code automatically.
@@ -180,7 +180,7 @@ func dockerEdge(version string, publish bool) error {
 // Integration executes integration tests.
 //nolint:deadcode
 func Integration() error {
-	return sh.RunV("test/test.sh")
+	return sh.RunV("bash", "test/test.sh")
 }
 
 // RebuildImages rebuilds all core and edge images.
