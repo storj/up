@@ -59,6 +59,17 @@ func testdataCmd() *cobra.Command {
 		}
 		generators = append(generators, subCmd)
 	}
+	
+	{
+		subCmd := &cobra.Command{
+			Use:   "fix-billing",
+			Short: "fixes billing, by overriding created_at timestamp",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return fixBilling()
+			},
+		}
+		generators = append(generators, subCmd)
+	}
 
 	{
 		subCmd := &cobra.Command{
@@ -79,6 +90,37 @@ func testdataCmd() *cobra.Command {
 
 	cmd.AddCommand(generators...)
 	return cmd
+}
+
+func fixBilling() error {
+
+	connStr := "postgresql://127.0.0.1:26257/master?sslmode=disable&user=root"
+
+	db, err := sql.Open("postgres",connStr )
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	sqlStatement := `
+	UPDATE stripe_customers
+	SET created_at ='2020-05-10'
+	WHERE true;`
+	_, err = db.Exec(sqlStatement)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print("\nfixed created-at date, invoice command should work now\n")
+
+	return nil
 }
 
 func generateProjectUsage(database string) error {
