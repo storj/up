@@ -120,7 +120,7 @@ func fixBilling() error {
 	if err != nil {
 		panic(err)
 	}
-
+	zap.L().Error("Couldn't execute generator", zap.Error(err))
 	fmt.Print("\nfixed created-at date, invoice command should work now\n")
 
 	return nil
@@ -167,6 +167,9 @@ func generateProjectUsage(database string) error {
 			DefaultEncryptionParameters: storj.EncryptionParameters{},
 			Placement:                   0,
 		})
+		if err != nil {
+			fmt.Printf("Unable to create bucket: %s\n", err.Error())
+		}
 
 		StoredData := int64(1583717400000)
 		MetadataSize := int64(2)
@@ -184,6 +187,9 @@ func generateProjectUsage(database string) error {
 		}
 
 		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
 		tally = accounting.BucketStorageTally{
 			BucketName:        bucket.Name,
 			ProjectID:         p.ID,
@@ -194,6 +200,9 @@ func generateProjectUsage(database string) error {
 			MetadataSize:      MetadataSize,
 		}
 		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
 
 		tally = accounting.BucketStorageTally{
 			BucketName:        bucket.Name,
@@ -206,6 +215,9 @@ func generateProjectUsage(database string) error {
 		}
 
 		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
 		tally = accounting.BucketStorageTally{
 			BucketName:        bucket.Name,
 			ProjectID:         p.ID,
@@ -216,6 +228,9 @@ func generateProjectUsage(database string) error {
 			MetadataSize:      MetadataSize,
 		}
 		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
