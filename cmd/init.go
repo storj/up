@@ -53,20 +53,16 @@ func initCompose(templateBytes []byte, services []string) (*types.Project, error
 		return nil, err
 	}
 
-	servicesString := strings.Join(resolvedServices, ",")
-
-	composeServices := templateComposeProject.AllServices()[:0]
-	for _, service := range templateComposeProject.AllServices() {
-		if strings.Contains(servicesString, service.Name) {
-			composeServices = append(composeServices, service)
-		}
+	compose, err := addToCompose(nil, templateComposeProject, resolvedServices)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(composeServices) == 0 {
+	if len(compose.Services) == 0 {
 		return nil, fmt.Errorf("no service is selected by selector \"%s\", please use `storj-up services` to check available service and group selectors to be used", strings.Join(services, ","))
 	}
 
-	templateComposeProject.Services = composeServices
+	templateComposeProject.Services = compose.Services
 
 	return templateComposeProject, nil
 }
