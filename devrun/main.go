@@ -97,7 +97,7 @@ var (
 			if err != nil {
 				return err
 			}
-			projectID, err := console.GetOrCreateProject(ctx)
+			projectID, cookie, err := console.GetOrCreateProject(ctx)
 			if err != nil {
 				return errs.Wrap(err)
 			}
@@ -112,6 +112,7 @@ var (
 				return errs.Wrap(err)
 			}
 			fmt.Printf("Grant: %s\n", grant)
+			fmt.Printf("Cookie: %s\n", cookie)
 
 			return err
 		},
@@ -135,7 +136,7 @@ var (
 			if err != nil {
 				return err
 			}
-			projectID, err := console.GetOrCreateProject(ctx)
+			projectID, cookie, err := console.GetOrCreateProject(ctx)
 			if err != nil {
 				return errs.Wrap(err)
 			}
@@ -149,6 +150,7 @@ var (
 			}
 			fmt.Printf("export STORJ_ACCESS=%s", grant)
 			fmt.Printf("export UPLINK_ACCESS=%s", grant)
+			fmt.Printf("export STORJ_SESSION_COOKIE=Cookie: _tokenKey=%s", cookie)
 
 			return err
 		},
