@@ -39,6 +39,10 @@ func init() {
 }
 
 func addToCompose(compose *types.Project, template *types.Project, services []string) (*types.Project, error) {
+	if compose == nil {
+		compose = &types.Project{Services: []types.ServiceConfig{}}
+	}
+
 	resolvedServices, err := common.ResolveServices(services)
 	if err != nil {
 		return nil, err
@@ -52,7 +56,7 @@ func addToCompose(compose *types.Project, template *types.Project, services []st
 			compose.Services = append(compose.Services, newService)
 		}
 		if service == "prometheus" {
-			err := ExtractFile("prometheus.yml", templates.PrometheusYaml)
+			err := ExtractFile("", "prometheus.yml", templates.PrometheusYaml)
 			if err != nil {
 				return nil, err
 			}

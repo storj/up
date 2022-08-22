@@ -142,6 +142,8 @@ services:
       STORJ_ADDRESS: 0.0.0.0:7777
       STORJ_CONSOLE_ADDRESS: 0.0.0.0:10000
       STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
+      STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: http://localhost:8888
+      STORJ_CONSOLE_LINKSHARING_URL: http://localhost:9090
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
       STORJ_CONSOLE_RATE_LIMIT_BURST: "100"
       STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/storj/web/satellite/
@@ -164,8 +166,6 @@ services:
       STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
       STORJ_WAIT_FOR_DB: "true"
-      STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: http://localhost:8888
-      STORJ_CONSOLE_LINKSHARING_URL: http://localhost:9090
     image: img.dev.storj.io/storjup/storj:1.60.3
     networks:
       default: null
