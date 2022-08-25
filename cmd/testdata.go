@@ -5,6 +5,8 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 	"go.uber.org/zap"
+	"storj.io/storj/satellite/accounting"
 
 	"storj.io/common/pb"
 	"storj.io/common/storj"
@@ -62,6 +65,17 @@ func testdataCmd() *cobra.Command {
 
 	{
 		subCmd := &cobra.Command{
+			Use:   "fix-billing",
+			Short: "fixes billing, by overriding created_at timestamp",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				return fixBilling()
+			},
+		}
+		generators = append(generators, subCmd)
+	}
+
+	{
+		subCmd := &cobra.Command{
 			Use:   "all",
 			Short: "Execute all the data generators",
 			RunE: func(cmd *cobra.Command, args []string) error {
@@ -81,6 +95,37 @@ func testdataCmd() *cobra.Command {
 	return cmd
 }
 
+func fixBilling() error {
+
+	connStr := "postgresql://127.0.0.1:26257/master?sslmode=disable&user=root"
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	sqlStatement := `
+	UPDATE stripe_customers
+	SET created_at ='2020-05-10'
+	WHERE true;`
+	_, err = db.Exec(sqlStatement)
+	if err != nil {
+		panic(err)
+	}
+	zap.L().Error("Couldn't execute generator", zap.Error(err))
+	fmt.Print("\nfixed created-at date, invoice command should work now\n")
+
+	return nil
+}
+
 func generateProjectUsage(database string) error {
 	ctx := context.Background()
 	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
@@ -91,28 +136,103 @@ func generateProjectUsage(database string) error {
 		_ = db.Close()
 	}()
 
-	bucket, _ := db.Buckets().CreateBucket(ctx, storj.Bucket{
-		ID:                          uuid.UUID{},
-		Name:                        "practice-bucket",
-		ProjectID:                   uuid.UUID{},
-		PartnerID:                   uuid.UUID{},
-		UserAgent:                   nil,
-		Created:                     time.Time{},
-		PathCipher:                  0,
-		DefaultSegmentsSize:         0,
-		DefaultRedundancyScheme:     storj.RedundancyScheme{},
-		DefaultEncryptionParameters: storj.EncryptionParameters{},
-		Placement:                   0,
-	})
+	byEmail, err := db.Console().Users().GetByEmail(ctx, "test@storj.io")
+	if err != nil {
+		return err
+	}
 
 	projects, err := db.Console().Projects().GetAll(ctx)
 	if err != nil {
 		return err
 	}
+
 	for _, p := range projects {
-		intervalStart := time.Now().Round(time.Hour)
+
+		now := time.Now()
+		currentYear, currentMonth, _ := now.Date()
+		currentLocation := now.Location()
+		lastOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -1)
+		dayTen := time.Date(currentYear, currentMonth, 10, 1, 0, 0, 0, currentLocation).AddDate(0, -1, 0)
+		intervalStart := dayTen
+
+		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
+			ID:                          byEmail.ID,
+			Name:                        "storage-bucket",
+			ProjectID:                   p.ID,
+			PartnerID:                   uuid.UUID{},
+			UserAgent:                   nil,
+			Created:                     dayTen,
+			PathCipher:                  0,
+			DefaultRedundancyScheme:     storj.RedundancyScheme{},
+			DefaultEncryptionParameters: storj.EncryptionParameters{},
+			Placement:                   0,
+		})
+		if err != nil {
+			fmt.Printf("Unable to create bucket: %s\n", err.Error())
+		}
+
+		StoredData := int64(1583717400000)
+		MetadataSize := int64(2)
+		Object := int64(1)
+		SegmentCount := int64(2)
+
+		tally := accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     dayTen,
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     dayTen.Add(1 * time.Minute),
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
+
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     lastOfMonth,
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
+		tally = accounting.BucketStorageTally{
+			BucketName:        bucket.Name,
+			ProjectID:         p.ID,
+			IntervalStart:     lastOfMonth.Add(1 * time.Minute),
+			ObjectCount:       Object,
+			TotalSegmentCount: SegmentCount,
+			TotalBytes:        StoredData,
+			MetadataSize:      MetadataSize,
+		}
+		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		if err != nil {
+			return err
+		}
 		for i := 0; i < 24; i++ {
-			usage := rand.Intn(8192) * (1024 * 1024)
+			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
 			if err != nil {
 				return err
@@ -123,6 +243,7 @@ func generateProjectUsage(database string) error {
 			}
 			intervalStart = intervalStart.Add(-1 * time.Hour)
 		}
+
 	}
 	return nil
 }

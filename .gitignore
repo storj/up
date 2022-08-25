@@ -6,4 +6,3 @@ storj-up
 /.idea
 /.history
 docker-compose.yaml
-test/.history/
