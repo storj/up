@@ -1,16 +1,17 @@
+# syntax=docker/dockerfile:1
 ARG TYPE
-
 FROM ubuntu:22.04 as base
+ARG TARGETPLATFORM
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
-RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli
-RUN curl -L https://go.dev/dl/go1.17.12.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli g++
+RUN echo ${TARGETPLATFORM} | sed 's/linux\///' | xargs -I PLATFORM curl --fail -L https://go.dev/dl/go1.17.12.linux-PLATFORM.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
+
 
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
 
 USER storj
 WORKDIR /var/lib/storj
-
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
 FROM base AS github

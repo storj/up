@@ -4,5 +4,5 @@ test/sha256.sum
 sjr
 storj-up
 /.idea
+/.history
 docker-compose.yaml
-.history

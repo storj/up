@@ -6,6 +6,7 @@ package cmd
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -83,12 +84,12 @@ func init() {
 }
 
 func updateCompose(services []string, remoteType string) error {
-	err := ExtractFile("storj.Dockerfile", dockerfiles.StorjDocker)
+	err := ExtractFile("", "storj.Dockerfile", dockerfiles.StorjDocker)
 	if err != nil {
 		return err
 	}
 
-	err = ExtractFile("edge.Dockerfile", dockerfiles.EdgeDocker)
+	err = ExtractFile("", "edge.Dockerfile", dockerfiles.EdgeDocker)
 	if err != nil {
 		return err
 	}
@@ -156,9 +157,14 @@ func updateCompose(services []string, remoteType string) error {
 }
 
 // ExtractFile extract embedded file, if doesn't exist.
-func ExtractFile(fileName string, content []byte) error {
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
-		return ioutil.WriteFile(fileName, content, 0o644)
+func ExtractFile(path, fileName string, content []byte) error {
+	newpath := filepath.Join(".", path)
+	err := os.MkdirAll(newpath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(newpath + "/" + fileName); os.IsNotExist(err) {
+		return ioutil.WriteFile(newpath+"/"+fileName, content, 0o644)
 	}
 	return nil
 }

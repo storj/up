@@ -230,19 +230,19 @@ func (ce *ConsoleEndpoint) activateUser(ctx context.Context, userID string, emai
 }
 
 // GetOrCreateProject return with project to use in this session.
-func (ce *ConsoleEndpoint) GetOrCreateProject(ctx context.Context) (string, error) {
-	projectID, err := ce.getProject(ctx)
+func (ce *ConsoleEndpoint) GetOrCreateProject(ctx context.Context) (string, string, error) {
+	projectID, token, err := ce.getProject(ctx)
 	if err == nil {
-		return projectID, nil
+		return projectID, token, nil
 	}
-	projectID, err = ce.createProject(ctx)
+	projectID, token, err = ce.createProject(ctx)
 	if err == nil {
-		return projectID, nil
+		return projectID, token, nil
 	}
 	return ce.getProject(ctx)
 }
 
-func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, error) {
+func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, string, error) {
 	query := `query {myProjects{id}}`
 	var getProjects struct {
 		MyProjects []struct {
@@ -251,12 +251,12 @@ func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, error) {
 	}
 	err := ce.graphqlQuery(ctx, query, &getProjects)
 	if len(getProjects.MyProjects) == 0 {
-		return "", errs.New("No project exists")
+		return "", "", errs.New("No project exists")
 	}
-	return getProjects.MyProjects[0].ID, err
+	return getProjects.MyProjects[0].ID, ce.token, err
 }
 
-func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, error) {
+func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createProjectQuery := fmt.Sprintf(
 		`mutation {createProject(input:{name:"TestProject-%d",description:""}){id}}`,
@@ -268,7 +268,7 @@ func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, error) {
 		}
 	}
 	err := ce.graphqlMutation(ctx, createProjectQuery, &createProject)
-	return createProject.CreateProject.ID, err
+	return createProject.CreateProject.ID, ce.token, err
 }
 
 // CreateAPIKey creates new API key to access Storj services.

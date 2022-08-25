@@ -3,7 +3,7 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
 
-if [ ! "$(which sjr)" ]; then
+if [ ! "$(which storj-up)" ]; then
    go install storj.io/storj-up@latest
 fi
 

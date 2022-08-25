@@ -6,6 +6,7 @@ package common
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/compose-spec/compose-go/cli"
@@ -84,6 +85,9 @@ func WriteComposeFile(compose *types.Project) error {
 	err := WriteComposeFileNoHistory(compose)
 	if err != nil {
 		return err
+	}
+	if os.Getenv("STORJUP_NO_HISTORY") != "" {
+		return nil
 	}
 	if prevCompose != nil {
 		prevComposeBytes, err := yaml.Marshal(prevCompose)
