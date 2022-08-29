@@ -16,7 +16,3 @@ var PrometheusYaml []byte
 // BlockchainFiles represent the embedded files needed for local geth node testing.
 //go:embed test-blockchain/*
 var BlockchainFiles embed.FS
-
-// CethFiles represent the embedded files needed for cethacea.
-//go:embed cethacea/*
-var CethFiles embed.FS

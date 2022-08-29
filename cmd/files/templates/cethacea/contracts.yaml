@@ -1,5 +1,0 @@
-- name: TOKEN
-  address: 0x1E119A589270646585b044db12098B1e456a88Af
-  abi: test-blockchain/TestToken.abi
-  type: ""
-  chainid: 1337
