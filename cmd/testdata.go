@@ -14,12 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs"
 	"go.uber.org/zap"
+	"storj.io/storj/satellite/accounting"
 
 	"storj.io/common/pb"
 	"storj.io/common/storj"
 	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
-	"storj.io/storj/satellite/accounting"
 	"storj.io/storj/satellite/compensation"
 	"storj.io/storj/satellite/overlay"
 	"storj.io/storj/satellite/satellitedb"
@@ -96,6 +96,7 @@ func testdataCmd() *cobra.Command {
 }
 
 func fixBilling() error {
+
 	connStr := "postgresql://127.0.0.1:26257/master?sslmode=disable&user=root"
 
 	db, err := sql.Open("postgres", connStr)

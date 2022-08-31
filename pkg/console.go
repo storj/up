@@ -90,15 +90,13 @@ func (ce *ConsoleEndpoint) tryLogin(ctx context.Context, email string) (string, 
 			resp.StatusCode, tryReadLine(resp.Body))
 	}
 
-	var tokenInfo struct {
-		Token string `json:"token"`
-	}
-	err = json.NewDecoder(resp.Body).Decode(&tokenInfo)
+	var token string
+	err = json.NewDecoder(resp.Body).Decode(&token)
 	if err != nil {
 		return "", errs.Wrap(err)
 	}
 
-	return tokenInfo.Token, nil
+	return token, nil
 }
 
 func (ce *ConsoleEndpoint) tryCreateAndActivateUser(ctx context.Context, email string) error {
