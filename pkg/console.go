@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/zeebo/errs"
@@ -90,14 +91,23 @@ func (ce *ConsoleEndpoint) tryLogin(ctx context.Context, email string) (string, 
 			resp.StatusCode, tryReadLine(resp.Body))
 	}
 
+	return getToken(resp)
+}
+
+func getToken(resp *http.Response) (string, error) {
 	var tokenInfo struct {
 		Token string `json:"token"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&tokenInfo)
+
+	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", errs.Wrap(err)
 	}
-
+	err = json.Unmarshal(responseBody, &tokenInfo)
+	if err != nil {
+		// before https://review.dev.storj.io/c/storj/storj/+/8033
+		return strings.Trim(string(responseBody), "\n\""), nil
+	}
 	return tokenInfo.Token, nil
 }
 
