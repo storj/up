@@ -6,3 +6,4 @@ storj-up
 /.idea
 /.history
 docker-compose.yaml
+dist/
