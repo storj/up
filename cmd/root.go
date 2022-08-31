@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -26,7 +27,10 @@ sjr build remote gerrit 5826`,
 
 // Execute is the execution of the top level storj-up command.
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	err := rootCmd.Execute()
+	if err != nil {
+		log.Fatalf("%++v", err)
+	}
 }
 
 func init() {

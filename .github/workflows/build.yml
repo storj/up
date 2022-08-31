@@ -1,7 +1,9 @@
 on:
   push:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - debug
 jobs:
   build:
     runs-on: ubuntu-latest
