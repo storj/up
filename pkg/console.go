@@ -90,14 +90,23 @@ func (ce *ConsoleEndpoint) tryLogin(ctx context.Context, email string) (string, 
 			resp.StatusCode, tryReadLine(resp.Body))
 	}
 
+	return getToken(resp)
+}
+
+func getToken(resp *http.Response) (string, error) {
 	var tokenInfo struct {
 		Token string `json:"token"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&tokenInfo)
-	if err != nil {
-		return "", errs.Wrap(err)
+	err1 := json.NewDecoder(resp.Body).Decode(&tokenInfo)
+	if err1 != nil {
+		// before https://review.dev.storj.io/c/storj/storj/+/8033
+		var token string
+		err2 := json.NewDecoder(resp.Body).Decode(&token)
+		if err2 != nil {
+			return "", errs.Combine(err1, err2)
+		}
+		return token, nil
 	}
-
 	return tokenInfo.Token, nil
 }
 
