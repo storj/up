@@ -7,30 +7,11 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https:
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli g++
 RUN echo ${TARGETPLATFORM} | sed 's/linux\///' | xargs -I PLATFORM curl --fail -L https://go.dev/dl/go1.17.12.linux-PLATFORM.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
 
-
 RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
-
 USER storj
 WORKDIR /var/lib/storj
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
-FROM base AS github
-ARG BRANCH
-RUN git clone https://github.com/storj/storj.git --depth=1 --branch ${BRANCH}
-WORKDIR storj
-
-FROM base AS gerrit
-ARG REF
-RUN git clone https://github.com/storj/storj.git
-WORKDIR storj
-RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD
-
-FROM ${TYPE} AS binaries
-RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh && \
-    go build ./cmd/... && \
-    cd .. && \
-    rm -rf storj
-WORKDIR ../
 
 FROM base AS storjupbuild
 ENV CGO_ENABLED=0
