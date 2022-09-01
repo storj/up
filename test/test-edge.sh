@@ -10,7 +10,7 @@ if [ ! "$(which uplink)" ]; then
 fi
 
 if [ ! "$(which rclone)" ]; then
-  go install github.com/rclone/rclone@v1.56.2
+  go install github.com/rclone/rclone@v1.59.1
 fi
 
 storj-up init
