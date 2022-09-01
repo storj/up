@@ -26,7 +26,6 @@ COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/st
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/build /var/lib/storj/storj/satellite/admin/ui/build
 COPY --from=binaries /var/lib/storj/storj/release/head/wasm /var/lib/storj/storj/web/satellite/static/wasm
-COPY --from=binaries --chown=storj /var/lib/storj/identities /var/lib/storj/identities
 COPY --from=binaries --chown=storj /var/lib/storj/entrypoint.sh /var/lib/storj/entrypoint.sh
 
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]

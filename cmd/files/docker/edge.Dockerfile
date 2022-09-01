@@ -18,5 +18,5 @@ RUN go install ./cmd/...
 FROM img.dev.storj.io/storjup/base:20220802-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/gateway-mt/pkg/linksharing/web /var/lib/storj/pkg/linksharing/web
-COPY --from=binaries --chown=storj /var/lib/storj/identities /var/lib/storj/identities
+
 
