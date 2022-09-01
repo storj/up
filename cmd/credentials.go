@@ -73,13 +73,17 @@ func addCredentials(ctx context.Context) error {
 	if err != nil {
 		return errs.Wrap(err)
 	}
+
+	password := "123a123"
+
 	if !export {
 		fmt.Printf("User: %s\n", email)
-		fmt.Printf("Password: %s\n", "123a123")
+		fmt.Printf("Password: %s\n", password)
 		fmt.Printf("ProjectID: %s\n", projectID)
 		fmt.Printf("Cookie: _tokenKey=%s\n", cookie)
 	} else {
 		fmt.Printf("export STORJ_USER=%s\n", email)
+		fmt.Printf("export STORJ_USER_PASSWORD=%s\n", password)
 		fmt.Printf("export STORJ_PROJECT_ID=%s\n", projectID)
 		fmt.Printf("export STORJ_SESSION_COOKIE=Cookie: _tokenKey=%s\n", cookie)
 	}
@@ -94,6 +98,9 @@ func addCredentials(ctx context.Context) error {
 	if !export {
 		fmt.Printf("API key: %s\n", apiKey)
 		fmt.Println()
+	} else {
+		fmt.Printf("export STORJ_API_KEY=%s\n", apiKey)
+
 	}
 
 	grant, err := consolewasm.GenAccessGrant(satelliteNodeURL, apiKey, secret, projectID)
@@ -105,6 +112,7 @@ func addCredentials(ctx context.Context) error {
 		fmt.Printf("Encryption secret: %s \n", secret)
 		fmt.Printf("Grant: %s\n", grant)
 	} else {
+		fmt.Printf("export STORJ_ENCRYPTION_SECRET=%s\n", secret)
 		fmt.Printf("export STORJ_ACCESS=%s\n", grant)
 		fmt.Printf("export UPLINK_ACCESS=%s\n", grant)
 	}
