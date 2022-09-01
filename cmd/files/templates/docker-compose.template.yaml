@@ -183,7 +183,7 @@ services:
       STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: http://localhost:8888
       STORJ_CONSOLE_LINKSHARING_URL: http://localhost:9090
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
-      STORJ_CONSOLE_RATE_LIMIT_BURST: "100"
+      STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
       STORJ_CONSOLE_STATIC_DIR: /var/lib/storj/storj/web/satellite/
       STORJ_DATABASE: cockroach://root@cockroach:26257/master?sslmode=disable
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
