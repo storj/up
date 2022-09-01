@@ -30,6 +30,7 @@ func init() {
 
 // checkHealth polls the database until all storagenodes are checked in.
 func checkHealth(requiredStorageNodes int) error {
+	prevCount := -1
 	for {
 		time.Sleep(1 * time.Second)
 		db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
@@ -45,10 +46,16 @@ func checkHealth(requiredStorageNodes int) error {
 			continue
 		}
 		if count == requiredStorageNodes {
+			fmt.Println()
 			fmt.Println("Storj cluster is healthy")
 			return nil
 		}
-		fmt.Printf("Found only %d storagenodes in the database\n", count)
+		if count != prevCount {
+			fmt.Printf("Found only %d storagenodes in the database ", count)
+		} else {
+			fmt.Print(".")
+		}
+		prevCount = count
 	}
 }
 
