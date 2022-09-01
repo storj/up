@@ -12,12 +12,12 @@ if [ "$STORJ_IDENTITY_DIR" ]; then
 fi
 
 if [ "$STORJ_WAIT_FOR_DB" ]; then
-  devrun wait-for-port cockroach:26257
-  devrun wait-for-port redis:6379
+  storj-up util wait-for-port cockroach:26257
+  storj-up util wait-for-port redis:6379
 fi
 
 if [ "$STORJ_WAIT_FOR_SATELLITE" ]; then
-  SATELLITE_ADDRESS=$(devrun wait-for-satellite satellite-api:7777)
+  SATELLITE_ADDRESS=$(storj-up util wait-for-satellite satellite-api:7777)
 fi
 
 
@@ -50,8 +50,8 @@ fi
 
 if [ "$STORJ_ROLE" == "uplink" ]; then
   if [ "$1" != "/usr/bin/sleep"  ]; then
-    devrun credentials satellite-api test@storj.io
-    eval $(devrun credentials grant satellite-api test@storj.io)
+    storj-up credentials -e satellite-api test@storj.io
+    eval $(storj-up credentials -e satellite-api test@storj.io)
   fi
 fi
 mkdir -p /var/lib/storj/.local/share/storj/satellite

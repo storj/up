@@ -25,7 +25,12 @@ storj-up health
 dd if=/dev/random of=data count=10240 bs=1024
 sha256sum data > sha256.sum
 
-storj-up credentials -w
+eval $(storj-up credentials -e)
+rclone config create --non-interactive storjdev3 storj access_grant=$UPLINK_ACCESS
+
+# using internal satellite-api address
+eval $(docker-compose exec satellite-api s3 storj-up credentials -e)
+rclone config create --non-interactive storjdev3 s3 type=storj access_key_id=$AWS_ACCESS_KEY_ID secret_access_key=$AWS_SECRET_ACCESS_KEY endpoint=$STORJ_GATEWAY
 
 BUCKET=bucket$RANDOM
 rclone mkdir storjdevs3:$BUCKET

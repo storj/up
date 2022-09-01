@@ -32,9 +32,13 @@ RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head s
     rm -rf storj
 WORKDIR ../
 
+FROM base AS storjupbuild
+ENV CGO_ENABLED=0
+ADD . /var/lib/storj
+WORKDIR /var/lib/storj
+RUN go install
+
 FROM binaries AS final
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
-
-ADD . /var/lib/storj/sjr
-RUN cd /var/lib/storj/sjr/devrun && go install
 COPY --chown=storj identities /var/lib/storj/identities
+COPY --chown=storj --from=storjupbuild /var/lib/storj/go/bin/storj-up /var/lib/storj/go/bin/storj-up

@@ -6,20 +6,13 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/user"
-	"path"
-	"regexp"
-	"strings"
 	"time"
 
-	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 
 	pkg "storj.io/storj-up/pkg"
-	"storj.io/storj-up/pkg/common"
 	"storj.io/storj/satellite/console/consolewasm"
 )
 
@@ -27,6 +20,7 @@ var (
 	satelliteHost, email, authService string
 	export, write                     bool
 	retry                             int
+	s3                                bool
 )
 
 func credentialsCmd() *cobra.Command {
@@ -52,7 +46,8 @@ func credentialsCmd() *cobra.Command {
 	credentialsCmd.PersistentFlags().StringVarP(&satelliteHost, "satellite", "s", "localhost", "The host of the satellite api to connect")
 	credentialsCmd.PersistentFlags().StringVarP(&authService, "authservice", "a", "http://localhost:8888", "Host of the auth service")
 	credentialsCmd.PersistentFlags().BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
-	credentialsCmd.PersistentFlags().BoolVarP(&write, "write", "w", false, "Write the right entries to rclone config file (storjdev, storj")
+	credentialsCmd.PersistentFlags().BoolVarP(&write, "write", "w", false, "DEPRECATED. Write the right entries to rclone config file (storjdev, storj)")
+	credentialsCmd.PersistentFlags().BoolVarP(&s3, "s3", "", false, "Generate S3 credentials. IMPORTANT: this command MUST be executed INSIDE containers as gateway will use it.")
 	return credentialsCmd
 }
 
@@ -95,21 +90,9 @@ func addCredentials(ctx context.Context) error {
 
 	secret := "Welcome1"
 
-	internalSatelliteURL := strings.ReplaceAll(satelliteNodeURL, satelliteHost, "satellite-api")
-	internalGrant, err := consolewasm.GenAccessGrant(internalSatelliteURL, apiKey, secret, projectID)
-	if err != nil {
-		return errs.Wrap(err)
-	}
-
 	if !export {
 		fmt.Printf("API key: %s\n", apiKey)
 		fmt.Println()
-
-		fmt.Println("[internal access from containers]")
-		fmt.Printf("Encryption secret: %s \n", secret)
-		fmt.Printf("Grant: %s\n", internalGrant)
-		fmt.Println()
-
 	}
 
 	grant, err := consolewasm.GenAccessGrant(satelliteNodeURL, apiKey, secret, projectID)
@@ -118,7 +101,6 @@ func addCredentials(ctx context.Context) error {
 	}
 
 	if !export {
-		fmt.Println("\n[from host]")
 		fmt.Printf("Encryption secret: %s \n", secret)
 		fmt.Printf("Grant: %s\n", grant)
 	} else {
@@ -126,13 +108,11 @@ func addCredentials(ctx context.Context) error {
 		fmt.Printf("export UPLINK_ACCESS=%s\n", grant)
 	}
 
-	composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
-	if err != nil {
-		return err
-	}
-
-	if containsService(composeProject.Services, "linksharing") {
-		accessKey, secretKey, endpoint, err := pkg.RegisterAccess(ctx, authService, internalGrant)
+	if s3 {
+		if _, err := os.Stat("docker-compose.yaml"); err == nil {
+			fmt.Println("Looks like you have a docker-compose.yaml. I suspect you execute this command from the host, not from the container. Please note that S3 compatible access grant should use the container network host (satellite-api). Therefore it should be executed from the container. (docker-compose exec satellite-api storj-up credentials -s3)")
+		}
+		accessKey, secretKey, endpoint, err := pkg.RegisterAccess(ctx, authService, grant)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -144,90 +124,11 @@ func addCredentials(ctx context.Context) error {
 			fmt.Printf("export AWS_ACCESS_KEY_ID=%s\n", accessKey)
 			fmt.Printf("export AWS_SECRET_ACCESS_KEY=%s\n", secretKey)
 			fmt.Printf("export STORJ_GATEWAY=%s\n", endpoint)
+
 		}
 		if write {
-			err = updateRclone(accessKey, secretKey, endpoint, grant)
-			if err != nil {
-				return errs.Wrap(err)
-			}
+			fmt.Println("Write flag is removed. Rclone config examples are printed out by default.")
 		}
 	}
-	return err
-}
-
-func containsService(services types.Services, s string) bool {
-	for _, service := range services {
-		if service.Name == s {
-			return true
-		}
-	}
-	return false
-}
-
-func updateRclone(key string, secret string, endpoint string, grant string) (err error) {
-	usr, err := user.Current()
-	if err != nil {
-		return errs.Wrap(err)
-	}
-
-	out := strings.Builder{}
-	rcloneConf := path.Join(usr.HomeDir, ".config", "rclone", "rclone.conf")
-
-	var content []byte
-
-	_ = os.MkdirAll(path.Dir(rcloneConf), 0o755)
-	if _, err := os.Stat(rcloneConf); err == nil {
-		content, err = ioutil.ReadFile(rcloneConf)
-		if err != nil {
-			return errs.Wrap(err)
-		}
-	} else if !os.IsNotExist(err) {
-		return errs.Wrap(err)
-	}
-
-	section := regexp.MustCompile(`\[(.*)]`)
-	currentSection := ""
-	updatedS3 := false
-	updatedNative := false
-	for _, line := range strings.Split(string(content), "\n") {
-
-		matches := section.FindStringSubmatch(line)
-		if len(matches) > 0 {
-			currentSection = matches[0]
-		}
-
-		if currentSection == "[storjdev]" {
-			updatedNative = true
-			if strings.HasPrefix(line, "access_grant") {
-				out.WriteString("access_grant = " + secret + "\n")
-				continue
-			}
-		}
-		if currentSection == "[storjdevs3]" {
-			updatedS3 = true
-			if strings.HasPrefix(line, "secret_access_key") {
-				out.WriteString("secret_access_key = " + secret + "\n")
-				continue
-			} else if strings.HasPrefix(line, "access_key_id") {
-				out.WriteString("access_key_id = " + key + "\n")
-				continue
-			}
-		}
-		out.WriteString(line + "\n")
-	}
-	if !updatedS3 {
-		out.WriteString("\n[storjdevs3]\n")
-		out.WriteString("type = s3\n")
-		out.WriteString("provider = Other \n")
-		out.WriteString("access_key_id = " + key + "\n")
-		out.WriteString("secret_access_key = " + secret + "\n")
-		out.WriteString("endpoint = " + endpoint + "\n")
-	}
-	if !updatedNative {
-		out.WriteString("\n[storjdev]\n")
-		out.WriteString("type = tardigrade\n")
-		out.WriteString("access_grant = " + grant + "\n")
-	}
-	err = ioutil.WriteFile(rcloneConf, []byte(out.String()), 0o644)
 	return err
 }
