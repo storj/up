@@ -21,7 +21,7 @@ var rootCmd = &cobra.Command{
 leverages existing binaries, or even references code to be built in docker and create images.
 For example:
 
-sjr build remote gerrit 5826`,
+storj-up build remote gerrit 5826`,
 }
 
 // Execute is the execution of the top level storj-up command.
