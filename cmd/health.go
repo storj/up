@@ -9,7 +9,7 @@ import (
 	"time"
 
 	// imported for using postgres.
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 )
@@ -32,7 +32,7 @@ func init() {
 func checkHealth(requiredStorageNodes int) error {
 	for {
 		time.Sleep(1 * time.Second)
-		db, err := sql.Open("postgres", "host=localhost port=26257 user=root dbname=master sslmode=disable")
+		db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
 		if err != nil {
 			fmt.Printf("Couldn't connect to the database: %s\n", err.Error())
 			continue
