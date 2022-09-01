@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG TYPE
-FROM ubuntu:22.04 as base
+FROM --platform=$TARGETPLATFORM ubuntu:22.04 as base
 ARG TARGETPLATFORM
 RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https://deb.nodesource.com/setup_16.x  | bash -
