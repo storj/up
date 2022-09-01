@@ -16,7 +16,6 @@ require (
 	go.uber.org/zap v1.17.0
 	storj.io/common v0.0.0-20220215191549-ee3a77cfa9eb
 	storj.io/gateway-mt v1.24.0
-	storj.io/private v0.0.0-20220131131751-c913260b9ec2
 	storj.io/storj v1.50.3
 )
 
@@ -114,10 +113,6 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
-	github.com/zeebo/admission/v3 v3.0.3 // indirect
-	github.com/zeebo/float16 v0.1.0 // indirect
-	github.com/zeebo/incenc v0.0.0-20180505221441-0d92902eec54 // indirect
-	github.com/zeebo/structs v1.0.2 // indirect
 	go.opentelemetry.io/otel v0.18.0 // indirect
 	go.opentelemetry.io/otel/metric v0.18.0 // indirect
 	go.opentelemetry.io/otel/trace v0.18.0 // indirect
@@ -144,6 +139,7 @@ require (
 	storj.io/drpc v0.0.29 // indirect
 	storj.io/minio v0.0.0-20220215210608-f35d7bc00e6e // indirect
 	storj.io/monkit-jaeger v0.0.0-20220131130547-dc4cb5a0d97a // indirect
+	storj.io/private v0.0.0-20220131131751-c913260b9ec2 // indirect
 	storj.io/uplink v1.8.0 // indirect
 	storj.io/zipper v0.0.0-20220124122551-2ac2d53a46f6 // indirect
 )
