@@ -7,3 +7,4 @@ storj-up
 /.history
 docker-compose.yaml
 dist/
+test/.history

@@ -1,5 +1,4 @@
-# syntax=docker/dockerfile:1
-ARG TYPE
+# syntax=docker/dockerfile:1.3
 FROM --platform=$TARGETPLATFORM ubuntu:22.04 as base
 ARG TARGETPLATFORM
 RUN apt-get update
@@ -7,19 +6,15 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install curl && curl -sfL https:
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install git sudo nodejs make gcc brotli g++
 RUN echo ${TARGETPLATFORM} | sed 's/linux\///' | xargs -I PLATFORM curl --fail -L https://go.dev/dl/go1.17.12.linux-PLATFORM.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go
 
-RUN useradd storj --uid 1000 -d /var/lib/storj && mkdir -p /var/lib/storj/shared && chown storj. /var/lib/storj
+RUN useradd storj --uid 1000 -d /var/lib/storj && \
+    mkdir -p /var/lib/storj/shared && \
+    mkdir -p /var/lib/storj/.cache && \
+    mkdir -p /var/lib/storj/go/pkg/mod && \
+    chown -R storj. /var/lib/storj
 USER storj
 WORKDIR /var/lib/storj
-RUN go install github.com/go-delve/delve/cmd/dlv@latest
-
-
-FROM base AS storjupbuild
-ENV CGO_ENABLED=0
-ADD . /var/lib/storj
-WORKDIR /var/lib/storj
-RUN go install
-
-FROM binaries AS final
+RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
+    --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000  \
+    go install github.com/go-delve/delve/cmd/dlv@latest
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
-COPY --chown=storj identities /var/lib/storj/identities
-COPY --chown=storj --from=storjupbuild /var/lib/storj/go/bin/storj-up /var/lib/storj/go/bin/storj-up
+

@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1.3
 ARG TYPE
-FROM img.dev.storj.io/storjup/build:20220803-2  AS base
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20220901-2  AS base
 
 FROM base AS github
 ARG BRANCH
@@ -17,10 +18,14 @@ RUN cd web/satellite && npm install && npm run build
 RUN cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
 RUN cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build
 RUN cd satellite/admin/ui && npm install && npm run build
-RUN env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
-RUN go install ./cmd/...
+RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
+    --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
+    env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh
+RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
+    --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
+    go install ./cmd/...
 
-FROM img.dev.storj.io/storjup/base:20220802-1 AS final
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20220901-3 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist
