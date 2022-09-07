@@ -36,8 +36,8 @@ func credentialsCmd() *cobra.Command {
 				}
 				if !export {
 					fmt.Println("#Server is not yet available. Retry in 1 sec...", err)
-					time.Sleep(1 * time.Second)
 				}
+				time.Sleep(1 * time.Second)
 			}
 			return err
 		},
