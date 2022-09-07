@@ -40,8 +40,10 @@ func printConfigs(services []string) error {
 	}
 
 	emptySelection := true
+	allOptions := config.All()
+
 	for _, s := range resolvedServices {
-		if configs, found := config.Config[s]; found {
+		if configs, found := allOptions[s]; found {
 			printConfigStruct(configs)
 			fmt.Println()
 			emptySelection = false
@@ -51,7 +53,7 @@ func printConfigs(services []string) error {
 		return errs.New("Couldn't find config type with selector %s. "+
 			"Command is supported for the following services: %s",
 			strings.Join(services, ","),
-			strings.Join(keys(config.Config), ", "))
+			strings.Join(keys(allOptions), ", "))
 	}
 	return nil
 }

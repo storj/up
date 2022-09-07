@@ -6,14 +6,17 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"reflect"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/zeebo/errs"
 
 	"storj.io/gateway-mt/pkg/auth"
 	"storj.io/gateway-mt/pkg/linksharing"
+	"storj.io/storj-up/cmd/config"
 	"storj.io/storj/satellite"
 	"storj.io/storj/storagenode"
 )
@@ -28,15 +31,51 @@ var configTypes = map[string]reflect.Type{
 }
 
 func main() {
+	templateDir := "."
+	if len(os.Args) > 1 {
+		templateDir = os.Args[1]
+	}
 	for name, t := range configTypes {
-		err := generate(name, t)
+		err := generateSingle(templateDir, name, t)
 		if err != nil {
 			panic(err)
 		}
 	}
+	err := generateCombiner(templateDir, configTypes)
+	if err != nil {
+		panic(err)
+	}
 }
 
-func generate(name string, t reflect.Type) error {
+func generateCombiner(templateDir string, types map[string]reflect.Type) error {
+	fileName := "all.go"
+	fmt.Println("Writing " + fileName)
+	f, err := os.Create(fileName)
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	t, err := template.New("all.tpl").
+		Funcs(map[string]interface{}{
+			"goName": goName,
+		}).
+		ParseFiles(path.Join(templateDir, "all.tpl"))
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	err = t.Execute(f, struct {
+		Configs map[string]reflect.Type
+	}{
+		Configs: types,
+	})
+	return err
+}
+
+func generateSingle(templateDir string, name string, root reflect.Type) error {
 	fileName := name + ".go"
 	fmt.Println("Writing " + fileName)
 	f, err := os.Create(fileName)
@@ -47,56 +86,53 @@ func generate(name string, t reflect.Type) error {
 		_ = f.Close()
 	}()
 
-	_, err = f.WriteString(`// Copyright (C) 2022 Storj Labs, Inc.
-// See LICENSE for copying information.
-package config
-
-func init() {
-`)
+	t, err := template.New("single.tpl").
+		Funcs(map[string]interface{}{
+			"goName": goName,
+		}).
+		ParseFiles(path.Join(templateDir, "single.tpl"))
 	if err != nil {
 		return errs.Wrap(err)
 	}
 
-	fmt.Fprintf(f, "\tConfig[\"%s\"] = []ConfigKey{\n\t\t", name)
+	options, err := collectOptions("STORJ", root)
 	if err != nil {
 		return errs.Wrap(err)
 	}
 
-	err = writeConfigStruct(f, "STORJ", t)
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	_, err = f.WriteString(`
-   }
-}
-`)
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	return nil
+	err = t.Execute(f, struct {
+		Name    string
+		Options []config.Option
+	}{
+		Name:    name,
+		Options: options,
+	})
+
+	return err
 }
 
-func writeConfigStruct(f *os.File, prefix string, configType reflect.Type) error {
+func goName(name string) string {
+	return strings.ReplaceAll(name, "-", "")
+}
+
+func collectOptions(prefix string, configType reflect.Type) (res []config.Option, err error) {
 	for i := 0; i < configType.NumField(); i++ {
 		field := configType.Field(i)
 		if field.Type.Kind() == reflect.Struct {
-			err := writeConfigStruct(f, prefix+"_"+camelToUpperCase(field.Name), field.Type)
+			r, err := collectOptions(prefix+"_"+camelToUpperCase(field.Name), field.Type)
 			if err != nil {
-				return errs.Wrap(err)
+				return res, errs.Wrap(err)
 			}
+			res = append(res, r...)
 		} else {
 			name := prefix + "_" + camelToUpperCase(field.Name)
-			_, err := fmt.Fprintf(f, `{
-			Name:        "%s",
-			Description: "%s",
-			Default:     "%s",
-		}, `, name, safe(field.Tag.Get("help")), safe(field.Tag.Get("default")))
-			if err != nil {
-				return errs.Wrap(err)
-			}
+			res = append(res, config.Option{
+				Name:        name,
+				Description: safe(field.Tag.Get("help")),
+				Default:     safe(field.Tag.Get("default"))})
 		}
 	}
-	return nil
+	return res, nil
 }
 
 func safe(s string) string {

@@ -3,9 +3,6 @@
 
 package config
 
-// Config contains all possible configuration for each known services.
-var Config = map[string][]Option{}
-
 // Option represents one possible configuration options for a service.
 type Option struct {
 	Name        string
