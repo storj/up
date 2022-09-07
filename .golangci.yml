@@ -10,6 +10,7 @@ run:
 
 linters:
   enable:
+    - bidichk                 # find dangerous bidi unicode symbols
     - bodyclose               # find unclosed http response bodies
     - deadcode                # find code that is not used
     - dogsled                 # checks for too many ignored arguments
@@ -20,7 +21,7 @@ linters:
     - gocritic                # checks for style, performance issues, and common programming errors
     - godot                   # dots for everything
     - goerr113                # check error expressions
-    - gofumpt                 # gofmt with stricter formatting requirements
+    - gofmt                   # sanity check formatting
     - goprintffuncname        # checks that printf-like functions are named with `f` at the end [fast: true, auto-fix: false]
     - govet                   # check standard vet rules
     - importas                # verify that imports are consistent
@@ -34,21 +35,29 @@ linters:
     - revive                  # check standard linting rules
     - staticcheck             # comprehensive checks
     - structcheck             # check for unused struct parameters
+    - tenv                    # ensure we use t.SetEnv instead of os.SetEnv
     - unconvert               # remove unnecessary conversions
     - varcheck                # find unused global variables and constants
     - wastedassign
+    #TODO#- nilnil            # needs fixes; checks that we don't return a nil and no-error
     #TODO#- forcetypeassert   # needs work to replace unchecked interface type assertion
     #TODO#- gochecknoglobals  # needs work to remove globals
     #TODO#- gochecknoinits    # needs work to remove init()
+    #TODO#- gofumpt           # not sure whether it's useful
     #TODO#- nestif            # looks useful, however needs work
     #TODO#- prealloc          # easy optimizations
     #TODO#- unparam           # check for unused parameters
     #TODO#- whitespace        # checks for leading/trailing newlines
   disable:
     - asciicheck       # non-ascii is allowed
+    - containedctx     # gives false positives, however might be good to re-evaluate
+    - contextcheck     # doesn't look like it's useful
     - cyclop           # this complexity is not a good metric
+    - decorder         # not that useful
     - depguard         # unused
     - dupl             # slow
+    - errchkjson       # false positives, checks for non-encodable json types
+    - errname          # we have different approach
     - exhaustive       # doesn't handle default case
     - exhaustivestruct # false positivies
     - forbidigo        # not useful
@@ -58,7 +67,6 @@ linters:
     - goconst          # check for things that could be replaced by constants
     - gocyclo          # this complexity is not a good metric
     - godox            # too many false positivies
-    - gofmt            # running gofmt is covered by gofumpt
     - goheader         # separate tool
     - goimports        # disabled, because it's slow, using scripts/check-imports.go instead.
     - gomnd            # false positives
@@ -66,9 +74,12 @@ linters:
     - gomodguard       # not useful
     - gosec            # needs tweaking
     - gosimple         # part of staticcheck
+    - grouper          # we have a custom implementation
     - ifshort          # usefulness, depends on the context
     - interfacer       # not that useful
+    - ireturn          # not that useful for us
     - lll              # don't need this check
+    - maintidx         # code complexity based on halsted V and cyclomatic, both shown to be ineffective
     - nlreturn         # non-important code style
     - paralleltest     # too many false positives
     - predeclared      # kind of useful, but not critical
@@ -81,6 +92,7 @@ linters:
     - thelper          # too many false positives
     - tparallel        # false positivies
     - unused           # part of staticcheck
+    - varnamelen       # unenecssary
     - wrapcheck        # too much noise and false positives
     - wsl              # too much noise
   fast: false

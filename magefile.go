@@ -24,6 +24,7 @@ import (
 )
 
 // Test executes all unit and integration tests.
+//
 //nolint:deadcode
 func Test() error {
 	err := sh.RunV("go", "test", "./...")
@@ -31,6 +32,7 @@ func Test() error {
 }
 
 // Coverage executes all unit test with coverage measurement.
+//
 //nolint:deadcode
 func Coverage() error {
 	fmt.Println("Executing tests and generate coverate information")
@@ -42,12 +44,14 @@ func Coverage() error {
 }
 
 // Lint executes all the linters with golangci-lint.
+//
 //nolint:deadcode
 func Lint() error {
 	return sh.RunV("bash", "./scripts/lint.sh")
 }
 
 // Format reformats code automatically.
+//
 //nolint:deadcode
 func Format() error {
 	err := sh.RunV("gofmt", "-w", ".")
@@ -58,6 +62,7 @@ func Format() error {
 }
 
 // GenBuild re-generates `./build` helper binary.
+//
 //nolint:deadcode
 func GenBuild() error {
 	envs := map[string]string{
@@ -85,12 +90,14 @@ func withDockerTag(filename string, publish bool, action func(tag string) error)
 }
 
 // DockerBaseBuild builds storj-base image.
+//
 //nolint:deadcode
 func DockerBaseBuild() error {
 	return dockerBase(false)
 }
 
 // DockerBasePublish pushes storj-base image.
+//
 //nolint:deadcode
 func DockerBasePublish() error {
 	return dockerBase(true)
@@ -106,12 +113,14 @@ func dockerBase(publish bool) error {
 }
 
 // DockerBuildBuild builds the storj-build docker image.
+//
 //nolint:deadcode
 func DockerBuildBuild() error {
 	return dockerBuild(false)
 }
 
 // DockerBuildPublish pushes the storj-build docker image
+//
 //nolint:deadcode
 func DockerBuildPublish() error {
 	return errs.Combine(
@@ -178,12 +187,14 @@ func dockerEdge(version string, publish bool) error {
 }
 
 // Integration executes integration tests.
+//
 //nolint:deadcode
 func Integration() error {
 	return sh.RunV("bash", "test/test.sh")
 }
 
 // RebuildImages rebuilds all core and edge images.
+//
 //nolint:deadcode
 func RebuildImages() error {
 	versions, err := listContainerVersions("storj")
@@ -211,6 +222,7 @@ func RebuildImages() error {
 }
 
 // DockerEdge builds a Edge docker image for local use.
+//
 //nolint:deadcode
 func DockerEdge(version string, publish bool) error {
 	if version == "" {
@@ -220,6 +232,7 @@ func DockerEdge(version string, publish bool) error {
 }
 
 // DockerStorj builds a Core docker image for local use.
+//
 //nolint:deadcode
 func DockerStorj(version string, publish bool) error {
 	if version == "" {
@@ -229,6 +242,7 @@ func DockerStorj(version string, publish bool) error {
 }
 
 // Images build missing images for existing git tags
+//
 //nolint:deadcode
 func Images() error {
 	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
@@ -257,6 +271,7 @@ func Images() error {
 }
 
 // ListImages prints all the existing storj and storj-edge images in the repo.
+//
 //nolint:deadcode
 func ListImages() error {
 	versions, err := listContainerVersions("storj")
@@ -349,6 +364,7 @@ func writeDockerTag(tagFile string, tag string) error {
 }
 
 // ListVersions prints out the available container / release versions.
+//
 //nolint:deadcode
 func ListVersions() error {
 	fmt.Println("container: storj")
