@@ -96,9 +96,7 @@ func testdataCmd() *cobra.Command {
 }
 
 func fixBilling() error {
-	connStr := "postgresql://127.0.0.1:26257/master?sslmode=disable&user=root"
-
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
 	if err != nil {
 		return errs.Wrap(err)
 	}
