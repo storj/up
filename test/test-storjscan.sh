@@ -3,16 +3,6 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
 
-go install storj.io/storj-up
-
-if [ ! "$(which storjscan )" ]; then
-   go install storj.io/storjscan/cmd/storjscan@latest
-fi
-
-if [ ! "$(which cethacea)" ]; then
-   go install github.com/elek/cethacea@latest
-fi
-
 export STORJUP_NO_HISTORY=true
 
 storj-up init storj,db,billing

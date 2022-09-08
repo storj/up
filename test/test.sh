@@ -1,13 +1,7 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
-
-go install storj.io/storj-up
-
-if [ ! "$(which uplink)" ]; then
-   go install storj.io/storj/cmd/uplink@latest
-fi
 
 export STORJUP_NO_HISTORY=true
 

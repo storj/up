@@ -1,11 +1,6 @@
 pipeline {
     agent {
-        docker {
-            label 'main'
-            image 'storjlabs/ci:latest'
-            alwaysPull true
-            args '-u root:root --cap-add SYS_PTRACE -v "/tmp/gomod":/go/pkg/mod'
-        }
+       label 'node4'
     }
 
     options {
@@ -19,31 +14,23 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-               // Delete any content left over from a previous run.
-               sh "chmod -R 777 ."
-
-               // Bash requires extglob option to support !(.git) syntax,
-               // and we don't want to delete .git to have faster clones.
-               sh 'bash -O extglob -c "rm -rf !(.git)"'
-
                checkout scm
             }
         }
-		stage('Build') {
-			parallel {
-				stage('Lint') {
-					steps {
-						sh "go install github.com/magefile/mage@v1.11.0"
-						sh "mage -v lint"
-					}
-				}
-				stage('Test') {
-					steps {
-						sh "go install github.com/magefile/mage@v1.11.0"
-						sh "mage -v test"
-					}
-				}
-			}
+	stage('Lint') {
+		steps {
+			sh "earthly +lint"
 		}
+	}
+	stage('Test') {
+		steps {
+			sh "earthly +test"
+		}
+	}
+	stage('Integration') {
+		steps {
+			sh "earthly -P +integration"
+		}
+	}
     }
 }

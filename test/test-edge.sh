@@ -3,16 +3,6 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
 
-go install storj.io/storj-up
-
-if [ ! "$(which uplink)" ]; then
-   go install storj.io/storj/cmd/uplink@latest
-fi
-
-if [ ! "$(which rclone)" ]; then
-  go install github.com/rclone/rclone@v1.59.1
-fi
-
 storj-up init
 
 docker compose down -v

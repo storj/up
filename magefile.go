@@ -23,14 +23,6 @@ import (
 	"github.com/zeebo/errs"
 )
 
-// Test executes all unit and integration tests.
-//
-//nolint:deadcode
-func Test() error {
-	err := sh.RunV("go", "test", "./...")
-	return err
-}
-
 // Coverage executes all unit test with coverage measurement.
 //
 //nolint:deadcode
@@ -41,13 +33,6 @@ func Coverage() error {
 		return err
 	}
 	return sh.RunV("go", "tool", "cover", "-html=/tmp/coverage.out", "-o", "coverage.html")
-}
-
-// Lint executes all the linters with golangci-lint.
-//
-//nolint:deadcode
-func Lint() error {
-	return sh.RunV("bash", "./scripts/lint.sh")
 }
 
 // Format reformats code automatically.
