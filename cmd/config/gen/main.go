@@ -19,6 +19,7 @@ import (
 	"storj.io/storj-up/cmd/config"
 	"storj.io/storj/satellite"
 	"storj.io/storj/storagenode"
+	"storj.io/storjscan"
 )
 
 var configTypes = map[string]reflect.Type{
@@ -28,6 +29,7 @@ var configTypes = map[string]reflect.Type{
 	"satellite-core":  reflect.TypeOf(satellite.Config{}),
 	"linksharing":     reflect.TypeOf(linksharing.Config{}),
 	"authservice":     reflect.TypeOf(auth.Config{}),
+	"storjscan":       reflect.TypeOf(storjscan.Config{}),
 }
 
 func main() {
@@ -48,7 +50,7 @@ func main() {
 }
 
 func generateCombiner(templateDir string, types map[string]reflect.Type) error {
-	fileName := "all.go"
+	fileName := "../all.go"
 	fmt.Println("Writing " + fileName)
 	f, err := os.Create(fileName)
 	if err != nil {
@@ -76,7 +78,7 @@ func generateCombiner(templateDir string, types map[string]reflect.Type) error {
 }
 
 func generateSingle(templateDir string, name string, root reflect.Type) error {
-	fileName := name + ".go"
+	fileName := "../" + name + ".go"
 	fmt.Println("Writing " + fileName)
 	f, err := os.Create(fileName)
 	if err != nil {

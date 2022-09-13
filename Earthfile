@@ -14,7 +14,7 @@ lint:
     RUN check-monkit ./...
     RUN staticcheck ./...
     RUN golangci-lint --build-tags mage -j=2 run
-    RUN check-mod-tidy -mod .build/go.mod.orig
+    RUN check-mod-tidy
 
 build:
     RUN ls -lah

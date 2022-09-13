@@ -3,4 +3,4 @@
 
 package config
 
-//go:generate go run ./gen/. ./gen
+//go:generate bash -c "cd gen && go run ."

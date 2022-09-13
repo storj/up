@@ -12,5 +12,6 @@ func All() map[string][]Option {
 		"satellite-api":   satelliteapiConfig(),
 		"satellite-core":  satellitecoreConfig(),
 		"storagenode":     storagenodeConfig(),
+		"storjscan":       storjscanConfig(),
 	}
 }
