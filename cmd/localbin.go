@@ -13,7 +13,7 @@ import (
 	"storj.io/storj-up/pkg/common"
 )
 
-var dir, subdir string
+var dir, subdir, command string
 
 func localBinCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
@@ -40,6 +40,7 @@ func localBinCmd() *cobra.Command {
 	}
 	mountCmd.PersistentFlags().StringVarP(&dir, "dir", "d", path.Join(os.Getenv("GOPATH"), "bin"), "path where binaries are located")
 	mountCmd.PersistentFlags().StringVarP(&subdir, "subdir", "s", "", "sub directory of the path where binaries are located")
+	mountCmd.PersistentFlags().StringVarP(&command, "command", "", "", "command to mount. If not specified, the name of the service will be used (eg. gateway-mt binary for the gateway-mt service)")
 	return mountCmd
 }
 
@@ -76,8 +77,12 @@ func init() {
 }
 
 func mountBinaries(composeService *types.ServiceConfig, _ string) error {
-	source := path.Join(path.Join(dir, subdir), common.BinaryDict[composeService.Name])
-	target := path.Join("/var/lib/storj/go/bin", common.BinaryDict[composeService.Name])
+	execName := common.BinaryDict[composeService.Name]
+	if command != "" {
+		execName = command
+	}
+	source := path.Join(path.Join(dir, subdir), execName)
+	target := path.Join("/var/lib/storj/go/bin", execName)
 	for i, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
 			volume.Target == target {
