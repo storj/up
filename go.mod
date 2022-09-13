@@ -9,6 +9,7 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/cobra v1.2.1
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.8.0
 	github.com/zeebo/errs v1.3.0
@@ -105,7 +106,6 @@ require (
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stripe/stripe-go/v72 v72.51.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a // indirect

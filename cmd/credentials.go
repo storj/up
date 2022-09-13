@@ -10,17 +10,12 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"github.com/zeebo/errs/v2"
 
 	pkg "storj.io/storj-up/pkg"
 	"storj.io/storj/satellite/console/consolewasm"
-)
-
-var (
-	satelliteHost, email, authService string
-	export, write                     bool
-	retry                             int
-	s3                                bool
 )
 
 func credentialsCmd() *cobra.Command {
@@ -29,12 +24,12 @@ func credentialsCmd() *cobra.Command {
 		Short: "generate test user with credentialsCmd",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
-			for i := -1; i < retry; i++ {
+			for i := -1; i < viper.GetInt("retry"); i++ {
 				err = addCredentials(context.Background())
 				if err == nil {
 					return nil
 				}
-				if !export {
+				if !viper.GetBool("export") {
 					fmt.Println("#Server is not yet available. Retry in 1 sec...", err)
 				}
 				time.Sleep(1 * time.Second)
@@ -43,13 +38,18 @@ func credentialsCmd() *cobra.Command {
 		},
 	}
 
-	credentialsCmd.PersistentFlags().IntVarP(&retry, "retry", "r", 300, "Number of retry with 1 second interval. Default 300 = 5 minutes.")
-	credentialsCmd.PersistentFlags().StringVarP(&email, "email", "m", "test@storj.io", "The email of the test user to use/create")
-	credentialsCmd.PersistentFlags().StringVarP(&satelliteHost, "satellite", "s", "localhost", "The host of the satellite api to connect")
-	credentialsCmd.PersistentFlags().StringVarP(&authService, "authservice", "a", "http://localhost:8888", "Host of the auth service")
-	credentialsCmd.PersistentFlags().BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
-	credentialsCmd.PersistentFlags().BoolVarP(&write, "write", "w", false, "DEPRECATED. Write the right entries to rclone config file (storjdev, storj)")
-	credentialsCmd.PersistentFlags().BoolVarP(&s3, "s3", "", false, "Generate S3 credentials. IMPORTANT: this command MUST be executed INSIDE containers as gateway will use it.")
+	pflags := credentialsCmd.PersistentFlags()
+	pflags.IntP("retry", "r", 300, "Number of retry with 1 second interval. Default 300 = 5 minutes.")
+	pflags.StringP("email", "m", "test@storj.io", "The email of the test user to use/create")
+	pflags.StringP("satellite", "s", "localhost", "The host of the satellite api to connect")
+	pflags.StringP("authservice", "a", "http://localhost:8888", "Host of the auth service")
+	pflags.BoolP("export", "e", false, "Turn it off to get bash compatible output with export statements.")
+	pflags.BoolP("write", "w", false, "DEPRECATED. Write the right entries to rclone config file (storjdev, storj)")
+	pflags.BoolP("s3", "", false, "Generate S3 credentials. IMPORTANT: this command MUST be executed INSIDE containers as gateway will use it.")
+	pflags.VisitAll(func(flag *pflag.Flag) {
+		_ = viper.BindPFlag(flag.Name, flag)
+	})
+
 	return credentialsCmd
 }
 
@@ -58,6 +58,13 @@ func init() {
 }
 
 func addCredentials(ctx context.Context) error {
+
+	satelliteHost := viper.GetString("satellite")
+	email := viper.GetString("email")
+	authService := viper.GetString("authservice")
+	export := viper.GetBool("export")
+	s3 := viper.GetBool("s3")
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satelliteHost+":7777")
@@ -135,7 +142,7 @@ func addCredentials(ctx context.Context) error {
 			fmt.Printf("export STORJ_GATEWAY=%s\n", endpoint)
 
 		}
-		if write {
+		if viper.GetBool("write") {
 			fmt.Println("Write flag is removed. Rclone config examples are printed out by default.")
 		}
 	}
