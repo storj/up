@@ -86,8 +86,9 @@ services:
       protocol: tcp
   geth:
     command:
-    - --keystore=/test-blockchain
-    - --password=/test-blockchain/pass
+    - --keystore=/tmp/config
+    - --password=/tmp/config/pass
+    - --datadir=/tmp/blockchain
     - --http
     - --ws
     - --dev
@@ -113,8 +114,13 @@ services:
       protocol: tcp
     volumes:
     - type: bind
-      source: ./test-blockchain
-      target: /test-blockchain
+      source: ./geth/geth-config
+      target: /tmp/config
+      bind:
+        create_host_path: true
+    - type: bind
+      source: ./geth/static-chain
+      target: /tmp/blockchain
       bind:
         create_host_path: true
   linksharing:
@@ -163,9 +169,9 @@ services:
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
-      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-admin
@@ -209,9 +215,9 @@ services:
       STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
-      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-api
@@ -253,9 +259,9 @@ services:
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: 0100000000000000=0100000000000000000000000000000000000000000000000000000000000000
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
-      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: false
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
       STORJ_ROLE: satellite-core
