@@ -55,28 +55,9 @@ func addToCompose(compose *types.Project, template *types.Project, services []st
 			}
 			compose.Services = append(compose.Services, newService)
 		}
-		if service == "prometheus" {
-			err := ExtractFile("", "prometheus.yml", templates.PrometheusYaml)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-		if service == "geth" {
-			files, err := templates.BlockchainFiles.ReadDir("test-blockchain")
-			if err != nil {
-				return nil, err
-			}
-			for _, file := range files {
-				fileContent, err := templates.BlockchainFiles.ReadFile("test-blockchain/" + file.Name())
-				if err != nil {
-					return nil, err
-				}
-				err = ExtractFile("test-blockchain", file.Name(), fileContent)
-				if err != nil {
-					return nil, err
-				}
-			}
+		err = common.AddFiles(service)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return compose, nil

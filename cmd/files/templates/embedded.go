@@ -12,10 +12,15 @@ var ComposeTemplate []byte
 
 // PrometheusYaml represents an example prometheus config.
 //
-//go:embed prometheus.yml
-var PrometheusYaml []byte
+//go:embed prometheus/*
+var PrometheusYaml embed.FS
 
-// BlockchainFiles represent the embedded files needed for local geth node testing.
+// GethData represents test and config data for the geth node.
 //
-//go:embed test-blockchain/*
-var BlockchainFiles embed.FS
+//go:embed geth/*
+var GethData embed.FS
+
+// StorjscanData represents test and config data for the storjscan service.
+//
+//go:embed storjscan/*
+var StorjscanData embed.FS
