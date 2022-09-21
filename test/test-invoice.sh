@@ -49,7 +49,7 @@ ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header 
 #ACCOUNT is defined with environment variables above
 for i in {1..15}; do cethacea token transfer 10 0x"$ADDRESS"; done
 
-storj-up health -t billing_transactions -n 3
+storj-up health -t billing_transactions -n 3 -d 12
 
 curl -X GET http://localhost:10000/api/v0/payments/wallet --header "$COOKIE"
 curl -X POST http://localhost:10000/api/v0/payments/account --header "$COOKIE"
