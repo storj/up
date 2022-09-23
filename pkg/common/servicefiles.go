@@ -9,44 +9,56 @@ import (
 	"os"
 	"path/filepath"
 
+	dockefiles "storj.io/storj-up/cmd/files/docker"
 	"storj.io/storj-up/cmd/files/templates"
 )
 
-// ConfigFiles is a type with an embedded FS and a folder.
+// ConfigFiles is a type with an embedded FS and a folder for directories,
+// and a file and filename for single embedded files.
 type ConfigFiles struct {
-	fs     embed.FS
-	folder string
+	file     []byte
+	filename string
+	fs       embed.FS
+	folder   string
 }
 
 // AddFiles extract the config files associated with the provided service.
 func AddFiles(service string) error {
 	configFS := ResolveEmbeds(service)
 	for _, configDir := range configFS {
-		err := recurseFileExtract(configDir)
-		if err != nil {
-			return err
+		if configDir.fs != (embed.FS{}) {
+			err := recurseFileExtract(configDir.fs, configDir.folder)
+			if err != nil {
+				return err
+			}
+		}
+		if configDir.file != nil {
+			err := ExtractFile("", configDir.filename, configDir.file)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-func recurseFileExtract(configFiles ConfigFiles) error {
-	entries, err := configFiles.fs.ReadDir(configFiles.folder)
+func recurseFileExtract(fs embed.FS, folder string) error {
+	entries, err := fs.ReadDir(folder)
 	if err != nil {
 		return err
 	}
 	for _, entry := range entries {
 		if entry.IsDir() {
-			err = recurseFileExtract(ConfigFiles{configFiles.fs, configFiles.folder + "/" + entry.Name()})
+			err = recurseFileExtract(fs, folder+"/"+entry.Name())
 			if err != nil {
 				return err
 			}
 		} else {
-			fileContent, err := configFiles.fs.ReadFile(configFiles.folder + "/" + entry.Name())
+			fileContent, err := fs.ReadFile(folder + "/" + entry.Name())
 			if err != nil {
 				return err
 			}
-			err = ExtractFile(configFiles.folder, entry.Name(), fileContent)
+			err = ExtractFile(folder, entry.Name(), fileContent)
 			if err != nil {
 				return err
 			}
@@ -86,6 +98,21 @@ func ResolveEmbeds(service string) []ConfigFiles {
 		return []ConfigFiles{{
 			fs:     templates.PrometheusYaml,
 			folder: "prometheus",
+		}}
+	case "app-edge":
+		return []ConfigFiles{{
+			file:     dockefiles.EdgeDocker,
+			filename: "edge.Dockerfile",
+		}}
+	case "app-storj":
+		return []ConfigFiles{{
+			file:     dockefiles.StorjDocker,
+			filename: "storj.Dockerfile",
+		}}
+	case "app-storjscan":
+		return []ConfigFiles{{
+			file:     dockefiles.StorjscanDocker,
+			filename: "storjscan.Dockerfile",
 		}}
 	default:
 		return nil

@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 
-	"storj.io/storj-up/cmd/files/docker"
 	"storj.io/storj-up/cmd/files/templates"
 	"storj.io/storj-up/pkg/common"
 )
@@ -81,16 +80,6 @@ func init() {
 }
 
 func updateCompose(services []string, remoteType string) error {
-	err := common.ExtractFile("", "storj.Dockerfile", dockerfiles.StorjDocker)
-	if err != nil {
-		return err
-	}
-
-	err = common.ExtractFile("", "edge.Dockerfile", dockerfiles.EdgeDocker)
-	if err != nil {
-		return err
-	}
-
 	composeProject, err := common.LoadComposeFromFile(common.ComposeFileName)
 	if err != nil {
 		return err
@@ -147,6 +136,10 @@ func updateCompose(services []string, remoteType string) error {
 				if err != nil {
 					return errs.Wrap(err)
 				}
+			}
+			err = common.AddFiles(service)
+			if err != nil {
+				return errs.Wrap(err)
 			}
 		}
 	}

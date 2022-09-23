@@ -33,6 +33,7 @@ var ServiceDict = map[string]uint{
 	"app-base-ubuntu": 65536,
 	"app-edge":        131072,
 	"app-storj":       262144,
+	"app-storjscan":   524288,
 	"minimal":         64 + 256,
 	"edge":            1 + 4 + 8,
 	"db":              2 + 16,
@@ -67,6 +68,7 @@ var BuildDict = map[string]string{
 	"storagenode":     "app-storj",
 	"uplink":          "app-storj",
 	"versioncontrol":  "app-storj",
+	"storjscan":       "app-storjscan",
 }
 
 var serviceNameHelper = map[string]string{
@@ -89,6 +91,7 @@ var serviceNameHelper = map[string]string{
 	"appbaseubuntu":  "app-base-ubuntu",
 	"appedge":        "app-edge",
 	"appstorj":       "app-storj",
+	"appstorjscan":   "app-storjscan",
 }
 
 const (
@@ -111,6 +114,7 @@ const (
 	appbaseubuntu             // 65536
 	appedge                   // 131072
 	appstorj                  // 262144
+	appstorjscan              // 524288
 )
 
 // ResolveBuilds returns with the required docker images to build (as keys in the maps).
@@ -137,7 +141,7 @@ func ResolveServices(services []string) ([]string, error) {
 		}
 		key |= value
 	}
-	for service := authservice; service <= appstorj; service++ {
+	for service := authservice; service <= appstorjscan; service++ {
 		if key&(1<<service) != 0 {
 			result = append(result, serviceNameHelper[service.String()])
 		}

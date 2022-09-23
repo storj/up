@@ -14,3 +14,8 @@ var StorjDocker []byte
 //
 //go:embed edge.Dockerfile
 var EdgeDocker []byte
+
+// StorjscanDocker is a Dockerfile for the storjscan service.
+//
+//go:embed storjscan.Dockerfile
+var StorjscanDocker []byte

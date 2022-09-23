@@ -14,6 +14,13 @@ services:
     image: storj
     networks:
       default: null
+  app-storjscan:
+    build:
+      context: .
+      dockerfile: storjscan.Dockerfile
+    image: storjscan
+    networks:
+      default: null
   authservice:
     command:
     - authservice

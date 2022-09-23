@@ -27,11 +27,12 @@ func _() {
 	_ = x[appbaseubuntu-16]
 	_ = x[appedge-17]
 	_ = x[appstorj-18]
+	_ = x[appstorjscan-19]
 }
 
-const _Key_name = "authservicecockroachgatewaymtlinksharingredissatelliteadminsatelliteapisatellitecorestoragenodeuplinkversioncontrolstorjscangethprometheusgrafanaappbasedevappbaseubuntuappedgeappstorj"
+const _Key_name = "authservicecockroachgatewaymtlinksharingredissatelliteadminsatelliteapisatellitecorestoragenodeuplinkversioncontrolstorjscangethprometheusgrafanaappbasedevappbaseubuntuappedgeappstorjappstorjscan"
 
-var _Key_index = [...]uint8{0, 11, 20, 29, 40, 45, 59, 71, 84, 95, 101, 115, 124, 128, 138, 145, 155, 168, 175, 183}
+var _Key_index = [...]uint8{0, 11, 20, 29, 40, 45, 59, 71, 84, 95, 101, 115, 124, 128, 138, 145, 155, 168, 175, 183, 195}
 
 func (i Key) String() string {
 	if i >= Key(len(_Key_index)-1) {
