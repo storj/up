@@ -33,8 +33,9 @@ storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_PUBLIC_KEY="$STRIPE_PUBLIC_KEY"
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY"
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
-storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
+storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
+storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true
 
 docker compose up -d
 
@@ -91,6 +92,11 @@ docker compose exec satellite-admin satellite billing prepare-invoice-records "$
 docker compose exec satellite-admin satellite billing create-project-invoice-items "$LAST_MONTH"/"$LAST_MONTH_YEAR" --log.level=info --log.output=stdout
 docker compose exec satellite-admin satellite billing create-invoices "$LAST_MONTH"/"$LAST_MONTH_YEAR" --log.level=info --log.output=stdout
 docker compose exec satellite-admin satellite billing finalize-invoices --log.level=info --log.output=stdout
+
+#adding 5 transactions for a total of 20 means 8 should be fully confirmed
+for i in {1..5}; do cethacea token transfer 1000000000 0x"$ADDRESS"; done
+storj-up health -t billing_transactions -n 8 -d 12
+
 docker compose exec satellite-admin satellite billing pay-invoices "$DAY"/"$MONTH"/"$YEAR" --log.level=info --log.output=stdout
 
 BALANCE=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header "$COOKIE" | jq -r '.balance')

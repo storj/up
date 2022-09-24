@@ -12,6 +12,17 @@ while ! { curl -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc"
 done
 }
 
+cleanup() {
+  if [ -f "docker-compose.yaml" ]
+  then
+    docker compose down
+  fi
+  rm -rf .contracts.yaml
+  rm -rf storjscan
+  rm -rf geth
+  rm -rf docker-compose.yaml
+}
+
 go install storj.io/storj-up
 
 if [ ! "$(which storjscan )" ]; then
@@ -24,11 +35,13 @@ fi
 
 export STORJUP_NO_HISTORY=true
 
+cleanup
+
 storj-up init storj,db,billing
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
+storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
 
-docker compose down -v
 docker compose up -d
 
 storj-up health
@@ -48,7 +61,7 @@ curl -X POST 'http://localhost:10000/api/v0/payments/wallet' --header "$COOKIE"
 ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header "$COOKIE" | jq -r '.address')
 
 #15 transactions means 3 are fully confirmed
-for i in {1..15}; do cethacea token transfer 1000 0x"$ADDRESS"; done
+for i in {1..15}; do cethacea token transfer 1000000000 0x"$ADDRESS"; done
 storj-up health -t billing_transactions -n 3 -d 12
 
 #save the last transaction of the base chain
@@ -63,7 +76,7 @@ docker compose up -d
 wait_for_geth
 
 #adding 5 transactions for a total of 20 means 8 should be fully confirmed
-for i in {1..5}; do cethacea token transfer 1 0x"$ADDRESS"; done
+for i in {1..5}; do cethacea token transfer 2000000000 0x"$ADDRESS"; done
 storj-up health -t billing_transactions -n 8 -d 12
 
 #save the last transaction (0) and compare to the base chain
@@ -85,7 +98,7 @@ wait_for_geth
 storj-up health -t storjscan_payments -n 15 -d 12
 
 #adding 5 different transactions to simulate reorg
-for i in {1..5}; do cethacea token transfer 1000 0x"$ADDRESS"; done
+for i in {1..5}; do cethacea token transfer 3000000000 0x"$ADDRESS"; done
 storj-up health -t storjscan_payments -n 20 -d 12
 
 CONTENT=$(curl -s -X GET http://localhost:10000/api/v0/payments/wallet/payments --header "$COOKIE")
@@ -100,8 +113,4 @@ if [[ $PREREORG4 == $POSTREORG4 ]]; then
   exit 1
 fi
 
-docker compose down
-rm -rf .contracts.yaml
-rm -rf storjscan
-rm -rf geth
-rm -rf docker-compose.yaml
+cleanup

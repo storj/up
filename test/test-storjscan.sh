@@ -3,13 +3,26 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 set -ex
 
+cleanup() {
+  if [ -f "docker-compose.yaml" ]
+  then
+    docker compose down
+  fi
+  rm -rf .contracts.yaml
+  rm -rf storjscan
+  rm -rf geth
+  rm -rf docker-compose.yaml
+}
+
 export STORJUP_NO_HISTORY=true
+
+cleanup
 
 storj-up init storj,db,billing
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
+storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
 
-docker compose down -v
 docker compose up -d
 
 storj-up health
@@ -34,14 +47,10 @@ curl -X POST 'http://localhost:10000/api/v0/payments/wallet' --header "$COOKIE"
 ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header "$COOKIE" | jq -r '.address')
 
 #ACCOUNT is defined with environment variables above
-for i in {1..15}; do cethacea token transfer 1000 0x"$ADDRESS"; done
+for i in {1..15}; do cethacea token transfer 1000000000 0x"$ADDRESS"; done
 
 storj-up health -t billing_transactions -n 3 -d 12
 
 curl -X GET http://localhost:10000/api/v0/payments/wallet --header "$COOKIE"
 
-docker compose down
-rm -rf .contracts.yaml
-rm -rf storjscan
-rm -rf geth
-rm -rf docker-compose.yaml
+cleanup
