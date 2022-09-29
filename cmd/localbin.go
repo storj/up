@@ -6,6 +6,8 @@ package cmd
 import (
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
@@ -60,7 +62,7 @@ func localWebSatelliteCmd() *cobra.Command {
 				return err
 			}
 
-			updatedComposeProject, err := common.UpdateEach(composeProject, mountWebSatellite, webSatPath[0], []string{"satellite-api"})
+			updatedComposeProject, err := common.UpdateEach(composeProject, mountWebSatellite, strings.ReplaceAll(webSatPath[0], string(filepath.Separator), "/"), []string{"satellite-api"})
 			if err != nil {
 				return err
 			}
@@ -81,7 +83,7 @@ func mountBinaries(composeService *types.ServiceConfig, _ string) error {
 	if command != "" {
 		execName = command
 	}
-	source := path.Join(path.Join(dir, subdir), execName)
+	source := strings.ReplaceAll(path.Join(path.Join(dir, subdir), execName), string(filepath.Separator), "/")
 	target := path.Join("/var/lib/storj/go/bin", execName)
 	for i, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
