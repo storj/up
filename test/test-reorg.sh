@@ -12,6 +12,18 @@ while ! { curl -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc"
 done
 }
 
+cleanup() {
+  if [ -f "docker-compose.yaml" ]
+  then
+    docker compose down
+  fi
+  rm -rf .contracts.yaml
+  rm -rf storjscan
+  rm -rf geth
+  rm -rf docker-compose.yaml
+}
+trap cleanup EXIT
+
 go install storj.io/storj-up
 
 if [ ! "$(which storjscan )" ]; then
@@ -99,9 +111,12 @@ fi
 if [[ $PREREORG4 == $POSTREORG4 ]]; then
   exit 1
 fi
+<<<<<<< HEAD
 
 docker compose down
 rm -rf .contracts.yaml
 rm -rf storjscan
 rm -rf geth
 rm -rf docker-compose.yaml
+=======
+>>>>>>> 889b2b4 (test: add transaction check and trap)
