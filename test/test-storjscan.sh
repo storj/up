@@ -13,10 +13,9 @@ cleanup() {
   rm -rf geth
   rm -rf docker-compose.yaml
 }
+trap cleanup EXIT
 
 export STORJUP_NO_HISTORY=true
-
-cleanup
 
 storj-up init storj,db,billing
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
@@ -37,9 +36,9 @@ export CETH_CONTRACT=$(cethacea contract deploy --quiet --name TOKEN storjscan/t
 curl -X GET -u "eu1:eu1secret" http://127.0.0.1:12000/api/v0/auth/whoami
 curl -X GET -u "us1:us1secret" http://127.0.0.1:12000/api/v0/auth/whoami
 
-storjscan mnemonic > .mnemonic
+storjscan mnemonic >.mnemonic
 storjscan generate --api-key us1 --api-secret us1secret --address http://127.0.0.1:12000
-storjscan mnemonic > .mnemonic
+storjscan mnemonic >.mnemonic
 storjscan generate --api-key eu1 --api-secret eu1secret --address http://127.0.0.1:12000
 rm -rf .mnemonic
 
@@ -51,6 +50,10 @@ for i in {1..15}; do cethacea token transfer 1000000000 0x"$ADDRESS"; done
 
 storj-up health -t billing_transactions -n 3 -d 12
 
-curl -X GET http://localhost:10000/api/v0/payments/wallet --header "$COOKIE"
+RESPONSE=$(curl -X GET http://localhost:10000/api/v0/payments/wallet/payments --header "$COOKIE")
+STATUS=$(echo $RESPONSE | jq -r '.payments[-1].Status')
 
-cleanup
+if [ "${STATUS}" != 'confirmed' ]; then
+  echo "Test FAILED. Payment status: "${STATUS}""
+  exit 1
+fi

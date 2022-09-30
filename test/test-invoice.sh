@@ -13,6 +13,7 @@ cleanup() {
   rm -rf geth
   rm -rf docker-compose.yaml
 }
+trap cleanup EXIT
 
 go install storj.io/storj-up
 
@@ -25,8 +26,6 @@ if [ ! "$(which cethacea)" ]; then
 fi
 
 export STORJUP_NO_HISTORY=true
-
-cleanup
 
 storj-up init storj,db,billing
 storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_PROVIDER=stripecoinpayments
@@ -99,5 +98,3 @@ if [[ $BALANCE == -* ]]
 then
   exit 1
 fi
-
-cleanup
