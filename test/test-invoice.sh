@@ -56,7 +56,6 @@ curl -X POST http://localhost:10000/api/v0/payments/account --header "$COOKIE"
 
 # invoicing
 storj-up testdata project-usage
-storj-up testdata fix-billing
 YEAR=$(date +%Y)
 if [ $(uname -s) == "Darwin" ]
 then
