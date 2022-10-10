@@ -45,6 +45,7 @@ fi
 if [ "$STORJ_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
   : ${STORJ_CONTACT_EXTERNAL_ADDRESS:=$STORJ_NODE_IP:28967}
+  export STORJ_CONTACT_EXTERNAL_ADDRESS
   if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
     rm "/var/lib/storj/.local/share/storj/storagenode/config.yaml"
   fi

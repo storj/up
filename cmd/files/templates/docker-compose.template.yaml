@@ -41,7 +41,7 @@ services:
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
       STORJUP_S3: "true"
-    image: img.dev.storj.io/storjup/edge:1.36.0
+    image: img.dev.storj.io/storjup/edge:1.39.0
     networks:
       default: null
     ports:
@@ -83,7 +83,7 @@ services:
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
       STORJUP_S3: "true"
-    image: img.dev.storj.io/storjup/edge:1.36.0
+    image: img.dev.storj.io/storjup/edge:1.39.0
     networks:
       default: null
     ports:
@@ -144,7 +144,7 @@ services:
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
       STORJUP_S3: "true"
-    image: img.dev.storj.io/storjup/edge:1.36.0
+    image: img.dev.storj.io/storjup/edge:1.39.0
     networks:
       default: null
     ports:
@@ -185,7 +185,7 @@ services:
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
     ports:
@@ -235,7 +235,7 @@ services:
       STORJ_WAIT_FOR_DB: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
     ports:
@@ -275,7 +275,7 @@ services:
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
   storagenode:
@@ -304,7 +304,7 @@ services:
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
   storjscan:
@@ -334,7 +334,7 @@ services:
     - infinity
     environment:
       STORJ_ROLE: uplink
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
   versioncontrol:
@@ -355,7 +355,7 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.64.1
+    image: img.dev.storj.io/storjup/storj:1.65.1
     networks:
       default: null
     ports:

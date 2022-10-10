@@ -25,13 +25,12 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
     go install ./cmd/...
 
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20220901-3 AS final
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20221024-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/build /var/lib/storj/storj/satellite/admin/ui/build
 COPY --from=binaries /var/lib/storj/storj/release/head/wasm /var/lib/storj/storj/web/satellite/static/wasm
-COPY --from=binaries --chown=storj /var/lib/storj/entrypoint.sh /var/lib/storj/entrypoint.sh
 
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
 ENV PATH=$PATH:/var/lib/storj/go/bin
