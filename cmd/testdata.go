@@ -6,7 +6,6 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -26,104 +25,64 @@ import (
 )
 
 var (
-	gb          = decimal.NewFromInt(1e9)
-	tb          = decimal.NewFromInt(1e12)
-	getRate     = int64(20)
-	auditRate   = int64(10)
-	storageRate = 0.00000205
+	database, email, period string
+	gb                      = decimal.NewFromInt(1e9)
+	tb                      = decimal.NewFromInt(1e12)
+	getRate                 = int64(20)
+	auditRate               = int64(10)
+	storageRate             = 0.00000205
 )
 
-func testdataCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "testdata",
-		Short: "Generate testdata to the database",
-	}
-
-	database := cmd.Flags().String("database", "cockroach://root@localhost:26257/master?sslmode=disable", "Database connection string to generate data")
-	var generators []*cobra.Command
-	{
-		subCmd := &cobra.Command{
-			Use:   "payment",
-			Short: "Generate payment and paystub entries for each node",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return generatePayments(*database)
-			},
-		}
-		generators = append(generators, subCmd)
-	}
-
-	{
-		subCmd := &cobra.Command{
-			Use:   "project-usage",
-			Short: "Generated bandwidth rollups for buckets and projects",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return generateProjectUsage(*database)
-			},
-		}
-		generators = append(generators, subCmd)
-	}
-
-	{
-		subCmd := &cobra.Command{
-			Use:   "fix-billing",
-			Short: "fixes billing, by overriding created_at timestamp",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return fixBilling()
-			},
-		}
-		generators = append(generators, subCmd)
-	}
-
-	{
-		subCmd := &cobra.Command{
-			Use:   "all",
-			Short: "Execute all the data generators",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				for _, g := range generators {
-					err := g.RunE(cmd, args)
-					if err != nil {
-						zap.L().Error("Couldn't execute generator", zap.Error(err))
-					}
-				}
-				return nil
-			},
-		}
-		cmd.AddCommand(subCmd)
-	}
-
-	cmd.AddCommand(generators...)
-	return cmd
+var testdataCmd = &cobra.Command{
+	Use:   "testdata",
+	Short: "Generate testdata to the database",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
+	},
 }
 
-func fixBilling() error {
-	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
-	if err != nil {
-		return errs.Wrap(err)
+func paymentCmd() *cobra.Command {
+	paymentCmd := &cobra.Command{
+		Use:   "payment",
+		Short: "Generate payment and paystub entries for each node",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return generatePayments(database)
+		},
 	}
-	defer func() {
-		_ = db.Close()
-	}()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	sqlStatement := `
-	UPDATE stripe_customers
-	SET created_at ='2020-05-10'
-	WHERE true;`
-	_, err = db.Exec(sqlStatement)
-	if err != nil {
-		panic(err)
-	}
-	zap.L().Error("Couldn't execute generator", zap.Error(err))
-	fmt.Print("\nfixed created-at date, invoice command should work now\n")
-
-	return nil
+	paymentCmd.PersistentFlags().StringVarP(&database, "database", "d", "cockroach://root@localhost:26257/master?sslmode=disable", "Database connection string to generate data")
+	return paymentCmd
 }
 
-func generateProjectUsage(database string) error {
+func projectUsageCmd() *cobra.Command {
+	projectUsageCmd := &cobra.Command{
+		Use:   "project-usage",
+		Short: "Generated bandwidth rollups for buckets and projects",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if period == "" {
+				period = time.Date(time.Now().Year(), time.Now().Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1).Format("2006-01")
+			}
+			usagePeriod, err := time.Parse("2006-01", period)
+			if err != nil {
+				return errs.New("invalid date specified specified. accepted format is yyyy-mm: %v", err)
+			}
+			return generateProjectUsage(database, email, usagePeriod)
+		},
+	}
+	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "cockroach://root@localhost:26257/master?sslmode=disable", "Database connection string to generate data")
+	projectUsageCmd.PersistentFlags().StringVarP(&email, "email", "e", "test@storj.io", "the email address of the user to add data for")
+	projectUsageCmd.PersistentFlags().StringVarP(&period, "period", "p", "", "the month to add usage for. defaults to the previous month")
+
+	return projectUsageCmd
+}
+
+func init() {
+	RootCmd.AddCommand(testdataCmd)
+	testdataCmd.AddCommand(paymentCmd())
+	testdataCmd.AddCommand(projectUsageCmd())
+}
+
+func generateProjectUsage(database, email string, period time.Time) error {
 	ctx := context.Background()
 	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
 	if err != nil {
@@ -133,7 +92,7 @@ func generateProjectUsage(database string) error {
 		_ = db.Close()
 	}()
 
-	byEmail, err := db.Console().Users().GetByEmail(ctx, "test@storj.io")
+	byEmail, err := db.Console().Users().GetByEmail(ctx, email)
 	if err != nil {
 		return err
 	}
@@ -145,27 +104,31 @@ func generateProjectUsage(database string) error {
 
 	for _, p := range projects {
 
-		now := time.Now()
-		currentYear, currentMonth, _ := now.Date()
-		currentLocation := now.Location()
-		lastOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).AddDate(0, 0, -1)
-		dayTen := time.Date(currentYear, currentMonth, 10, 1, 0, 0, 0, currentLocation).AddDate(0, -1, 0)
-		intervalStart := dayTen
+		dayTenOfMonth := time.Date(period.Year(), period.Month(), 10, 1, 0, 0, 0, period.Location())
+		lastDayOfMonth := time.Date(period.Year(), period.Month(), 1, 0, 0, 0, 0, period.Location()).AddDate(0, 1, -1)
 
-		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
-			ID:                          byEmail.ID,
-			Name:                        "storage-bucket",
-			ProjectID:                   p.ID,
-			PartnerID:                   uuid.UUID{},
-			UserAgent:                   nil,
-			Created:                     dayTen,
-			PathCipher:                  0,
-			DefaultRedundancyScheme:     storj.RedundancyScheme{},
-			DefaultEncryptionParameters: storj.EncryptionParameters{},
-			Placement:                   0,
-		})
+		var bucket storj.Bucket
+		bucket, err = db.Buckets().GetBucket(ctx, []byte("storage-bucket"), p.ID)
 		if err != nil {
-			fmt.Printf("Unable to create bucket: %s\n", err.Error())
+			if storj.ErrBucketNotFound.Has(err) {
+				// try to create it instead
+				bucket, err = db.Buckets().CreateBucket(ctx, storj.Bucket{
+					ID:                          byEmail.ID,
+					Name:                        "storage-bucket",
+					ProjectID:                   p.ID,
+					PartnerID:                   uuid.UUID{},
+					UserAgent:                   nil,
+					Created:                     dayTenOfMonth,
+					PathCipher:                  0,
+					DefaultRedundancyScheme:     storj.RedundancyScheme{},
+					DefaultEncryptionParameters: storj.EncryptionParameters{},
+					Placement:                   0,
+				})
+			}
+			if err != nil {
+				// couldn't get nor create bucket
+				return err
+			}
 		}
 
 		StoredData := int64(1583717400000)
@@ -173,61 +136,23 @@ func generateProjectUsage(database string) error {
 		Object := int64(1)
 		SegmentCount := int64(2)
 
-		tally := accounting.BucketStorageTally{
-			BucketName:        bucket.Name,
-			ProjectID:         p.ID,
-			IntervalStart:     dayTen,
-			ObjectCount:       Object,
-			TotalSegmentCount: SegmentCount,
-			TotalBytes:        StoredData,
-			MetadataSize:      MetadataSize,
-		}
-
-		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		tally = accounting.BucketStorageTally{
-			BucketName:        bucket.Name,
-			ProjectID:         p.ID,
-			IntervalStart:     dayTen.Add(1 * time.Minute),
-			ObjectCount:       Object,
-			TotalSegmentCount: SegmentCount,
-			TotalBytes:        StoredData,
-			MetadataSize:      MetadataSize,
-		}
-		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-
-		tally = accounting.BucketStorageTally{
-			BucketName:        bucket.Name,
-			ProjectID:         p.ID,
-			IntervalStart:     lastOfMonth,
-			ObjectCount:       Object,
-			TotalSegmentCount: SegmentCount,
-			TotalBytes:        StoredData,
-			MetadataSize:      MetadataSize,
-		}
-
-		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		tally = accounting.BucketStorageTally{
-			BucketName:        bucket.Name,
-			ProjectID:         p.ID,
-			IntervalStart:     lastOfMonth.Add(1 * time.Minute),
-			ObjectCount:       Object,
-			TotalSegmentCount: SegmentCount,
-			TotalBytes:        StoredData,
-			MetadataSize:      MetadataSize,
-		}
-		err = db.ProjectAccounting().CreateStorageTally(ctx, tally)
+		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
+		intervalStart := dayTenOfMonth
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
@@ -240,7 +165,10 @@ func generateProjectUsage(database string) error {
 			}
 			intervalStart = intervalStart.Add(-1 * time.Hour)
 		}
-
+		err = updateStripeUser(time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02"))
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -352,6 +280,73 @@ func generatePayments(database string) error {
 	return nil
 }
 
-func init() {
-	RootCmd.AddCommand(testdataCmd())
+func crateTally(bucketName string, projectID uuid.UUID, intervalStart time.Time, objectCount int64, totalSegmentCount int64,
+	totalBytes int64, metadataSize int64) accounting.BucketStorageTally {
+	return accounting.BucketStorageTally{
+		BucketName:        bucketName,
+		ProjectID:         projectID,
+		IntervalStart:     intervalStart,
+		ObjectCount:       objectCount,
+		TotalSegmentCount: totalSegmentCount,
+		TotalBytes:        totalBytes,
+		MetadataSize:      metadataSize,
+	}
+}
+
+func updateStripeUser(createdAt string) error {
+	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("UPDATE stripe_customers SET created_at = $1 WHERE true", createdAt)
+	return err
+}
+
+func updateUsage(tally accounting.BucketStorageTally) error {
+	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(
+		`INSERT INTO bucket_storage_tallies (
+		interval_start, 
+        bucket_name, project_id,
+		total_bytes, inline, remote,
+		total_segments_count, remote_segments_count, inline_segments_count,
+		object_count, metadata_size)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		ON CONFLICT(bucket_name, project_id, interval_start)
+		DO UPDATE SET
+		total_bytes = bucket_storage_tallies.total_bytes + $4,
+		inline = bucket_storage_tallies.inline + $5,
+		remote = bucket_storage_tallies.remote + $6,
+		total_segments_count = bucket_storage_tallies.total_segments_count + $7,
+		remote_segments_count = bucket_storage_tallies.remote_segments_count + $8,
+		inline_segments_count = bucket_storage_tallies.inline_segments_count + $9,
+		object_count = bucket_storage_tallies.object_count + $10,
+		metadata_size = bucket_storage_tallies.metadata_size + $11;`,
+		tally.IntervalStart,
+		[]byte(tally.BucketName), tally.ProjectID,
+		tally.TotalBytes, 0, 0,
+		tally.TotalSegmentCount, 0, 0,
+		tally.ObjectCount, tally.MetadataSize)
+	return err
 }
