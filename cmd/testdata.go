@@ -6,7 +6,6 @@ package cmd
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -108,20 +107,28 @@ func generateProjectUsage(database, email string, period time.Time) error {
 		dayTenOfMonth := time.Date(period.Year(), period.Month(), 10, 1, 0, 0, 0, period.Location())
 		lastDayOfMonth := time.Date(period.Year(), period.Month(), 1, 0, 0, 0, 0, period.Location()).AddDate(0, 1, -1)
 
-		bucket, err := db.Buckets().CreateBucket(ctx, storj.Bucket{
-			ID:                          byEmail.ID,
-			Name:                        "storage-bucket",
-			ProjectID:                   p.ID,
-			PartnerID:                   uuid.UUID{},
-			UserAgent:                   nil,
-			Created:                     dayTenOfMonth,
-			PathCipher:                  0,
-			DefaultRedundancyScheme:     storj.RedundancyScheme{},
-			DefaultEncryptionParameters: storj.EncryptionParameters{},
-			Placement:                   0,
-		})
+		var bucket storj.Bucket
+		bucket, err = db.Buckets().GetBucket(ctx, []byte("storage-bucket"), p.ID)
 		if err != nil {
-			fmt.Printf("Unable to create bucket: %s\n", err.Error())
+			if storj.ErrBucketNotFound.Has(err) {
+				// try to create it instead
+				bucket, err = db.Buckets().CreateBucket(ctx, storj.Bucket{
+					ID:                          byEmail.ID,
+					Name:                        "storage-bucket",
+					ProjectID:                   p.ID,
+					PartnerID:                   uuid.UUID{},
+					UserAgent:                   nil,
+					Created:                     dayTenOfMonth,
+					PathCipher:                  0,
+					DefaultRedundancyScheme:     storj.RedundancyScheme{},
+					DefaultEncryptionParameters: storj.EncryptionParameters{},
+					Placement:                   0,
+				})
+			}
+			if err != nil {
+				// couldn't get nor create bucket
+				return err
+			}
 		}
 
 		StoredData := int64(1583717400000)
@@ -129,19 +136,19 @@ func generateProjectUsage(database, email string, period time.Time) error {
 		Object := int64(1)
 		SegmentCount := int64(2)
 
-		err = db.ProjectAccounting().CreateStorageTally(ctx, crateTally(bucket.Name, p.ID, dayTenOfMonth, Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		err = db.ProjectAccounting().CreateStorageTally(ctx, crateTally(bucket.Name, p.ID, dayTenOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		err = db.ProjectAccounting().CreateStorageTally(ctx, crateTally(bucket.Name, p.ID, lastDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		err = db.ProjectAccounting().CreateStorageTally(ctx, crateTally(bucket.Name, p.ID, lastDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
@@ -301,10 +308,45 @@ func updateStripeUser(createdAt string) error {
 	}
 
 	_, err = db.Exec("UPDATE stripe_customers SET created_at = $1 WHERE true", createdAt)
+	return err
+}
+
+func updateUsage(tally accounting.BucketStorageTally) error {
+	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
+	if err != nil {
+		return errs.Wrap(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	err = db.Ping()
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("fixed created-at date, invoice command should work now")
-	return nil
+	_, err = db.Exec(
+		`INSERT INTO bucket_storage_tallies (
+		interval_start, 
+        bucket_name, project_id,
+		total_bytes, inline, remote,
+		total_segments_count, remote_segments_count, inline_segments_count,
+		object_count, metadata_size)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		ON CONFLICT(bucket_name, project_id, interval_start)
+		DO UPDATE SET
+		total_bytes = bucket_storage_tallies.total_bytes + $4,
+		inline = bucket_storage_tallies.inline + $5,
+		remote = bucket_storage_tallies.remote + $6,
+		total_segments_count = bucket_storage_tallies.total_segments_count + $7,
+		remote_segments_count = bucket_storage_tallies.remote_segments_count + $8,
+		inline_segments_count = bucket_storage_tallies.inline_segments_count + $9,
+		object_count = bucket_storage_tallies.object_count + $10,
+		metadata_size = bucket_storage_tallies.metadata_size + $11;`,
+		tally.IntervalStart,
+		[]byte(tally.BucketName), tally.ProjectID,
+		tally.TotalBytes, 0, 0,
+		tally.TotalSegmentCount, 0, 0,
+		tally.ObjectCount, tally.MetadataSize)
+	return err
 }
