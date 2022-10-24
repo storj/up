@@ -1,0 +1,53 @@
+name: gc
+description: "The absolute minimal services to persist a file: satellite-api and storagenodes"
+add:
+  - name: satellite-gc
+    label:
+      - storj
+      - core
+    image: img.dev.storj.io/storjup/storj:1.65.1
+    command:
+      - satellite
+      - run
+      - garbage-collection
+      - --defaults=dev
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+
+      STORJ_GARBAGE_COLLECTION_ENABLED: true
+      STORJ_GARBAGE_COLLECTION_INTERVAL: 1m
+      STORJ_GARBAGE_COLLECTION_ACCESS_GRANT: '{{ Environment .This "accessGrant" }}'
+      STORJ_GARBAGE_COLLECTION_BUCKET: bucket1
+  - name: satellite-bf
+    label:
+      - storj
+      - core
+    image: img.dev.storj.io/storjup/storj:1.65.1
+    command:
+      - satellite
+      - run
+      - garbage-collection-bloom-filters
+      - --defaults=dev
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+
+      STORJ_GARBAGE_COLLECTION_BF_ENABLED: true
+      STORJ_GARBAGE_COLLECTION_BF_INTERVAL: 1m
+      STORJ_GARBAGE_COLLECTION_BF_ACCESS_GRANT: '{{ Environment .This "accessGrant" }}'
+      STORJ_GARBAGE_COLLECTION_BF_BUCKET: bucket1
+
+

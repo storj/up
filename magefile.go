@@ -302,7 +302,7 @@ func getNextDockerTag(tagFile string) (string, error) {
 		return datePattern + "-1", nil
 	}
 
-	content, err := ioutil.ReadFile(tagFile)
+	content, err := os.ReadFile(tagFile)
 	if err != nil {
 		return "", err
 	}
@@ -497,7 +497,7 @@ func httpCall(ctx context.Context, method string, url string, body io.Reader, op
 	if resp.StatusCode > 299 {
 		return nil, errs.Combine(errs.New("%s url is failed (%s): %s", method, resp.Status, url), resp.Body.Close())
 	}
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	return responseBody, errs.Combine(err, resp.Body.Close())
 }
 

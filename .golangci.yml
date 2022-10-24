@@ -12,7 +12,6 @@ linters:
   enable:
     - bidichk                 # find dangerous bidi unicode symbols
     - bodyclose               # find unclosed http response bodies
-    - deadcode                # find code that is not used
     - dogsled                 # checks for too many ignored arguments
     - durationcheck           # verifies whether durations are multiplied, usually a mistake
     - errcheck                # find unchecked errors
@@ -34,10 +33,8 @@ linters:
     - nolintlint              # checks that nolint directives are correct
     - revive                  # check standard linting rules
     - staticcheck             # comprehensive checks
-    - structcheck             # check for unused struct parameters
     - tenv                    # ensure we use t.SetEnv instead of os.SetEnv
     - unconvert               # remove unnecessary conversions
-    - varcheck                # find unused global variables and constants
     - wastedassign
     #TODO#- nilnil            # needs fixes; checks that we don't return a nil and no-error
     #TODO#- forcetypeassert   # needs work to replace unchecked interface type assertion
@@ -53,6 +50,7 @@ linters:
     - containedctx     # gives false positives, however might be good to re-evaluate
     - contextcheck     # doesn't look like it's useful
     - cyclop           # this complexity is not a good metric
+    - deadcode         # deprecated and part of staticcheck
     - decorder         # not that useful
     - depguard         # unused
     - dupl             # slow
@@ -86,12 +84,14 @@ linters:
     - promlinter       # not relevant
     - rowserrcheck     # checks if sql.Rows.Err is checked correctly - Disabled  because it reports false positive with defer statements after Query call
     - sqlclosecheck    # we have tagsql, which checks this better
+    - structcheck      # deprecated and part of staticcheck
     - stylecheck       # has false positives
     - tagliatelle      # not our style
     - testpackage      # sometimes it's useful to have tests on private funcs
     - thelper          # too many false positives
     - tparallel        # false positivies
     - unused           # part of staticcheck
+    - varcheck         # deprecated and part of staticcheck
     - varnamelen       # unenecssary
     - wrapcheck        # too much noise and false positives
     - wsl              # too much noise
@@ -182,3 +182,6 @@ issues:
     - linters:
         - revive
       text: "if-return"
+    - linters: # false-positives for c exports
+        - revive
+      text: "var-naming"

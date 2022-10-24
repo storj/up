@@ -5,7 +5,6 @@ package up
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"storj.io/common/identity"
@@ -44,16 +43,13 @@ func GetSatelliteID(ctx context.Context, address string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for _, p := range conn.ConnectionState().PeerCertificates {
-		if p.IsCA {
-			id, err := identity.NodeIDFromCert(p)
-			if err != nil {
-				return "", err
-			}
-			return fmt.Sprintf("%s@%s", id, address), nil
-		}
+	peerIdentity, err := conn.PeerIdentity()
+	if err != nil {
+		return "", err
 	}
-	return "", fmt.Errorf("couldn't find the right certiticate")
+
+	return peerIdentity.ID.String(), nil
+
 }
 
 func getProcessTLSOptions(ctx context.Context) (*tlsopts.Options, error) {

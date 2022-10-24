@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="{{UniqueName .Service}}" type="GoApplicationRunConfiguration"
+                   factoryName="Go Application">
+        <module name="{{ .Package }}"/>
+        <working_directory value="$PROJECT_DIR$/.run"/>
+        <parameters value="{{ Join (Tail .Service.Command) " "}}"/>
+        <envs>
+            {{ range $k, $v := .Service.Environment}}
+            <env name="{{$k}}" value="{{$v}}"/>{{end}}
+        </envs>
+        <kind value="PACKAGE"/>
+        <package value="storj.io/{{ .Package }}/cmd/{{ .Executable }}"/>
+        <directory value="$PROJECT_DIR$"/>
+        <filePath value="$PROJECT_DIR$/cmd/{{ .Executable }}/main.go"/>
+        <method v="2"/>
+    </configuration>
+</component>

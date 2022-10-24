@@ -1,0 +1,85 @@
+name: minimal
+description: "The absolute minimal services to persist a file: satellite-api and storagenodes"
+add:
+  - name: satellite-api
+    label:
+      - storj
+      - core
+    image: img.dev.storj.io/storjup/storj:1.65.1
+    command:
+      - satellite
+      - run
+      - api
+      - --defaults=dev
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      STORJ_CONSOLE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "console"}}'
+      STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
+      STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: 'http://{{ Host "authservice" "external"}}:{{ Port "authservice" "public"}}'
+      STORJ_CONSOLE_LINKSHARING_URL: 'http://{{ Host "linksharing" "external" }}:{{ Port "linksharing" "public"}}'
+      STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
+      STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
+      STORJ_CONSOLE_STATIC_DIR: '{{ Environment .This "staticDir" }}'
+      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
+      STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=0'
+      STORJ_LOG_LEVEL: debug
+      STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
+      STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
+      STORJ_MAIL_TEMPLATE_PATH: '{{ Environment .This "mailTemplateDir" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
+      STORJ_SERVER_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public"}}'
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_REVOCATION_DBURL: '{{ Environment "redis" "url" }}?db=1'
+      STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
+      STORJ_CONTACT_EXTERNAL_ADDRESS: '{{ Host .This "internal"}}:{{ Port .This "public"}}'
+      STORJ_CONSOLE_EXTERNAL_ADDRESS: 'http://{{ Host .This "external"}}:{{ Port .This "console"}}/'
+    environment:
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'
+      STORJ_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public"}}'
+#      can be used from 1.66
+#      STORJ_DATABASE_OPTIONS_MIGRATION_UNSAFE: snapshot,testdata
+      STORJ_USE_PREDEFINED_IDENTITY: 1
+  - name: storagenode
+    label:
+      - storj
+      - core
+    instance: 10
+    image: img.dev.storj.io/storjup/storj:1.65.1
+    command:
+      - storagenode
+      - run
+      - api
+      - --defaults=dev
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      STORJ_CONSOLE_STATIC_DIR: '{{ Environment .This "staticDir" }}'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_OPERATOR_EMAIL: storage9@mail.test
+      STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
+      STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
+      STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
+      STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
+      #TODO this might be internal only for docker-compose
+      STORJ_STORAGE2_TRUST_SOURCES: '{{ Environment "satellite-api" "identity" }}@{{ Host "satellite-api" "internal" }}:{{ Port "satellite-api" "public" }}'
+      STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
+      STORJ_SERVER_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
+      STORJ_SERVER_PRIVATE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "private" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug" }}'
+      STORJ_CONSOLE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "console" }}'
+      #TODO: this seems to be compose specific, otherwise it should be external
+      STORJ_CONTACT_EXTERNAL_ADDRESS: '{{ Host .This "internal" }}:{{ Port .This "public" }}'
+    environment:
+      STORJUP_AUTHSERVICE: http://authservice:8888
+      STORJUP_SATELLITE: satellite-api
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'

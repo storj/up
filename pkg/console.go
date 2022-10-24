@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -99,7 +98,7 @@ func getToken(resp *http.Response) (string, error) {
 		Token string `json:"token"`
 	}
 
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", errs.Wrap(err)
 	}
@@ -385,7 +384,7 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 	}
 	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -464,7 +463,7 @@ func RegisterAccess(ctx context.Context, authService string, accessSerialized st
 	}
 	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", "", err
 	}

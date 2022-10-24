@@ -4,7 +4,6 @@
 package composedb
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -14,7 +13,7 @@ const (
 	composeHistoryFileEXT      = ".yaml"
 )
 
-// FileDatabase implements is an abstraction of ioutil.WriterFile.
+// FileDatabase implements is an abstraction of os.WriterFile.
 type FileDatabase struct{}
 
 // Write implements the Writer interface for a flat filesystem database.
@@ -27,7 +26,7 @@ func (db FileDatabase) Write(filename string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filepath.Join(path, filename)+composeHistoryFileEXT, data, 0o644)
+	return os.WriteFile(filepath.Join(path, filename)+composeHistoryFileEXT, data, 0o644)
 }
 
 // Read implements the Reader interface for a flat filesystem database.
@@ -40,7 +39,7 @@ func (db FileDatabase) Read(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ioutil.ReadFile(filepath.Join(path, filename) + composeHistoryFileEXT)
+	return os.ReadFile(filepath.Join(path, filename) + composeHistoryFileEXT)
 }
 
 // Delete implements the Delete interface for a flat filesystem database.
@@ -67,14 +66,18 @@ func (db FileDatabase) GetObjectVersions() ([]Version, error) {
 		return nil, err
 	}
 
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 	versions := make([]Version, 0, len(files))
 	for _, file := range files {
 		filename := file.Name()
-		lastUpdated := file.ModTime()
+		info, err := file.Info()
+		if err != nil {
+			return nil, err
+		}
+		lastUpdated := info.ModTime()
 		ext := filepath.Ext(filename)
 		filename = filename[:len(filename)-len(ext)]
 		versions = append(versions, Version{

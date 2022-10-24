@@ -1,0 +1,61 @@
+name: edge
+description: "The 3 edge services: authservice, linksharing, gateway-mt"
+add:
+  - name: gateway-mt
+    label:
+      - storj
+      - edge
+      -
+    image: img.dev.storj.io/storjup/edge:1.39.0
+    command:
+      - gateway-mt
+      - run
+      - --defaults=dev
+    environment:
+      STORJ_AUTH_URL: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
+      STORJ_DEFAULTS: dev
+      STORJUP_AUTHSERVICE: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
+    config:
+      STORJ_AUTH_BASE_URL: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
+      STORJ_AUTH_TOKEN: super-secret
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug" }}'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_SERVER_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
+  - name: authservice
+    label:
+      - storj
+      - edge
+    image: img.dev.storj.io/storjup/edge:1.39.0
+    command:
+      - authservice
+      - run
+      - --defaults=dev
+    config:
+      STORJ_ALLOWED_SATELLITES: '{{ Environment "satellite-api" "identity" }}@{{ Host "satellite-api" "internal" }}:{{ Port "satellite-api" "public" }},{{ Environment "satellite-api" "identity" }}@{{ Host "satellite-api" "external" }}:{{ Port "satellite-api" "public" }}'
+      STORJ_AUTH_TOKEN: super-secret
+      STORJ_DEBUG_ADDR: '{{ Host .This "external" }}:{{ Port .This "debug" }}'
+      STORJ_ENDPOINT: 'http://{{ Host "gateway-mt" "external" }}:{{ Port "gateway-mt" "public" }}'
+      STORJ_KV_BACKEND: memory://
+      STORJ_LISTEN_ADDR: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+    environmnet:
+      STORJ_DEFAULTS: dev
+  - name: linksharing
+    label:
+      - storj
+      - edge
+    image: img.dev.storj.io/storjup/edge:1.39.0
+    command:
+      - linksharing
+      - run
+      - --defaults=dev
+    config:
+      STORJ_AUTH_SERVICE_BASE_URL: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
+      STORJ_AUTH_SERVICE_TOKEN: super-secret
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug" }}'
+      STORJ_PUBLIC_URL: 'http://{{ Host "linksharing" "external" }}:{{ Port "authservice" "public" }}'
+      STORJ_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
+      STORJ_STATIC_SOURCES_PATH: '{{ Environment .This "staticDir" }}'
+      STORJ_TEMPLATES: '{{ Environment .This "webDir" }}'

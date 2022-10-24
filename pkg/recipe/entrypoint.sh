@@ -28,13 +28,12 @@ if [ "$STORJ_ROLE" == "satellite-api" ]; then
   if [ ! -f "/var/lib/storj/.local/migrated" ]; then
     satellite run migration --identity-dir $STORJ_IDENTITY_DIR
     touch /var/lib/storj/.local/migrated
-
   fi
 fi
 
 if [ "$STORJ_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
-  export STORJ_CONTACT_EXTERNAL_ADDRESS=$STORJ_NODE_IP:28967
+  : ${STORJ_CONTACT_EXTERNAL_ADDRESS:=$STORJ_NODE_IP:28967}
   if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
     rm "/var/lib/storj/.local/share/storj/storagenode/config.yaml"
   fi

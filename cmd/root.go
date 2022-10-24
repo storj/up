@@ -5,16 +5,24 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/zeebo/errs/v2"
+
+	"storj.io/storj-up/pkg/recipe"
+	"storj.io/storj-up/pkg/runtime/compose"
+	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
 var cfgFile string
+var rootDir string
 
-// rootCmd represents the base command when called without any subcommands.
-var rootCmd = &cobra.Command{
+// RootCmd represents the base command when called without any subcommands.
+var RootCmd = &cobra.Command{
 	Use:   "storj-up",
 	Short: "A golang wrapper for creating customized docker and docker-compose files",
 	Long: `storj-up can be used to create a docker-compose file that leverages existing images,
@@ -26,13 +34,17 @@ storj-up build remote gerrit 5826`,
 
 // Execute is the execution of the top level storj-up command.
 func Execute() {
-	cobra.CheckErr(rootCmd.Execute())
+	err := RootCmd.Execute()
+	if err != nil {
+		log.Fatalf("%++v", err)
+	}
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.reminderctl.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.reminderctl.yaml)")
+	RootCmd.PersistentFlags().StringVar(&rootDir, "root", "", "The directory of the project. If not set, the current directory is used.")
 }
 
 func initConfig() {
@@ -56,4 +68,46 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+// ExecuteStorjUP can execute any operation with loaded stack/runtime and write back the results.
+func ExecuteStorjUP(exec func(stack recipe.Stack, rt runtime.Runtime, args []string) error) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		pwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		if rootDir != "" {
+			pwd = rootDir
+		}
+		rt, err := FromDir(pwd)
+		if err != nil {
+			return err
+		}
+		st, err := recipe.GetStack()
+		if err != nil {
+			return err
+		}
+		err = rt.Reload(st)
+		if err != nil {
+			return err
+		}
+
+		err = exec(st, rt, args)
+		if err != nil {
+			return err
+		}
+		return rt.Write()
+	}
+}
+
+// ChangeCompose applies modification to compose based runtime services. Used mainly in legacy commands.
+func ChangeCompose(st recipe.Stack, rt runtime.Runtime, selectors []string, do func(composeService *types.ServiceConfig) error) error {
+	return runtime.ModifyService(st, rt, selectors, func(s runtime.Service) error {
+		composeService, ok := s.(*compose.Service)
+		if !ok {
+			return errs.Errorf("this subcommand is supported only for compose based environments")
+		}
+		return composeService.TransformRaw(do)
+	})
 }

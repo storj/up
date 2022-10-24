@@ -267,7 +267,7 @@ func generatePayments(database string) error {
 			Month: oneMonthBefore.Month(),
 		}
 
-		err = db.OverlayCache().IterateAllNodes(ctx, func(ctx context.Context, node *overlay.SelectedNode) error {
+		err = db.OverlayCache().IterateAllContactedNodes(ctx, func(ctx context.Context, node *overlay.SelectedNode) error {
 			storedDataGB := rand.Intn(1000) + 400
 			getUsage := int64(storedDataGB * 10 / 7)
 			paystub := compensation.Paystub{
@@ -353,5 +353,5 @@ func generatePayments(database string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(testdataCmd())
+	RootCmd.AddCommand(testdataCmd())
 }

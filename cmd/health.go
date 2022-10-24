@@ -31,7 +31,7 @@ func healthCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(healthCmd())
+	RootCmd.AddCommand(healthCmd())
 }
 
 // checkHealth polls the database until all storagenodes are checked in.

@@ -1,0 +1,22 @@
+[supervisord]
+nodaemon=true
+
+[supervisorctl]
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+
+[inet_http_server]
+port=127.0.0.1:9001
+
+{{ range .Services }}
+[program:{{UniqueName .}}]
+command = {{ UniqueName . }}.sh
+stdout_logfile={{.ID.Name}}/{{.ID.Instance}}/stdout.log
+stderr_logfile={{.ID.Name}}/{{.ID.Instance}}/stderr.log
+startretries=999999
+stopwaitsecs=15
+stopasgroup=true
+killasgroup=true
+{{end}}

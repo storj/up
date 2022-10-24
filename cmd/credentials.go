@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zeebo/errs/v2"
 
+	"storj.io/common/uuid"
 	pkg "storj.io/storj-up/pkg"
 	"storj.io/storj/satellite/console/consolewasm"
 )
@@ -41,7 +43,8 @@ func credentialsCmd() *cobra.Command {
 	pflags := credentialsCmd.PersistentFlags()
 	pflags.IntP("retry", "r", 300, "Number of retry with 1 second interval. Default 300 = 5 minutes.")
 	pflags.StringP("email", "m", "test@storj.io", "The email of the test user to use/create")
-	pflags.StringP("satellite", "s", "localhost", "The host of the satellite api to connect")
+	pflags.StringP("satellite", "s", "localhost:7777", "The host and port of of the satellite api to connect")
+	pflags.StringP("console", "c", "localhost:10000", "The host and port of of the satellite api console to connect")
 	pflags.StringP("authservice", "a", "http://localhost:8888", "Host of the auth service")
 	pflags.BoolP("export", "e", false, "Turn it off to get bash compatible output with export statements.")
 	pflags.BoolP("write", "w", false, "DEPRECATED. Write the right entries to rclone config file (storjdev, storj)")
@@ -54,12 +57,13 @@ func credentialsCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(credentialsCmd())
+	RootCmd.AddCommand(credentialsCmd())
 }
 
 func addCredentials(ctx context.Context) error {
 
-	satelliteHost := viper.GetString("satellite")
+	satelliteAddress := viper.GetString("satellite")
+	consoleAddress := viper.GetString("console")
 	email := viper.GetString("email")
 	authService := viper.GetString("authservice")
 	export := viper.GetBool("export")
@@ -67,11 +71,11 @@ func addCredentials(ctx context.Context) error {
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satelliteHost+":7777")
+	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satelliteAddress)
 	if err != nil {
 		return err
 	}
-	console := pkg.NewConsoleEndpoints(satelliteHost+":10000", email)
+	console := pkg.NewConsoleEndpoints(consoleAddress, email)
 
 	err = console.Login(ctx)
 	if err != nil {
@@ -110,7 +114,12 @@ func addCredentials(ctx context.Context) error {
 		fmt.Printf("export STORJ_API_KEY=%s\n", apiKey)
 	}
 
-	grant, err := consolewasm.GenAccessGrant(satelliteNodeURL, apiKey, secret, projectID)
+	projectUUID, err := uuid.FromString(projectID)
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	grant, err := consolewasm.GenAccessGrant(satelliteNodeURL+"@"+satelliteAddress, apiKey, secret, base64.StdEncoding.EncodeToString(projectUUID.Bytes()))
 	if err != nil {
 		return errs.Wrap(err)
 	}

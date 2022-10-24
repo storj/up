@@ -81,5 +81,5 @@ func init() {
 		}
 		utilCmd.AddCommand(waitForPortCmd)
 	}
-	rootCmd.AddCommand(&utilCmd)
+	RootCmd.AddCommand(&utilCmd)
 }
