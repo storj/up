@@ -136,6 +136,7 @@ services:
     - run
     - --defaults=dev
     environment:
+      STORJ_ADDRESS: 0.0.0.0:8080
       STORJ_AUTH_SERVICE_BASE_URL: http://authservice:8888
       STORJ_AUTH_SERVICE_TOKEN: super-secret
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
