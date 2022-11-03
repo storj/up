@@ -4,10 +4,8 @@
 package common
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"github.com/compose-spec/compose-go/cli"
 	"github.com/compose-spec/compose-go/loader"
@@ -33,10 +31,10 @@ type ComposeFile struct {
 }
 
 // LoadComposeFromFile parses docker-compose file from the current directory.
-func LoadComposeFromFile(filename string) (*types.Project, error) {
+func LoadComposeFromFile(dir string, filename string) (*types.Project, error) {
 	options := cli.ProjectOptions{
 		Name:        filename,
-		ConfigPaths: []string{"./" + filename},
+		ConfigPaths: []string{filepath.Join(dir, filename)},
 	}
 
 	return cli.ProjectFromOptions(&options)
@@ -80,9 +78,9 @@ func CreateBind(source string, target string) types.ServiceVolumeConfig {
 }
 
 // WriteComposeFile persists current docker-compose project to docker-compose.yaml.
-func WriteComposeFile(compose *types.Project) error {
-	prevCompose, _ := LoadComposeFromFile(ComposeFileName)
-	err := WriteComposeFileNoHistory(compose)
+func WriteComposeFile(dir string, compose *types.Project) error {
+	prevCompose, _ := LoadComposeFromFile(dir, ComposeFileName)
+	err := WriteComposeFileNoHistory(dir, compose)
 	if err != nil {
 		return err
 	}
@@ -104,37 +102,13 @@ func WriteComposeFile(compose *types.Project) error {
 
 // WriteComposeFileNoHistory persists current docker-compose project to docker-compose.yaml without saving a record
 // of the current compose file.
-func WriteComposeFileNoHistory(compose *types.Project) error {
+func WriteComposeFileNoHistory(dir string, compose *types.Project) error {
 	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services})
 	if err != nil {
 		return errs.Wrap(err)
 	}
-	if err = ioutil.WriteFile("docker-compose.yaml", resolvedServices, 0o644); err != nil {
+	if err = os.WriteFile(filepath.Join(dir, ComposeFileName), resolvedServices, 0o644); err != nil {
 		return err
 	}
 	return nil
-}
-
-// UpdateEach can apply update function to the selected services.
-func UpdateEach(compose *types.Project, cmd func(*types.ServiceConfig, string) error, arg string, services []string) (*types.Project, error) {
-	resolvedServices, err := ResolveServices(services)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(resolvedServices) == 0 {
-		return nil, fmt.Errorf("no service is selected for update. Try to use the right selector instead of \"%s\"", strings.Join(services, ","))
-	}
-
-	for _, service := range resolvedServices {
-		for i, composeService := range compose.AllServices() {
-			if strings.EqualFold(service, composeService.Name) {
-				err := cmd(&compose.Services[i], arg)
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-	}
-	return compose, nil
 }

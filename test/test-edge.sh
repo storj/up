@@ -17,7 +17,7 @@ eval $(storj-up credentials -e)
 rclone config create --non-interactive storjdev3 storj access_grant=$UPLINK_ACCESS
 
 # using internal satellite-api address
-eval $(docker-compose exec -T satellite-api storj-up credentials --s3 -e)
+eval $(docker-compose exec -T satellite-api storj-up credentials --s3 -e -a http://authservice:8888 -s satellite-api)
 rclone config create --non-interactive storjdevs3 s3 type=s3 provider=Storj access_key_id=$AWS_ACCESS_KEY_ID secret_access_key=$AWS_SECRET_ACCESS_KEY endpoint=http://localhost:9999
 
 BUCKET=bucket$RANDOM

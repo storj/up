@@ -3,22 +3,22 @@ FROM golang:1.18
 WORKDIR /go/storj-up
 
 lint:
-    FROM storjlabs/ci
-    COPY . /go/storj-up
     WORKDIR /go/storj-up
+    RUN go install github.com/storj/ci/...@5286f52
+    RUN go install honnef.co/go/tools/cmd/staticcheck@2022.1.3
+    RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.3
+    COPY . /go/storj-up
+    RUN staticcheck ./...
+    RUN golangci-lint --build-tags mage -j=2 run
     RUN check-copyright
     RUN check-large-files
     RUN check-imports -race ./...
     RUN check-atomic-align ./...
     RUN check-errs ./...
     RUN check-monkit ./...
-    RUN staticcheck ./...
-    RUN golangci-lint --build-tags mage -j=2 run
     RUN check-mod-tidy
 
 build:
-    RUN ls -lah
-    RUN pwd
     COPY . .
     RUN --mount=type=cache,target=/root/.cache/go-build \
         --mount=type=cache,target=/go/pkg/mod \
@@ -26,12 +26,18 @@ build:
     SAVE ARTIFACT build/storj-up AS LOCAL build/storj-up
 
 test:
-   COPY . .
    RUN go install github.com/mfridman/tparse@36f80740879e24ba6695649290a240c5908ffcbb
+   RUN apt-get update && apt-get install -y jq
+   RUN go install storj.io/storj/cmd/storagenode@v1.65.1
+   RUN go install storj.io/storj/cmd/satellite@v1.65.1
+   RUN go install storj.io/gateway-mt/cmd/gateway-mt@v1.39.0
+   RUN go install storj.io/gateway-mt/cmd/linksharing@v1.39.0
+   RUN go install storj.io/gateway-mt/cmd/authservice@v1.39.0
    RUN mkdir build
+   COPY . .
    RUN --mount=type=cache,target=/root/.cache/go-build \
        --mount=type=cache,target=/go/pkg/mod \
-       go test -json ./... | tee build/tests.json
+       ./scripts/test.sh
    SAVE ARTIFACT build/tests.json AS LOCAL build/tests.json
 
 integration:

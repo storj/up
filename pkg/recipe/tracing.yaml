@@ -1,0 +1,22 @@
+name: tracing
+description: jaeger distributed tracing configured for all Storj services
+add:
+  - name: jaeger
+    image: jaegertracing/all-in-one:1.33
+    ports:
+      - name: webui
+        target: 16686
+      - name: collector
+        target: 5775
+    command:
+      - jaeger
+modify:
+  - match:
+      label:
+        - storj
+    flag:
+      add:
+        - --tracing.enabled=true
+        - --tracing.sample=1
+        - --tracing.agent-addr='{{ Host "jaeger" "external" }}:5775
+        - --tracing.interval=1s

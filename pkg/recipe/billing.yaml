@@ -1,0 +1,62 @@
+name: billing
+description: storjscan and local geth chain
+add:
+  - name: storjscan
+    label:
+      - storjscan
+    image: img.dev.storj.io/storjup/storjscan:20220922-1
+    command:
+      - storjscan
+      - run
+      - --database=cockroach://root@cockroach:26257/storjscan?sslmode=disable
+      - --tokens.endpoint=http://geth:8545
+      - --tokens.contract=0x1E119A589270646585b044db12098B1e456a88Af
+      - --token-price.interval=1m
+      - --token-price.coinmarketcap-config.base-url=https://sandbox-api.coinmarketcap.com
+      - --token-price.coinmarketcap-config.api-key=b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
+      - --token-price.coinmarketcap-config.timeout=1m
+      - --api.address=0.0.0.0:12000
+      - --api.keys=eu1:eu1secret,us1:us1secret
+    port:
+      - name: port
+        target: 12000
+  - name: geth
+    image: ethereum/client-go
+    command:
+      - --keystore=/tmp/
+      - --password=/tmp/pass
+      - --datadir=/tmp/blockchain
+      - --http
+      - --ws
+      - --dev
+      - --miner.etherbase=0x158D2c25bA6107B622F288663F50f53601ab6710
+      - --http.api=eth,net,web3,txpool,admin,debug
+      - --ws.api=eth,net,web3,txpool,admin,debug
+      - --http.vhosts=*
+      - --http.addr=0.0.0.0
+      - --ws.addr=0.0.0.0
+      - --http.corsdomain
+      - "*"
+    persistence:
+      - /tmp/blockchain
+    file:
+      - name: pk.json
+        data: |-
+          {"address":"158d2c25ba6107b622f288663f50f53601ab6710","crypto":{"cipher":"aes-128-ctr","ciphertext":"2f25f872d2d2c893906bb8846f93aecdda4af8391686778df1f69328218708da","cipherparams":{"iv":"07a27dcf318b4c3a5b71e76db040bbe1"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"bee32d166dcd2415c16e09c3ba6990a5ab198e444c48c3d4904a01b891fb100b"},"mac":"9a18d9aaa6b37f52dc9b687517fbc8e1ce3515d720159eff927be1a132ef249a"},"id":"f5467839-3e6e-4dc2-ad71-b198a7340504","version":3}
+      - name: pass
+        data: |-
+          Welcome1
+    port:
+      - name: rpc1
+        target: 8545
+      - name: rpc2
+        target: 8546
+modify:
+  - match:
+      name: satellite-api
+    config:
+      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
+      STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
+      STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
+      STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
+      STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000

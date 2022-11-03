@@ -32,7 +32,7 @@ func healthCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(healthCmd())
+	RootCmd.AddCommand(healthCmd())
 }
 
 // checkHealthWithTimeout polls the database until all storagenodes are checked in, or the timeout is exceeded. a timeout of 0 (default)

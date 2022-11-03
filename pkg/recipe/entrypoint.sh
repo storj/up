@@ -7,20 +7,9 @@ export STORJ_NODE_IP=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," "
 #Generate identity if missing
 if [ "$STORJ_IDENTITY_DIR" ]; then
   if [ ! -f "$STORJ_IDENTITY_DIR/identity.key" ]; then
-    if [ "$STORJ_USE_PREDEFINED_IDENTITY" ]; then
-      # use predictable, pre-generated identity
-      mkdir -p $(dirname $STORJ_IDENTITY_DIR)
-      cp -r /var/lib/storj/identities/$STORJ_USE_PREDEFINED_IDENTITY $STORJ_IDENTITY_DIR
-    else
-      identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
-    fi
+    identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
   fi
 fi
-
-for i in ${STORJ_WAIT_FOR//,/ }
-do
-    storj-up util wait-for-port "$i"
-done
 
 if [ "$STORJ_WAIT_FOR_DB" ]; then
   storj-up util wait-for-port cockroach:26257
@@ -35,8 +24,8 @@ fi
 if [ "$STORJ_ROLE" == "satellite-api" ]; then
   mkdir -p /var/lib/storj/.local
 
-  #only migrate first time, if automatic migration is not defined
-  if [[ ! -f "/var/lib/storj/.local/migrated" && -z "$STORJ_DATABASE_OPTIONS_MIGRATION_UNSAFE" ]]; then
+  #only migrate first time
+  if [ ! -f "/var/lib/storj/.local/migrated" ]; then
     satellite run migration --identity-dir $STORJ_IDENTITY_DIR
     touch /var/lib/storj/.local/migrated
   fi
@@ -45,7 +34,6 @@ fi
 if [ "$STORJ_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
   : ${STORJ_CONTACT_EXTERNAL_ADDRESS:=$STORJ_NODE_IP:28967}
-  export STORJ_CONTACT_EXTERNAL_ADDRESS
   if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
     rm "/var/lib/storj/.local/share/storj/storagenode/config.yaml"
   fi

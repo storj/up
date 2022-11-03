@@ -6,7 +6,6 @@ set -ex
 export STORJUP_NO_HISTORY=true
 
 storj-up init minimal,db
-storj-up scale storagenode 10
 
 docker compose down -v
 docker compose up -d

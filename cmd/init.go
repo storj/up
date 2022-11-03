@@ -4,65 +4,139 @@
 package cmd
 
 import (
-	"fmt"
+	"os"
 	"strings"
 
-	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
+	"github.com/zeebo/errs/v2"
 
-	"storj.io/storj-up/cmd/files/templates"
-	"storj.io/storj-up/pkg/common"
+	"storj.io/storj-up/pkg/recipe"
+	"storj.io/storj-up/pkg/runtime/compose"
+	"storj.io/storj-up/pkg/runtime/nomad"
+	"storj.io/storj-up/pkg/runtime/runtime"
+	"storj.io/storj-up/pkg/runtime/standalone"
 )
 
 func initCmd() *cobra.Command {
-	return &cobra.Command{
-		Use: "init [selector]",
-		Short: "Generate docker-compose file with selected services. " + selectorHelp + ". Without argument it generates " +
-			"full Storj cluster with databases (storj,db)",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
-			if err != nil {
-				return err
-			}
-
-			composeProject, err := initCompose(templates.ComposeTemplate, selector)
-			if err != nil {
-				return err
-			}
-
-			return common.WriteComposeFile(composeProject)
-		},
+	cmd := &cobra.Command{
+		Use: "init [selector] OR init <compose|nomad|shell> [selector]",
+		Short: "Initialize new storj-up stack with the chosen container orchestrator. " + SelectorHelp + ". Without argument it generates " +
+			"full Storj cluster with databases (db,minimal,edge)",
 	}
+
+	{
+		nomadCmd := &cobra.Command{
+			Use: "nomad [selector]",
+		}
+		ip := nomadCmd.Flags().StringP("ip", "", "localhost", "IP address (or host name) to host the deployment")
+		name := nomadCmd.Flags().StringP("name", "n", "storj", "Name of the used job/group section.")
+		nomadCmd.RunE = func(cmd *cobra.Command, args []string) error {
+			pwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			n, err := nomad.NewNomad(pwd, *name)
+			if err != nil {
+				return err
+			}
+			if *ip != "" {
+				n.External = *ip
+			}
+
+			st, err := recipe.GetStack()
+			if err != nil {
+				return err
+			}
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			if err != nil {
+				return err
+			}
+
+			return n.Write()
+		}
+		cmd.AddCommand(nomadCmd)
+	}
+
+	{
+		composeCmd := &cobra.Command{
+			Use: "compose",
+		}
+		composeCmd.RunE = func(cmd *cobra.Command, args []string) error {
+			pwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			n, err := compose.NewCompose(pwd)
+			if err != nil {
+				return err
+			}
+			st, err := recipe.GetStack()
+			if err != nil {
+				return err
+			}
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			if err != nil {
+				return err
+			}
+
+			return n.Write()
+		}
+		cmd.AddCommand(composeCmd)
+		cmd.RunE = composeCmd.RunE
+	}
+
+	{
+		shellCmd := &cobra.Command{
+			Use:     "shell",
+			Aliases: []string{"standalone"},
+		}
+		shellCmd.RunE = func(cmd *cobra.Command, args []string) error {
+			pwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+			projectDir := os.Getenv("STORJUP_PROJECT_DIR")
+			if projectDir == "" {
+				return errs.Errorf("Please set \"STORJUP_PROJECT_DIR\" environment variable with the location of your checked out storj/storj project. (Required to use web resources")
+			}
+			n, err := standalone.NewStandalone(pwd, projectDir)
+			if err != nil {
+				return err
+			}
+			st, err := recipe.GetStack()
+			if err != nil {
+				return err
+			}
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			if err != nil {
+				return err
+			}
+
+			return n.Write()
+		}
+		cmd.AddCommand(shellCmd)
+	}
+
+	return cmd
+}
+
+func normalizedArgs(args []string) []string {
+	var res []string
+	for _, a := range args {
+		for _, p := range strings.Split(a, ",") {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				res = append(res, p)
+			}
+		}
+	}
+	if len(res) == 0 {
+		return []string{"db", "minimal", "edge"}
+	}
+	return res
+
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd())
-}
-
-func initCompose(templateBytes []byte, services []string) (*types.Project, error) {
-	templateComposeProject, err := common.LoadComposeFromBytes(templateBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(services) == 0 {
-		services = []string{"storj", "db"}
-	}
-	resolvedServices, err := common.ResolveServices(services)
-	if err != nil {
-		return nil, err
-	}
-
-	compose, err := addToCompose(nil, templateComposeProject, resolvedServices)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(compose.Services) == 0 {
-		return nil, fmt.Errorf("no service is selected by selector \"%s\", please use `storj-up services` to check available service and group selectors to be used", strings.Join(services, ","))
-	}
-
-	templateComposeProject.Services = compose.Services
-
-	return templateComposeProject, nil
+	RootCmd.AddCommand(initCmd())
 }

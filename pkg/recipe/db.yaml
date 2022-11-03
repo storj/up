@@ -1,0 +1,21 @@
+name: db
+description: Cockroach and redis required by other services.
+add:
+  - name: cockroach
+    image: cockroachdb/cockroach
+    port:
+      - name: cockroach
+        description: Cockroach Postgres-compatible SQL port
+        target: 26257
+    command:
+      - cockroach
+      - start-single-node
+      - --insecure
+      - --http-addr=localhost:8086
+      - --store={{ Environment .This "dir" }}
+    persistence:
+      - /cockroach/cockroach-data
+  - name: redis
+    image: redis:6.0.9
+    command:
+      - redis-server
