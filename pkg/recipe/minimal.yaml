@@ -26,7 +26,7 @@ add:
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=0'
       STORJ_LOG_LEVEL: debug
-      STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
+      STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
       STORJ_MAIL_TEMPLATE_PATH: '{{ Environment .This "mailTemplateDir" }}'
       STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'

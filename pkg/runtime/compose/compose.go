@@ -146,6 +146,14 @@ func NewCompose(dir string) (*Compose, error) {
 				"identityDir":     "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 				"identity":        common.Satellite0Identity,
 			},
+			"satellite-core": {
+				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
+				"identityDir":     "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+			},
+			"satellite-admin": {
+				"staticDir":   "/var/lib/storj/storj/web/satellite/",
+				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+			},
 			"satellite-gc": {
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
@@ -199,9 +207,9 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		Ports: []types.ServicePortConfig{},
 	}
 
-	if recipe.Name == "storagenode" {
+	if recipe.Name == "storagenode" || recipe.Name == "satellite-core" || recipe.Name == "satellite-admin" {
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
-		s.Environment["STORJ_WAIT_FOR_SATELLITE"] = ptrStr("satellite-api")
+		s.Environment["STORJ_WAIT_FOR_SATELLITE"] = ptrStr("true")
 	} else if recipe.Name == "satellite-api" {
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_WAIT_FOR_DB"] = ptrStr("true")

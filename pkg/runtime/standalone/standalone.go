@@ -203,6 +203,12 @@ func NewStandalone(dir string, projectDir string) (*Standalone, error) {
 				"mailTemplateDir": filepath.Join(projectDir, "storj/web/satellite/static/emails"),
 				"staticDir":       filepath.Join(projectDir, "storj/web/satellite"),
 			},
+			"satellite-core": {
+				"mailTemplateDir": filepath.Join(projectDir, "storj/web/satellite/static/emails"),
+			},
+			"satellite-admin": {
+				"staticDir": filepath.Join(projectDir, "storj/web/satellite"),
+			},
 			"linksharing": {
 				"webDir":    filepath.Join(projectDir, "gateway-mt/pkg/linksharing/web"),
 				"staticDir": filepath.Join(projectDir, "gateway-mt/pkg/linksharing/web/static"),
@@ -210,6 +216,8 @@ func NewStandalone(dir string, projectDir string) (*Standalone, error) {
 		},
 	}
 	s.variables["satellite-api"]["identity"] = common.Satellite0Identity
+	s.variables["satellite-core"]["identity"] = common.Satellite0Identity
+	s.variables["satellite-admin"]["identity"] = common.Satellite0Identity
 	return s, nil
 }
 

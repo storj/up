@@ -8,13 +8,15 @@ import (
 )
 
 var basePorts = map[string]int{
-	"satellite-api": 10000,
-	"satellite-gc":  10100,
-	"satellite-bf":  10200,
-	"storagenode":   30000,
-	"gateway-mt":    20000,
-	"authservice":   21000,
-	"linksharing":   22200,
+	"satellite-api":   10000,
+	"satellite-gc":    10100,
+	"satellite-bf":    10200,
+	"satellite-core":  10300,
+	"satellite-admin": 10400,
+	"storagenode":     30000,
+	"gateway-mt":      20000,
+	"authservice":     21000,
+	"linksharing":     22200,
 }
 
 // PortConvention defines port numbers for any services.

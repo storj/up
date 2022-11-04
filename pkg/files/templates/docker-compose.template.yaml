@@ -208,7 +208,7 @@ services:
       STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: redis://redis:6379?db=0
       STORJ_LOG_LEVEL: debug
-      STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
+      STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
       STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable
@@ -253,7 +253,7 @@ services:
       STORJ_IDENTITY_DIR: /var/lib/storj/identities/1
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: redis://redis:6379?db=1
       STORJ_LOG_LEVEL: debug
-      STORJ_MAIL_FROM: Storj <yaroslav-satellite-test@storj.io>
+      STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
       STORJ_MAIL_TEMPLATE_PATH: /var/lib/storj/storj/web/satellite/static/emails/
       STORJ_METAINFO_DATABASE_URL: cockroach://root@cockroach:26257/metainfo?sslmode=disable

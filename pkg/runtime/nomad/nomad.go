@@ -65,6 +65,14 @@ func NewNomad(dir string, name string) (*Nomad, error) {
 				"identityDir":     "/var/lib/storj/identities/1",
 				"identity":        common.Satellite0Identity,
 			},
+			"satellite-core": {
+				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
+				"identityDir":     "/var/lib/storj/identities/1",
+			},
+			"satellite-admin": {
+				"staticDir":   "/var/lib/storj/storj/web/satellite/",
+				"identityDir": "/var/lib/storj/identities/1",
+			},
 			"satellite-gc": {
 				"identityDir": "/var/lib/storj/identities/1",
 			},
