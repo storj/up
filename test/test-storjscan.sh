@@ -54,15 +54,13 @@ storj-up health -t billing_transactions -n 3 -d 12
 RESPONSE=$(curl -X GET http://localhost:10000/api/v0/payments/wallet/payments --header "$COOKIE")
 STATUS=$(echo $RESPONSE | jq -r '.payments[-1].Status')
 
-<<<<<<< HEAD
 docker compose down
 rm -rf .contracts.yaml
 rm -rf storjscan
 rm -rf geth
 rm -rf docker-compose.yaml
-=======
+
 if [ "${STATUS}" != 'confirmed' ]; then
   echo "Test FAILED. Payment status: "${STATUS}""
   exit 1
 fi
->>>>>>> 889b2b4 (test: add transaction check and trap)
