@@ -89,13 +89,16 @@ func ServiceInstanceFromStr(service string) ServiceInstance {
 
 var indexedName = regexp.MustCompile(`(\D+)(\d*)`)
 
-// ServiceInstanceFromIndexedName creates ID from string like 'storagendoe0'.
+// ServiceInstanceFromIndexedName creates ID from string like 'storagenode0'.
 func ServiceInstanceFromIndexedName(service string) ServiceInstance {
 	submatch := indexedName.FindStringSubmatch(service)
 	s := ServiceInstance{}
 	if len(submatch) > 2 {
 		s.Name = submatch[1]
 		s.Instance, _ = strconv.Atoi(submatch[2])
+		if s.Instance > 0 {
+			s.Instance--
+		}
 	}
 	return s
 }
@@ -116,13 +119,13 @@ func ModifyService(stack recipe.Stack, rt Runtime, selectors []string, f func(se
 			found := false
 
 			for _, s := range rt.GetServices() {
-				if s.ID().Name == selector { // selector can be the generic name of servic (eg. storagenode without index)
+				if s.ID().Name == selector { // selector can be the generic name of service (eg. storagenode without index)
 					err := f(s)
 					if err != nil {
 						return err
 					}
 					found = true
-				} else if fmt.Sprintf("%s%d", s.ID().Name, s.ID().Instance) == selector { // selector can be the exact service name
+				} else if fmt.Sprintf("%s%d", s.ID().Name, s.ID().Instance+1) == selector { // selector can be the exact service name
 					err := f(s)
 					if err != nil {
 						return err

@@ -11,8 +11,10 @@ import (
 )
 
 func TestServiceInstanceFromIndexedName(t *testing.T) {
-	require.Equal(t, ServiceInstance{"asd", 1}, ServiceInstanceFromIndexedName("asd1"))
-	require.Equal(t, ServiceInstance{"satellite-api", 1}, ServiceInstanceFromIndexedName("satellite-api1"))
+	require.Equal(t, ServiceInstance{"asd", 1}, ServiceInstanceFromIndexedName("asd2"))
+	require.Equal(t, ServiceInstance{"asd", 0}, ServiceInstanceFromIndexedName("asd1"))
+	require.Equal(t, ServiceInstance{"satellite-api", 1}, ServiceInstanceFromIndexedName("satellite-api2"))
+	require.Equal(t, ServiceInstance{"satellite-api", 0}, ServiceInstanceFromIndexedName("satellite-api1"))
 	require.Equal(t, ServiceInstance{"satellite-api", 0}, ServiceInstanceFromIndexedName("satellite-api"))
 }
 
