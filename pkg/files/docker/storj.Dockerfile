@@ -30,6 +30,10 @@ COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/static /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dist /var/lib/storj/storj/web/satellite/dist
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/build /var/lib/storj/storj/satellite/admin/ui/build
+COPY --from=binaries /var/lib/storj/storj/web/storagenode/static /var/lib/storj/web/storagenode/static
+COPY --from=binaries /var/lib/storj/storj/web/storagenode/dist /var/lib/storj/web/storagenode/dist
+COPY --from=binaries /var/lib/storj/storj/web/multinode/static /var/lib/storj/web/multinode/static
+COPY --from=binaries /var/lib/storj/storj/web/multinode/dist /var/lib/storj/web/multinode/dist
 COPY --from=binaries /var/lib/storj/storj/release/head/wasm /var/lib/storj/storj/web/satellite/static/wasm
 COPY --from=binaries --chown=storj /var/lib/storj/entrypoint.sh /var/lib/storj/entrypoint.sh
 

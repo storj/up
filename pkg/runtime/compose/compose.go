@@ -262,7 +262,9 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		}
 	}
 	if strings.HasPrefix(recipe.Name, "storagenode") {
+		port := c.GetPort(id, "console")
 		err := errs.Combine(
+			r.AddPortForward(port, port),
 			r.AddEnvironment("STORJ_ROLE", "storagenode"),
 			r.AddEnvironment("STORJ_IDENTITY_DIR", "{{ Environment .This \"identityDir\"}}"))
 		if err != nil {
