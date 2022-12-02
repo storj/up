@@ -4,9 +4,11 @@
 package container
 
 import (
+	"errors"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 
 	"github.com/compose-spec/compose-go/types"
 	"github.com/spf13/cobra"
@@ -17,7 +19,32 @@ import (
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
-var dir, subdir, command string
+var dir, subdir, command, mountSource, mountTarget string
+var mountService []string
+
+type mount struct {
+	service    []string
+	targetPath string
+}
+
+var frontendDict = map[string]mount{
+	"web.satellite": {
+		service:    []string{"satellite-api"},
+		targetPath: "/var/lib/storj/storj/web/satellite",
+	},
+	"web.multinode": {
+		service:    []string{"storagenode"},
+		targetPath: "/var/lib/storj/web/multinode",
+	},
+	"web.storagenode": {
+		service:    []string{"storagenode"},
+		targetPath: "/var/lib/storj/web/storagenode",
+	},
+	"admin.ui": {
+		service:    []string{"satellite-admin"},
+		targetPath: "/var/lib/storj/storj/satellite/admin/ui",
+	},
+}
 
 // BinaryDict contains the executable app for each supported service.
 var BinaryDict = map[string]string{
@@ -48,25 +75,36 @@ func localBinCmd() *cobra.Command {
 	return mountCmd
 }
 
-func localWebSatelliteCmd() *cobra.Command {
+func localWebCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
-		Use:     "local-websatellite /path/to/web/satellite",
+		Use:     "local-websource -s /path/to/web/directory <optional selector>",
 		Aliases: []string{"local-ws"},
-		Short:   "Use local web/satellite npm app for the satellite-api container.",
-		Args:    cobra.ExactArgs(1),
+		Short:   "Use local web/* npm app for the service container.",
 		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
-			return cmd.ChangeCompose(st, rt, []string{"satellite-api"}, func(composeService *types.ServiceConfig) error {
-				return mountWebSatellite(composeService, args[0])
-			})
+			if mountTarget == "" {
+				err := resolveTarget()
+				if err != nil {
+					return err
+				}
+			}
+			if len(args) != 0 {
+				mountService = args
+			}
+			if len(mountService) == 0 {
+				return errors.New("unable to determine service for mount. please provide the service as an argument")
+			}
+			return cmd.ChangeCompose(st, rt, mountService, mountWebDir)
 		}),
 	}
-
+	mountCmd.PersistentFlags().StringVarP(&mountSource, "source", "s", "", "local path to the web directory")
+	mountCmd.PersistentFlags().StringVarP(&mountTarget, "target", "t", "", "path where web directory will be mounted")
+	_ = mountCmd.MarkPersistentFlagRequired("source")
 	return mountCmd
 }
 
 func init() {
 	cmd.RootCmd.AddCommand(localBinCmd())
-	cmd.RootCmd.AddCommand(localWebSatelliteCmd())
+	cmd.RootCmd.AddCommand(localWebCmd())
 }
 
 func mountBinaries(composeService *types.ServiceConfig) error {
@@ -86,16 +124,29 @@ func mountBinaries(composeService *types.ServiceConfig) error {
 	return nil
 }
 
-func mountWebSatellite(composeService *types.ServiceConfig, webSatPath string) error {
-	source := webSatPath
-	target := "/var/lib/storj/storj/web/satellite/"
-	for _, volume := range composeService.Volumes {
-		if volume.Type == "bind" &&
-			volume.Source == source &&
-			volume.Target == target {
+func resolveTarget() (err error) {
+	for k, v := range frontendDict {
+		match, err := regexp.MatchString(k, mountSource)
+		if err != nil {
+			return err
+		}
+		if match {
+			mountTarget = v.targetPath
+			mountService = v.service
 			return nil
 		}
 	}
-	composeService.Volumes = append(composeService.Volumes, common.CreateBind(source, target))
+	return errors.New("unable to determine target mount directory. use -t to specify")
+}
+
+func mountWebDir(composeService *types.ServiceConfig) error {
+	for _, volume := range composeService.Volumes {
+		if volume.Type == "bind" &&
+			volume.Source == mountSource &&
+			volume.Target == mountTarget {
+			return nil
+		}
+	}
+	composeService.Volumes = append(composeService.Volumes, common.CreateBind(mountSource, mountTarget))
 	return nil
 }
