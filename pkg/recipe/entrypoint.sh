@@ -7,7 +7,13 @@ export STORJ_NODE_IP=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," "
 #Generate identity if missing
 if [ "$STORJ_IDENTITY_DIR" ]; then
   if [ ! -f "$STORJ_IDENTITY_DIR/identity.key" ]; then
-    identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
+    if [ "$STORJ_USE_PREDEFINED_IDENTITY" ]; then
+      # use predictable, pre-generated identity
+      mkdir -p $(dirname $STORJ_IDENTITY_DIR)
+      cp -r /var/lib/storj/identities/$STORJ_USE_PREDEFINED_IDENTITY $STORJ_IDENTITY_DIR
+    else
+      identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
+    fi
   fi
 fi
 

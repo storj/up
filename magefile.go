@@ -93,7 +93,7 @@ func dockerBase(publish bool) error {
 		return buildxRun(publish,
 			"build",
 			"--tag", "img.dev.storj.io/storjup/base:"+tag,
-			"-f", "cmd/files/docker/base.Dockerfile", ".")
+			"-f", "pkg/files/docker/base.Dockerfile", ".")
 	})
 }
 
@@ -121,7 +121,7 @@ func dockerBuild(publish bool) error {
 			"--build-arg", "BRANCH=main",
 			"--build-arg", "REPO=https://github.com/storj/storj.git",
 			"--tag", "img.dev.storj.io/storjup/build:"+tag,
-			"-f", "cmd/files/docker/build.Dockerfile", ".")
+			"-f", "pkg/files/docker/build.Dockerfile", ".")
 	})
 }
 
@@ -132,7 +132,7 @@ func dockerCore(version string, publish bool) error {
 		"-t", "img.dev.storj.io/storjup/storj:"+version,
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "TYPE=github",
-		"-f", "cmd/files/docker/storj.Dockerfile", ".")
+		"-f", "pkg/files/docker/storj.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func dockerEdge(version string, publish bool) error {
 		"-t", "img.dev.storj.io/storjup/edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "TYPE=github",
-		"-f", "cmd/files/docker/edge.Dockerfile", ".")
+		"-f", "pkg/files/docker/edge.Dockerfile", ".")
 	if err != nil {
 		return err
 	}
