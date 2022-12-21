@@ -102,76 +102,6 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_PASSWORD_COST",
-			Description: "password hashing cost (0=automatic)",
-			Default:     "0",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_OPEN_REGISTRATION_ENABLED",
-			Description: "enable open registration",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_DEFAULT_PROJECT_LIMIT",
-			Description: "default project limits for users",
-			Default:     "1",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_TOKEN_EXPIRATION_TIME",
-			Description: "expiration time for auth tokens, account recovery tokens, and activation tokens",
-			Default:     "24h",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_AS_OF_SYSTEM_TIME_DURATION",
-			Description: "default duration for AS OF SYSTEM TIME",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
-			Description: "the default free-tier storage usage limit",
-			Default:     "150.00GB",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_PAID",
-			Description: "the default paid-tier storage usage limit",
-			Default:     "25.00TB",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_FREE",
-			Description: "the default free-tier bandwidth usage limit",
-			Default:     "150.00GB",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_PAID",
-			Description: "the default paid-tier bandwidth usage limit",
-			Default:     "100.00TB",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_FREE",
-			Description: "the default free-tier segment usage limit",
-			Default:     "150000",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_PAID",
-			Description: "the default paid-tier segment usage limit",
-			Default:     "1000000",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_RECAPTCHA_ENABLED",
-			Description: "whether or not reCAPTCHA is enabled for user registration",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_RECAPTCHA_SITE_KEY",
-			Description: "reCAPTCHA site key",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_CONSOLE_CONFIG_RECAPTCHA_SECRET_KEY",
-			Description: "reCAPTCHA secret key",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_CONTACT_EXTERNAL_ADDRESS",
 			Description: "the public address of the node, useful for nodes behind NAT",
 			Default:     "",
@@ -180,6 +110,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONTACT_TIMEOUT",
 			Description: "timeout for pinging storage nodes",
 			Default:     "10m0s",
+		},
+		{
+			Name:        "STORJ_CONTACT_ALLOW_PRIVATE_IP",
+			Description: "allow private IPs in CheckIn and PingMe",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONTACT_RATE_LIMIT_INTERVAL",
@@ -267,9 +202,49 @@ func satelliteapiConfig() []Option {
 			Default:     "2h",
 		},
 		{
+			Name:        "STORJ_OVERLAY_NODE_SOFTWARE_UPDATE_EMAIL_COOLDOWN",
+			Description: "the amount of time to wait between sending Node Software Update emails",
+			Default:     "168h",
+		},
+		{
 			Name:        "STORJ_OVERLAY_REPAIR_EXCLUDED_COUNTRY_CODES",
 			Description: "list of country codes to exclude nodes from target repair selection",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_OVERLAY_SEND_NODE_EMAILS",
+			Description: "whether to send emails to nodes",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_OFFLINE_NODES_INTERVAL",
+			Description: "how often to check for offline nodes and send them emails",
+			Default:     "1h",
+		},
+		{
+			Name:        "STORJ_OFFLINE_NODES_COOLDOWN",
+			Description: "how long to wait between sending Node Offline emails",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_OFFLINE_NODES_MAX_EMAILS",
+			Description: "max number of offline emails to send a node operator until the node comes back online",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_OFFLINE_NODES_LIMIT",
+			Description: "Max number of nodes to return in a single query. Chore will iterate until rows returned is less than limit",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_INTERVAL",
+			Description: "how long to wait before checking the node events DB again if there is nothing to work on",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_SELECTION_WAIT_PERIOD",
+			Description: "how long the earliest instance of an event for a particular email should exist in the DB before it is selected",
+			Default:     "5m",
 		},
 		{
 			Name:        "STORJ_STRAY_NODES_ENABLE_DQ",
@@ -417,11 +392,6 @@ func satelliteapiConfig() []Option {
 			Default:     "100",
 		},
 		{
-			Name:        "STORJ_METAINFO_PROJECT_LIMITS_VALIDATE_SEGMENT_LIMIT",
-			Description: "whether segment limit validation is enabled.",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_METAINFO_PIECE_DELETION_MAX_CONCURRENCY",
 			Description: "maximum number of concurrent requests to storage nodes",
 			Default:     "100",
@@ -457,9 +427,29 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_PIECE_DELETION_DELETE_SUCCESS_THRESHOLD",
+			Description: "Which fraction of nodes should be contacted successfully until the delete of a batch of pieces is considered completed",
+			Default:     ".75",
+		},
+		{
 			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY",
-			Description: "enable code for server-side copy",
-			Default:     "",
+			Description: "enable code for server-side copy, deprecated. please leave this to true.",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY_DISABLED",
+			Description: "disable already enabled server-side copy. this is because once server side copy is enabled, delete code should stay changed, even if you want to disable server side copy",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_MULTIPLE_VERSIONS",
+			Description: "feature flag to enable using multple objects versions in the system internally",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
+			Description: "test the new query for non-recursive listing",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_ORDERS_ENCRYPTION_KEYS_DEFAULT_ID",
@@ -484,7 +474,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_ORDERS_EXPIRATION",
 			Description: "how long until an order expires",
-			Default:     "48h",
+			Default:     "24h",
 		},
 		{
 			Name:        "STORJ_ORDERS_FLUSH_BATCH_SIZE",
@@ -518,8 +508,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_REPUTATION_AUDIT_LAMBDA",
-			Description: "the forgetting factor used to calculate the audit SNs reputation",
-			Default:     "0.95",
+			Description: "the forgetting factor used to update storage node reputation due to audits",
+			Default:     "0.999",
 		},
 		{
 			Name:        "STORJ_REPUTATION_AUDIT_WEIGHT",
@@ -529,6 +519,16 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_REPUTATION_AUDIT_DQ",
 			Description: "the reputation cut-off for disqualifying SNs based on audit history",
+			Default:     "0.96",
+		},
+		{
+			Name:        "STORJ_REPUTATION_UNKNOWN_AUDIT_LAMBDA",
+			Description: "the forgetting factor used to update storage node reputation due to returning 'unknown' errors during audit'",
+			Default:     "0.95",
+		},
+		{
+			Name:        "STORJ_REPUTATION_UNKNOWN_AUDIT_DQ",
+			Description: "the reputation cut-off for disqualifying SNs based on returning 'unknown' errors during audit",
 			Default:     "0.6",
 		},
 		{
@@ -577,6 +577,26 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_REPUTATION_FLUSH_INTERVAL",
+			Description: "the maximum amount of time that should elapse before cached reputation writes are flushed to the database (if 0, no reputation cache is used)",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_ERROR_RETRY_INTERVAL",
+			Description: "the amount of time that should elapse before the cache retries failed database operations",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_INITIAL_ALPHA",
+			Description: "the value to which an alpha reputation value should be initialized",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_REPUTATION_INITIAL_BETA",
+			Description: "the value to which a beta reputation value should be initialized",
+			Default:     "0",
+		},
+		{
 			Name:        "STORJ_CHECKER_INTERVAL",
 			Description: "how frequently checker should check for bad segments",
 			Default:     "",
@@ -595,6 +615,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CHECKER_NODE_FAILURE_RATE",
 			Description: "the probability of a single node going down within the next checker iteration",
 			Default:     "0.00005435",
+		},
+		{
+			Name:        "STORJ_CHECKER_REPAIR_QUEUE_INSERT_BATCH_SIZE",
+			Description: "Number of damaged segments to buffer in-memory before flushing to the repair queue",
+			Default:     "100",
 		},
 		{
 			Name:        "STORJ_REPAIRER_MAX_REPAIR",
@@ -672,39 +697,104 @@ func satelliteapiConfig() []Option {
 			Default:     "3",
 		},
 		{
+			Name:        "STORJ_AUDIT_VERIFICATION_PUSH_BATCH_SIZE",
+			Description: "number of audit jobs to push at once to the verification queue",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_AUDIT_WORKER_CONCURRENCY",
 			Description: "number of workers to run audits on segments",
 			Default:     "2",
 		},
 		{
+			Name:        "STORJ_AUDIT_REVERIFY_WORKER_CONCURRENCY",
+			Description: "number of workers to run reverify audits on pieces",
+			Default:     "2",
+		},
+		{
+			Name:        "STORJ_AUDIT_REVERIFICATION_RETRY_INTERVAL",
+			Description: "how long a single reverification job can take before it may be taken over by another worker",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_GARBAGE_COLLECTION_INTERVAL",
-			Description: "the time between each send of garbage collection filters to storage nodes",
+			Description: "the time between each attempt to download and send garbage collection retain filters to storage nodes",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_ENABLED",
-			Description: "set if garbage collection is enabled or not",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_GARBAGE_COLLECTION_INITIAL_PIECES",
-			Description: "the initial number of pieces expected for a storage node to have, used for creating a filter",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_GARBAGE_COLLECTION_FALSE_POSITIVE_RATE",
-			Description: "the false positive rate used for creating a garbage collection bloom filter",
-			Default:     "",
+			Description: "set if loop to send garbage collection retain filters is enabled",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_CONCURRENT_SENDS",
-			Description: "the number of nodes to concurrently send garbage collection bloom filters to",
+			Description: "the number of nodes to concurrently send garbage collection retain filters to",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_RETAIN_SEND_TIMEOUT",
 			Description: "the amount of time to allow a node to handle a retain request",
 			Default:     "1m",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_ACCESS_GRANT",
+			Description: "Access to download the bloom filters. Needs read and write permission.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BUCKET",
+			Description: "bucket where retain info is stored",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_EXPIRE_IN",
+			Description: "Expiration of newly created objects. These objects store error messages.",
+			Default:     "336h",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_INTERVAL",
+			Description: "the time between each garbage collection executions",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_ENABLED",
+			Description: "set if garbage collection bloom filters is enabled or not",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_RUN_ONCE",
+			Description: "set if garbage collection bloom filter process should only run once then exit",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_INITIAL_PIECES",
+			Description: "the initial number of pieces expected for a storage node to have, used for creating a filter",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_FALSE_POSITIVE_RATE",
+			Description: "the false positive rate used for creating a garbage collection bloom filter",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_ACCESS_GRANT",
+			Description: "Access Grant which will be used to upload bloom filters to the bucket",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_BUCKET",
+			Description: "Bucket which will be used to upload bloom filters",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_ZIP_BATCH_SIZE",
+			Description: "how many bloom filters will be packed in a single zip",
+			Default:     "500",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXPIRE_IN",
+			Description: "how quickly uploaded bloom filters will be automatically deleted",
+			Default:     "336h",
 		},
 		{
 			Name:        "STORJ_EXPIRED_DELETION_INTERVAL",
@@ -757,6 +847,11 @@ func satelliteapiConfig() []Option {
 			Default:     "10000",
 		},
 		{
+			Name:        "STORJ_TALLY_USE_OBJECTS_LOOP",
+			Description: "flag to switch between calculating bucket tallies using objects loop or custom query",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_TALLY_LIST_LIMIT",
 			Description: "how many objects to query in a batch",
 			Default:     "2500",
@@ -775,6 +870,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_ROLLUP_DELETE_TALLIES",
 			Description: "option for deleting tallies after they are rolled up",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_ROLLUP_DELETE_TALLIES_BATCH_SIZE",
+			Description: "how many tallies to delete in a batch",
+			Default:     "10000",
 		},
 		{
 			Name:        "STORJ_ROLLUP_ARCHIVE_INTERVAL",
@@ -877,6 +977,16 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL",
+			Description: "billing chore interval to query for new transactions from all payment types",
+			Default:     "15s",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP",
+			Description: "flag to disable querying for new billing transactions by billing chore",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_SECRET_KEY",
 			Description: "stripe API secret key",
 			Default:     "",
@@ -927,14 +1037,34 @@ func satelliteapiConfig() []Option {
 			Default:     "100",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_GOB_FLOAT_MIGRATION_BATCH_INTERVAL",
-			Description: "amount of time to wait between gob-encoded big.Float database migration batches",
+			Name:        "STORJ_PAYMENTS_STORJSCAN_ENDPOINT",
+			Description: "storjscan API endpoint",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER",
+			Description: "basic auth identifier",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET",
+			Description: "basic auth secret",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STORJSCAN_INTERVAL",
+			Description: "storjscan chore interval to query new payments for all satellite deposit wallets",
 			Default:     "1m",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_GOB_FLOAT_MIGRATION_BATCH_SIZE",
-			Description: "number of rows with gob-encoded big.Float values to migrate at once",
-			Default:     "100",
+			Name:        "STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS",
+			Description: "required number of following blocks in the chain to accept payment as confirmed",
+			Default:     "15",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP",
+			Description: "flag to disable querying new storjscan payments by storjscan chore",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STORAGE_TBPRICE",
@@ -949,7 +1079,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_PAYMENTS_SEGMENT_PRICE",
 			Description: "price user should pay for each segment stored in network per month",
-			Default:     "0",
+			Default:     "0.0000088",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_BONUS_RATE",
@@ -975,6 +1105,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_PAYMENTS_NODE_DISK_SPACE_PRICE",
 			Description: "price node receive for storing disk space in cents/TB",
 			Default:     "150",
+		},
+		{
+			Name:        "STORJ_RESTKEYS_DEFAULT_EXPIRATION",
+			Description: "expiration to use if user does not specify an rest key expiration",
+			Default:     "720h",
 		},
 		{
 			Name:        "STORJ_CONSOLE_ADDRESS",
@@ -1039,7 +1174,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_TERMS_AND_CONDITIONS_URL",
 			Description: "url link to terms and conditions page",
-			Default:     "https://storj.io/storage-sla/",
+			Default:     "https://www.storj.io/terms-of-service/",
 		},
 		{
 			Name:        "STORJ_CONSOLE_ACCOUNT_ACTIVATION_REDIRECT_URL",
@@ -1049,7 +1184,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_PARTNERED_SATELLITES",
 			Description: "names and addresses of partnered satellites in JSON list format",
-			Default:     "[[\"US1\",\"https://us1.storj.io\"],[\"EU1\",\"https://eu1.storj.io\"],[\"AP1\",\"https://ap1.storj.io\"]]",
+			Default:     "[{\"name\":\"US1\",\"address\":\"https://us1.storj.io\"},{\"name\":\"EU1\",\"address\":\"https://eu1.storj.io\"},{\"name\":\"AP1\",\"address\":\"https://ap1.storj.io\"}]",
 		},
 		{
 			Name:        "STORJ_CONSOLE_GENERAL_REQUEST_URL",
@@ -1064,7 +1199,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL",
 			Description: "url link for gateway credentials requests",
-			Default:     "https://auth.us1.storjshare.io",
+			Default:     "https://auth.storjshare.io",
 		},
 		{
 			Name:        "STORJ_CONSOLE_IS_BETA_SATELLITE",
@@ -1109,7 +1244,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_LINKSHARING_URL",
 			Description: "url link for linksharing requests",
-			Default:     "https://link.us1.storjshare.io",
+			Default:     "https://link.storjshare.io",
 		},
 		{
 			Name:        "STORJ_CONSOLE_PATHWAY_OVERVIEW_ENABLED",
@@ -1119,16 +1254,16 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_NEW_PROJECT_DASHBOARD",
 			Description: "indicates if new project dashboard should be used",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_NEW_NAVIGATION",
-			Description: "indicates if new navigation structure should be rendered",
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_OBJECTS_FLOW",
-			Description: "indicates if new objects flow should be used",
+			Name:        "STORJ_CONSOLE_NEW_ACCESS_GRANT_FLOW",
+			Description: "indicates if new access grant flow should be used",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_NEW_BILLING_SCREEN",
+			Description: "indicates if new billing screens should be used",
 			Default:     "true",
 		},
 		{
@@ -1137,14 +1272,39 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_INACTIVITY_TIMER_ENABLED",
-			Description: "indicates if session can be timed out due inactivity",
+			Name:        "STORJ_CONSOLE_OPTIONAL_SIGNUP_SUCCESS_URL",
+			Description: "optional url to external registration success page",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_HOMEPAGE_URL",
+			Description: "url link to storj.io homepage",
+			Default:     "https://www.storj.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_NATIVE_TOKEN_PAYMENTS_ENABLED",
+			Description: "indicates if storj native token payments system is enabled",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_INACTIVITY_TIMER_DELAY",
-			Description: "inactivity timer delay in seconds",
-			Default:     "600",
+			Name:        "STORJ_CONSOLE_NEW_ENCRYPTION_PASSPHRASE_FLOW_ENABLED",
+			Description: "indicates if new encryption passphrase flow is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
+			Description: "how long oauth authorization codes are issued for",
+			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_CONSOLE_OAUTH_ACCESS_TOKEN_EXPIRY",
+			Description: "how long oauth access tokens are issued for",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_OAUTH_REFRESH_TOKEN_EXPIRY",
+			Description: "how long oauth refresh tokens are issued for",
+			Default:     "720h",
 		},
 		{
 			Name:        "STORJ_CONSOLE_RATE_LIMIT_DURATION",
@@ -1162,6 +1322,31 @@ func satelliteapiConfig() []Option {
 			Default:     "1000",
 		},
 		{
+			Name:        "STORJ_CONSOLE_ABTESTING_ENABLED",
+			Description: "whether or not AB testing is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ABTESTING_APIKEY",
+			Description: "the Flagship API key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ABTESTING_ENV_ID",
+			Description: "the Flagship environment ID",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ABTESTING_FLAGSHIP_URL",
+			Description: "the Flagship API URL",
+			Default:     "https://decision.flagship.io/v2",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ABTESTING_HIT_TRACKING_URL",
+			Description: "the Flagship environment ID",
+			Default:     "https://ariane.abtasty.com",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_PASSWORD_COST",
 			Description: "password hashing cost (0=automatic)",
 			Default:     "0",
@@ -1177,14 +1362,19 @@ func satelliteapiConfig() []Option {
 			Default:     "1",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_TOKEN_EXPIRATION_TIME",
-			Description: "expiration time for auth tokens, account recovery tokens, and activation tokens",
-			Default:     "24h",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_AS_OF_SYSTEM_TIME_DURATION",
 			Description: "default duration for AS OF SYSTEM TIME",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_LOGIN_ATTEMPTS_WITHOUT_PENALTY",
+			Description: "number of times user can try to login without penalty",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_FAILED_LOGIN_PENALTY",
+			Description: "incremental duration of penalty for failed login attempts in minutes",
+			Default:     "2.0",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
@@ -1214,21 +1404,121 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_PAID",
 			Description: "the default paid-tier segment usage limit",
-			Default:     "1000000",
+			Default:     "100000000",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_RECAPTCHA_ENABLED",
-			Description: "whether or not reCAPTCHA is enabled for user registration",
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_FREE",
+			Description: "the default free-tier project limit",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_PAID",
+			Description: "the default paid-tier project limit",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_RECAPTCHA_ENABLED",
+			Description: "whether or not captcha is enabled",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_RECAPTCHA_SITE_KEY",
-			Description: "reCAPTCHA site key",
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_RECAPTCHA_SITE_KEY",
+			Description: "captcha site key",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_RECAPTCHA_SECRET_KEY",
-			Description: "reCAPTCHA secret key",
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_RECAPTCHA_SECRET_KEY",
+			Description: "captcha secret key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_HCAPTCHA_ENABLED",
+			Description: "whether or not captcha is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_HCAPTCHA_SITE_KEY",
+			Description: "captcha site key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_HCAPTCHA_SECRET_KEY",
+			Description: "captcha secret key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_RECAPTCHA_ENABLED",
+			Description: "whether or not captcha is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_RECAPTCHA_SITE_KEY",
+			Description: "captcha site key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_RECAPTCHA_SECRET_KEY",
+			Description: "captcha secret key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_HCAPTCHA_ENABLED",
+			Description: "whether or not captcha is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_HCAPTCHA_SITE_KEY",
+			Description: "captcha site key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_REGISTRATION_HCAPTCHA_SECRET_KEY",
+			Description: "captcha secret key",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SESSION_INACTIVITY_TIMER_ENABLED",
+			Description: "indicates if session can be timed out due inactivity",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SESSION_INACTIVITY_TIMER_DURATION",
+			Description: "inactivity timer delay in seconds",
+			Default:     "600",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SESSION_INACTIVITY_TIMER_VIEWER_ENABLED",
+			Description: "indicates whether remaining session time is shown for debugging",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SESSION_DURATION",
+			Description: "duration a session is valid for (superseded by inactivity timer delay if inactivity timer is enabled)",
+			Default:     "168h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
+			Description: "expiration time for account recovery and activation tokens",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_EMAIL_REMINDERS_FIRST_VERIFICATION_REMINDER",
+			Description: "amount of time before sending first reminder to users who need to verify their email",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_EMAIL_REMINDERS_SECOND_VERIFICATION_REMINDER",
+			Description: "amount of time before sending second reminder to users who need to verify their email",
+			Default:     "120h",
+		},
+		{
+			Name:        "STORJ_EMAIL_REMINDERS_CHORE_INTERVAL",
+			Description: "how often to send reminders to users who need to verify their email",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_EMAIL_REMINDERS_ENABLE",
+			Description: "enable sending emails reminding users to verify their email",
 			Default:     "",
 		},
 		{
@@ -1397,8 +1687,23 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_ANALYTICS_HUB_SPOT_APIKEY",
-			Description: "hubspot api key",
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_REFRESH_TOKEN",
+			Description: "hubspot refresh token",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_TOKEN_API",
+			Description: "hubspot token refresh API",
+			Default:     "https://api.hubapi.com/oauth/v1/token",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_CLIENT_ID",
+			Description: "hubspot client ID",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_CLIENT_SECRET",
+			Description: "hubspot client secret",
 			Default:     "",
 		},
 		{

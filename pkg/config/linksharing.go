@@ -94,7 +94,7 @@ func linksharingConfig() []Option {
 		{
 			Name:        "STORJ_HANDLER_AUTH_SERVICE_CONFIG_CACHE_CAPACITY",
 			Description: "how many cached access grants to keep in cache",
-			Default:     "1000",
+			Default:     "10000",
 		},
 		{
 			Name:        "STORJ_HANDLER_DNSSERVER",

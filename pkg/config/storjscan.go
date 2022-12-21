@@ -62,6 +62,26 @@ func storjscanConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_TOKEN_PRICE_CLEANUP_INTERVAL",
+			Description: "how often to remove old token prices",
+			Default:     "336h",
+		},
+		{
+			Name:        "STORJ_TOKEN_PRICE_CLEANUP_RETAIN_DAYS",
+			Description: "number of days of token prices to retain",
+			Default:     "30",
+		},
+		{
+			Name:        "STORJ_HEADER_CLEANUP_INTERVAL",
+			Description: "how often to remove old block headers",
+			Default:     "336h",
+		},
+		{
+			Name:        "STORJ_HEADER_CLEANUP_RETAIN_DAYS",
+			Description: "number of days of block headers to retain",
+			Default:     "30",
+		},
+		{
 			Name:        "STORJ_API_ADDRESS",
 			Description: "public address to listen on",
 			Default:     ":10000",

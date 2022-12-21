@@ -18,8 +18,8 @@ require (
 	github.com/zeebo/errs/v2 v2.0.3
 	go.uber.org/zap v1.19.1
 	gopkg.in/yaml.v3 v3.0.1
-	storj.io/common v0.0.0-20221019144311-705673f51b62
-	storj.io/storj v0.12.1-0.20221024094512-11df98a3926c
+	storj.io/common v0.0.0-20221024150824-a2a5c611dacf
+	storj.io/storj v1.68.2
 )
 
 require (
@@ -130,5 +130,5 @@ require (
 	storj.io/drpc v0.0.32 // indirect
 	storj.io/monkit-jaeger v0.0.0-20220915074555-d100d7589f41 // indirect
 	storj.io/private v0.0.0-20221011183246-586e5f48357a // indirect
-	storj.io/uplink v1.9.1-0.20221019010609-a7cb5aecc981 // indirect
+	storj.io/uplink v1.9.1-0.20221103133433-65947dace243 // indirect
 )

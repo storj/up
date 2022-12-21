@@ -182,6 +182,11 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_STORAGE2_PIECE_SCAN_ON_STARTUP",
+			Description: "if set to true, all pieces disk usage is recalculated on startup",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_STORAGE2_STREAM_OPERATION_TIMEOUT",
 			Description: "how long to spend waiting for a stream operation before canceling",
 			Default:     "30m",
@@ -360,6 +365,16 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_CONSOLE_STATIC_DIR",
 			Description: "path to static resources",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_HEALTHCHECK_DETAILS",
+			Description: "Enable additional details about the satellite connections via the HTTP healthcheck.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HEALTHCHECK_ENABLED",
+			Description: "Provide health endpoint (including suspension/audit failures) on main public port, but HTTP protocol.",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",

@@ -17,6 +17,11 @@ func authserviceConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_POSTSIZE_LIMIT",
+			Description: "maximum size that the incoming POST request body with access grant can be",
+			Default:     "4KiB",
+		},
+		{
 			Name:        "STORJ_ALLOWED_SATELLITES",
 			Description: "list of satellite NodeURLs allowed for incoming access grants",
 			Default:     "https://www.storj.io/dcs-satellites",
@@ -25,26 +30,6 @@ func authserviceConfig() []Option {
 			Name:        "STORJ_CACHE_EXPIRATION",
 			Description: "length of time satellite addresses are cached for",
 			Default:     "10m",
-		},
-		{
-			Name:        "STORJ_GET_ACCESS_RATE_LIMITERS_MAX_REQS_SECOND",
-			Description: "maximum number of allowed operations per second starting when first failure operation happens",
-			Default:     "2",
-		},
-		{
-			Name:        "STORJ_GET_ACCESS_RATE_LIMITERS_BURST",
-			Description: "maximum number of allowed operations to overpass the maximum operations per second",
-			Default:     "3",
-		},
-		{
-			Name:        "STORJ_GET_ACCESS_RATE_LIMITERS_NUM_LIMITS",
-			Description: "maximum number of keys/rate-limit pairs stored in the LRU cache",
-			Default:     "1000",
-		},
-		{
-			Name:        "STORJ_GET_ACCESS_RATE_LIMITERS_ENABLED",
-			Description: "indicates if rate-limiting for GetAccess endpoints is enabled",
-			Default:     "false",
 		},
 		{
 			Name:        "STORJ_KVBACKEND",
@@ -120,6 +105,111 @@ func authserviceConfig() []Option {
 			Name:        "STORJ_DELETE_UNUSED_DELETE_SIZE",
 			Description: "batch size of records to delete from selected records at a time",
 			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_NODE_ID",
+			Description: "unique identifier for the node",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_FIRST_START",
+			Description: "allow start with empty storage",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_PATH",
+			Description: "path where to store data",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_ADDRESS",
+			Description: "address that the node listens on",
+			Default:     ":20004",
+		},
+		{
+			Name:        "STORJ_NODE_JOIN",
+			Description: "comma delimited list of cluster peers",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_CERTS_DIR",
+			Description: "directory for certificates for mutual authentication",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_REPLICATION_INTERVAL",
+			Description: "how often to replicate",
+			Default:     "30s",
+		},
+		{
+			Name:        "STORJ_NODE_REPLICATION_LIMIT",
+			Description: "maximum entries returned in replication response",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_NODE_CONFLICT_BACKOFF_DELAY",
+			Description: "The active time between retries, typically not set",
+			Default:     "0ms",
+		},
+		{
+			Name:        "STORJ_NODE_CONFLICT_BACKOFF_MAX",
+			Description: "The maximum total time to allow retries",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_NODE_CONFLICT_BACKOFF_MIN",
+			Description: "The minimum time between retries",
+			Default:     "100ms",
+		},
+		{
+			Name:        "STORJ_NODE_INSECURE_DISABLE_TLS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_ENABLED",
+			Description: "enable backups",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_ENDPOINT",
+			Description: "backup bucket endpoint hostname, e.g. s3.amazonaws.com",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_BUCKET",
+			Description: "bucket name where database backups are stored",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_PREFIX",
+			Description: "database backup object path prefix",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_INTERVAL",
+			Description: "how often full backups are run",
+			Default:     "1h",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_ACCESS_KEY_ID",
+			Description: "access key for backup bucket",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_BACKUP_SECRET_ACCESS_KEY",
+			Description: "secret key for backup bucket",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_MIGRATION_MIGRATION_SELECT_SIZE",
+			Description: "page size while performing migration",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_NODE_MIGRATION_SOURCE_SQLAUTH_KVBACKEND",
+			Description: "source key/value store backend (must be sqlauth) url",
+			Default:     "",
 		},
 	}
 }
