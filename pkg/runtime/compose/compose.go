@@ -115,6 +115,10 @@ func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) runt
 		if portType == "public" {
 			return runtime.PortMap{Internal: 9090, External: 9090}
 		}
+	case "satellite-admin":
+		if portType == "console" {
+			return runtime.PortMap{Internal: 8080, External: 9080}
+		}
 	}
 
 	return runtime.PortMap{Internal: -1, External: -1}
@@ -151,7 +155,7 @@ func NewCompose(dir string) (*Compose, error) {
 				"identityDir":     "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-admin": {
-				"staticDir":   "/var/lib/storj/storj/web/satellite/",
+				"staticDir":   "/var/lib/storj/storj/satellite/admin/ui/build",
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-gc": {
@@ -244,7 +248,7 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 			}
 		}
 	}
-	if recipe.Name == "satellite-api" {
+	if recipe.Name == "satellite-api" || recipe.Name == "satellite-admin" {
 		err := r.AddPortForward(c.GetPort(id, "console"))
 		if err != nil {
 			return r, err

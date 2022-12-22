@@ -15,6 +15,7 @@ add:
     persistence:
       - /var/lib/storj/.local/share/storj
     config:
+      STORJ_ADMIN_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "console"}}'
       STORJ_ADMIN_STATIC_DIR: '{{ Environment .This "staticDir" }}'
       STORJ_CONSOLE_AUTH_TOKEN: my-suppa-secret-key
       STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
