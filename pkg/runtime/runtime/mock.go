@@ -75,8 +75,8 @@ func (m *MockService) AddEnvironment(key string, value string) error {
 }
 
 // AddPortForward implements runtime.Service.
-func (m *MockService) AddPortForward(external int, internal int) error {
-	m.Ports[external] = internal
+func (m *MockService) AddPortForward(portMap PortMap) error {
+	m.Ports[portMap.External] = portMap.Internal
 	return nil
 }
 
@@ -108,7 +108,7 @@ func (m *MockRuntime) GetHost(serviceInstance ServiceInstance, hostType string) 
 }
 
 // GetPort implements runtime.Runtime.
-func (m *MockRuntime) GetPort(serviceInstance ServiceInstance, portType string) int {
+func (m *MockRuntime) GetPort(serviceInstance ServiceInstance, portType string) PortMap {
 	panic("implement me")
 }
 

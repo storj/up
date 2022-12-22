@@ -40,7 +40,7 @@ func InitFromRecipe(service Service, recipe recipe.Service) error {
 	}
 
 	for _, port := range recipe.Port {
-		err := service.AddPortForward(port.Target, port.Target)
+		err := service.AddPortForward(PortMap{Internal: port.Target, External: port.Target})
 		if err != nil {
 			return err
 		}

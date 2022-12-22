@@ -119,13 +119,13 @@ func filtered(s *Service, ds types.ServiceConfig) bool {
 }
 
 // AddPortForward implements runtime.Service.
-func (s *Service) AddPortForward(external int, internal int) error {
+func (s *Service) AddPortForward(ports runtime.PortMap) error {
 	for ix, ds := range s.project.Services {
 		if filtered(s, ds) {
 			s.project.Services[ix].Ports = append(s.project.Services[ix].Ports, types.ServicePortConfig{
 				Mode:      "ingress",
-				Target:    uint32(internal),
-				Published: uint32(internal),
+				Target:    uint32(ports.Internal),
+				Published: uint32(ports.External),
 				Protocol:  "tcp",
 			})
 		}

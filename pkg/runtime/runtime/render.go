@@ -17,7 +17,7 @@ func Render(r Runtime, serviceInstance ServiceInstance, original string) (string
 			return r.GetHost(ServiceInstanceFromStr(service), hostType)
 		},
 		"Port": func(service string, portType string) int {
-			return r.GetPort(ServiceInstanceFromStr(service), portType)
+			return r.GetPort(ServiceInstanceFromStr(service), portType).Internal
 		},
 		"Environment": func(service string, key string) (string, error) {
 			val := r.Get(ServiceInstanceFromStr(service), key)

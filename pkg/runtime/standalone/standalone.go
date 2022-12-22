@@ -65,7 +65,7 @@ func (c *Standalone) Get(service runtime.ServiceInstance, name string) string {
 	}
 	if name == "accessGrant" {
 		sat := runtime.ServiceInstanceFromStr("satellite-api/0")
-		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "external"), c.GetPort(sat, "public")))
+		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "external"), c.GetPort(sat, "public").External))
 		if err != nil {
 			return err.Error()
 		}
@@ -80,12 +80,12 @@ func (c *Standalone) GetHost(service runtime.ServiceInstance, hostType string) s
 }
 
 // GetPort implements runtime.Runtime.
-func (c *Standalone) GetPort(service runtime.ServiceInstance, portType string) int {
+func (c *Standalone) GetPort(service runtime.ServiceInstance, portType string) runtime.PortMap {
 	port, err := runtime.PortConvention(service, portType)
 	if err != nil {
 		panic(err.Error())
 	}
-	return port
+	return runtime.PortMap{Internal: port, External: port}
 }
 
 var (

@@ -19,7 +19,7 @@ type HostResolver interface {
 
 // PortResolver helps to find the right port number for a specific service.
 type PortResolver interface {
-	GetPort(serviceInstance ServiceInstance, portType string) int
+	GetPort(serviceInstance ServiceInstance, portType string) PortMap
 }
 
 // VariableGetter returns with any custom template variable.
@@ -40,6 +40,12 @@ type Runtime interface {
 	Reload(stack recipe.Stack) error
 }
 
+// PortMap defines the internal and external ports to use when port forwarding.
+type PortMap struct {
+	Internal int
+	External int
+}
+
 // Service is the interface to modify any service.
 type Service interface {
 
@@ -57,7 +63,7 @@ type Service interface {
 	// AddEnvironment registers new environment variable to be used. For normal configs, use AddConfig to be more general.
 	AddEnvironment(key string, value string) error
 
-	AddPortForward(external int, internal int) error
+	AddPortForward(PortMap) error
 	Persist(dir string) error
 	Labels() []string
 

@@ -62,7 +62,7 @@ func (c *Compose) GetServices() []runtime.Service {
 func (c *Compose) Get(service runtime.ServiceInstance, name string) string {
 	if name == "accessGrant" {
 		sat := runtime.ServiceInstanceFromStr("satellite-api/0")
-		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "internal"), c.GetPort(sat, "public")))
+		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "internal"), c.GetPort(sat, "public").Internal))
 		if err != nil {
 			return err.Error()
 		}
@@ -88,36 +88,36 @@ func (c *Compose) GetHost(service runtime.ServiceInstance, hostType string) stri
 }
 
 // GetPort implements runtime.Runtime.
-func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) int {
+func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) runtime.PortMap {
 	if portType == "debug" {
-		return 11111
+		return runtime.PortMap{Internal: 11111, External: 11111}
 	}
 	switch service.Name {
 	case "satellite-api":
 		switch portType {
 		case "public":
-			return 7777
+			return runtime.PortMap{Internal: 7777, External: 7777}
 		case "console":
-			return 10000
+			return runtime.PortMap{Internal: 10000, External: 10000}
 		}
 	case "storagenode":
 		p, _ := runtime.PortConvention(service, portType)
-		return p
+		return runtime.PortMap{Internal: p, External: p}
 	case "gateway-mt":
 		if portType == "public" {
-			return 9999
+			return runtime.PortMap{Internal: 9999, External: 9999}
 		}
 	case "authservice":
 		if portType == "public" {
-			return 8888
+			return runtime.PortMap{Internal: 8888, External: 8888}
 		}
 	case "linksharing":
 		if portType == "public" {
-			return 9090
+			return runtime.PortMap{Internal: 9090, External: 9090}
 		}
 	}
 
-	return -1
+	return runtime.PortMap{Internal: -1, External: -1}
 }
 
 var _ runtime.Runtime = &Compose{}
@@ -238,16 +238,14 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 
 	for _, public := range []string{"satellite-api", "gateway-mt", "linksharing", "authservice"} {
 		if public == recipe.Name {
-			port := c.GetPort(id, "public")
-			err := r.AddPortForward(port, port)
+			err := r.AddPortForward(c.GetPort(id, "public"))
 			if err != nil {
 				return r, err
 			}
 		}
 	}
 	if recipe.Name == "satellite-api" {
-		port := c.GetPort(id, "console")
-		err := r.AddPortForward(port, port)
+		err := r.AddPortForward(c.GetPort(id, "console"))
 		if err != nil {
 			return r, err
 		}
@@ -262,9 +260,8 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		}
 	}
 	if strings.HasPrefix(recipe.Name, "storagenode") {
-		port := c.GetPort(id, "console")
 		err := errs.Combine(
-			r.AddPortForward(port, port),
+			r.AddPortForward(c.GetPort(id, "console")),
 			r.AddEnvironment("STORJ_ROLE", "storagenode"),
 			r.AddEnvironment("STORJ_IDENTITY_DIR", "{{ Environment .This \"identityDir\"}}"))
 		if err != nil {

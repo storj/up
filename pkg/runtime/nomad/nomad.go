@@ -149,7 +149,7 @@ func (c *Nomad) GetServices() []runtime.Service {
 func (c *Nomad) Get(s runtime.ServiceInstance, name string) string {
 	if name == "accessGrant" {
 		sat := runtime.ServiceInstanceFromStr("satellite-api/0")
-		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "external"), c.GetPort(sat, "public")))
+		key, err := common.GetTestAPIKey(fmt.Sprintf("%s@%s:%d", common.Satellite0Identity, c.GetHost(sat, "external"), c.GetPort(sat, "public").External))
 		if err != nil {
 			return err.Error()
 		}
@@ -172,12 +172,12 @@ func (c *Nomad) GetHost(service runtime.ServiceInstance, hostType string) string
 }
 
 // GetPort implements runtime.Runtime.
-func (c *Nomad) GetPort(service runtime.ServiceInstance, portType string) int {
+func (c *Nomad) GetPort(service runtime.ServiceInstance, portType string) runtime.PortMap {
 	port, err := runtime.PortConvention(service, portType)
 	if err != nil {
 		panic(err.Error())
 	}
-	return port
+	return runtime.PortMap{Internal: port, External: port}
 }
 
 // AddService implements runtime.Runtime.

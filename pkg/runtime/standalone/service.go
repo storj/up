@@ -45,7 +45,7 @@ func (s *service) ChangeImage(func(string) string) error {
 	return nil
 }
 
-func (s *service) AddPortForward(external int, internal int) error {
+func (s *service) AddPortForward(runtime.PortMap) error {
 	// all ports are available, by default...
 	return nil
 }
