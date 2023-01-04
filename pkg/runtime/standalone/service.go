@@ -23,6 +23,11 @@ type service struct {
 	labels      []string
 }
 
+func (s *service) UseFolder(path string, name string) error {
+	// TODO: folders are not yet supported
+	return nil
+}
+
 func (s *service) UseFile(path string, name string, data string) error {
 	// TODO: files are not yet extracted, but we accept recipes with files
 	return nil

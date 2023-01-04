@@ -17,6 +17,11 @@ type MockService struct {
 	Label       []string
 }
 
+// UseFolder implements runtime.Service.
+func (m *MockService) UseFolder(path string, name string) error {
+	return nil
+}
+
 // UseFile implements runtime.Service.
 func (m *MockService) UseFile(path string, name string, data string) error {
 	return nil

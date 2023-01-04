@@ -51,6 +51,12 @@ func InitFromRecipe(service Service, recipe recipe.Service) error {
 			return err
 		}
 	}
+	for _, f := range recipe.Folder {
+		err := service.UseFolder(f.Path, f.Name)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

@@ -23,14 +23,26 @@ type Service struct {
 	labels     []string
 }
 
+// UseFolder implements runtime.Service.
+func (s *Service) UseFolder(path string, name string) error {
+	s.useVolume(path, name)
+	return nil
+}
+
 // UseFile implements runtime.Service.
 func (s *Service) UseFile(path string, name string, data string) error {
-	if path == "" {
-		path = "/tmp"
-	}
 	err := os.WriteFile(filepath.Join(s.composeDir, name), []byte(data), 0644)
 	if err != nil {
 		return err
+	}
+	s.useVolume(path, name)
+	return nil
+}
+
+// useVolume adds a bind mount to the service.
+func (s *Service) useVolume(path string, name string) {
+	if path == "" {
+		path = "/tmp"
 	}
 	for ix, ds := range s.project.Services {
 		if filtered(s, ds) {
@@ -44,7 +56,6 @@ func (s *Service) UseFile(path string, name string, data string) error {
 			})
 		}
 	}
-	return nil
 }
 
 // Labels implements runtime.Service.

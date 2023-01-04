@@ -28,6 +28,7 @@ type Service struct {
 	Persistence []string
 	Port        []PortDefinition
 	File        []File
+	Folder      []Folder
 
 	// port forward outside->inside
 	PortForwards map[int]int
@@ -49,6 +50,12 @@ type File struct {
 	Name string
 	Path string
 	Data string
+}
+
+// Folder represents any configuration folder required by a recipe.
+type Folder struct {
+	Name string
+	Path string
 }
 
 // FlagModification represents modification for service command / flags.

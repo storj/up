@@ -68,6 +68,7 @@ type Service interface {
 	Labels() []string
 
 	UseFile(path string, name string, data string) error
+	UseFolder(path string, name string) error
 }
 
 // ServiceInstance is a unique identifier of a service instance.
