@@ -8,7 +8,7 @@ cleanup() {
   then
     docker compose down
   fi
-  rm -rf pass pk.json TestToken.abi TestToken.bin .contracts.yaml
+  rm -rf pass pk.json TestToken.abi TestToken.bin .contracts.yaml blockchain
   rm -rf docker-compose.yaml
 }
 
@@ -27,14 +27,15 @@ fi
 export STORJUP_NO_HISTORY=true
 
 storj-up init minimal,satellite-core,edge,db,billing
-storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
-storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
-storj-up env setenv satellite-api satellite-core satellite-admin STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
+storj-up env setenv satellite-core STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
+storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
+storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
+storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true
 
 docker compose down -v
 docker compose up -d
 
-storj-up health
+storj-up health -d 60
 
 eval $(storj-up credentials -e)
 COOKIE=$(storj-up credentials | grep -o 'Cookie.*')
@@ -47,10 +48,12 @@ curl -X GET -u "eu1:eu1secret" http://127.0.0.1:12000/api/v0/auth/whoami
 curl -X GET -u "us1:us1secret" http://127.0.0.1:12000/api/v0/auth/whoami
 
 storjscan mnemonic >.mnemonic
-storjscan generate --api-key us1 --api-secret us1secret --address http://127.0.0.1:12000
+storjscan generate >.wallets
+storjscan import --input-file .wallets --api-key us1 --api-secret us1secret --address http://127.0.0.1:12000
 storjscan mnemonic >.mnemonic
-storjscan generate --api-key eu1 --api-secret eu1secret --address http://127.0.0.1:12000
-rm -rf .mnemonic
+storjscan generate >.wallets
+storjscan import --input-file .wallets --api-key eu1 --api-secret eu1secret --address http://127.0.0.1:12000
+rm -rf .mnemonic .wallets
 
 curl -X POST 'http://localhost:10000/api/v0/payments/wallet' --header "$COOKIE"
 ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header "$COOKIE" | jq -r '.address')
