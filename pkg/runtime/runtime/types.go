@@ -46,11 +46,20 @@ type PortMap struct {
 	External int
 }
 
+// VolumeMount defines the type source and target fields when mounting a volume to the container.
+type VolumeMount struct {
+	MountType string
+	Source    string
+	Target    string
+}
+
 // Service is the interface to modify any service.
 type Service interface {
 
 	// ID returns with the unique identifier (including index in case of multiple instances are added from a service)
 	ID() ServiceInstance
+	GetENV() map[string]*string
+	GetVolumes() []VolumeMount
 
 	// ChangeImage applies transformation to the container image
 	ChangeImage(func(string) string) error

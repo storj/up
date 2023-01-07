@@ -40,7 +40,16 @@ Or you can update the credentials of local `rclone` setup with `storj-up credent
 
 ## More features
 
-There are dedicated subcommands to modify the `docker-compose.yaml` file easily. The generic form of these commands:
+While the basic `storj-up init` command will give you a barebones local Storj network, which can be used for testing file upload and download,
+you can also add more services to the network for testing things like the edge services, and admin API console. Just add the desired services to the init command,
+for example
+
+```
+storj-up init minimal,satellite-core,satellite-admin,edge,db,billing
+```
+
+Will give you all the services required to test the Web UI, the Admin API, and even the billing services. Additionally, there are dedicated subcommands 
+to modify the services within the `docker-compose.yaml` file easily. The generic form of these commands:
 
 ```
 storj-up <subcommand> <selector> <argument>
@@ -125,6 +134,28 @@ docker restart up-satellite-core-1 up-satellite-api-1 up-satellite-admin-1
 (the "up" prefix may be different depending on the location of your docker-compose.yaml file)
 
 to restart already-running containers.
+
+#### Development Environment
+
+During development, changes to the code will require building a new binary and restarting the containers.
+To simplify this workflow during development, you can supply ENV variables either in the service config or
+at the OS level to automatically rebuild the binaries and restart the containers when you use the storj-up
+start command.
+
+```
+storj-up local-bin satellite-core satellite-admin satellite-api
+storj-up env set satellite-core satellite-admin satellite-api STORJ_UP_LOCAL_BINARY_SOURCE=<path_to_storj>/cmd/satellite
+storj-up start
+```
+
+This will build the source specified and then start the services. Make sure your local binary is mounted in the
+service using the `storj-up local-bin` command and that the location mounted is the same location as your default
+go/bin directory. If you are not on a Linux OS, the command will automatically attempt to cross-compile the source.
+
+If you wish to always use a local binary across all storj-up instances, you can also set the ENV variable at the OS
+level `STORJ_UP_LOCAL_<service_name>=<path_to_build_service>` for a particular service. After setting this, anytime 
+you have a local binary mounted for this service, you can use `storj-up start` to rebuild the binary and start the 
+services.
 
 #### Frontend
 

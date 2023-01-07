@@ -108,7 +108,7 @@ func init() {
 }
 
 func mountBinaries(composeService *types.ServiceConfig) error {
-	execName := BinaryDict[composeService.Name]
+	execName := BinaryDict[stripNumeric(composeService.Name)]
 	if command != "" {
 		execName = command
 	}
@@ -154,4 +154,18 @@ func mountWebDir(composeService *types.ServiceConfig) error {
 	}
 	composeService.Volumes = append(composeService.Volumes, common.CreateBind(mountSource, mountTarget))
 	return nil
+}
+
+func stripNumeric(s string) string {
+	var lastIndex int
+	for i := len(s) - 1; i >= 0; i-- {
+		b := s[i]
+		if '0' <= b && b <= '9' {
+			continue
+		} else {
+			lastIndex = i + 1
+			break
+		}
+	}
+	return s[:lastIndex]
 }

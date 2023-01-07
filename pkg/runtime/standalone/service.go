@@ -23,6 +23,16 @@ type service struct {
 	labels      []string
 }
 
+func (s *service) GetVolumes() []runtime.VolumeMount {
+	// TODO implement me
+	return nil
+}
+
+func (s *service) GetENV() map[string]*string {
+	// TODO implement me
+	return nil
+}
+
 func (s *service) UseFolder(path string, name string) error {
 	// TODO: folders are not yet supported
 	return nil

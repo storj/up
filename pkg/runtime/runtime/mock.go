@@ -17,6 +17,18 @@ type MockService struct {
 	Label       []string
 }
 
+// GetENV implements runtime.Service.
+func (m *MockService) GetENV() map[string]*string {
+	// TODO implement me
+	panic("implement me")
+}
+
+// GetVolumes implements runtime.Service.
+func (m *MockService) GetVolumes() []VolumeMount {
+	// TODO implement me
+	panic("implement me")
+}
+
 // UseFolder implements runtime.Service.
 func (m *MockService) UseFolder(path string, name string) error {
 	return nil

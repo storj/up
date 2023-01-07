@@ -17,6 +17,7 @@ require (
 	github.com/zeebo/errs v1.3.0
 	github.com/zeebo/errs/v2 v2.0.3
 	go.uber.org/zap v1.19.1
+	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db
 	gopkg.in/yaml.v3 v3.0.1
 	storj.io/common v0.0.0-20230224050842-81c8060f089b
 	storj.io/storj v1.74.1
@@ -111,7 +112,6 @@ require (
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect

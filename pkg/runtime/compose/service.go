@@ -23,6 +23,33 @@ type Service struct {
 	labels     []string
 }
 
+// GetENV implements runtime.Service.
+func (s *Service) GetENV() map[string]*string {
+	for ix, ds := range s.project.Services {
+		if filtered(s, ds) {
+			return s.project.Services[ix].Environment
+		}
+	}
+	return nil
+}
+
+// GetVolumes implements runtime.Service.
+func (s *Service) GetVolumes() (mounts []runtime.VolumeMount) {
+	for ix, ds := range s.project.Services {
+		if filtered(s, ds) {
+			for _, mount := range s.project.Services[ix].Volumes {
+				mounts = append(mounts, runtime.VolumeMount{
+					MountType: mount.Type,
+					Source:    mount.Source,
+					Target:    mount.Target,
+				})
+			}
+			return mounts
+		}
+	}
+	return nil
+}
+
 // UseFolder implements runtime.Service.
 func (s *Service) UseFolder(path string, name string) error {
 	s.useVolume(path, name)
