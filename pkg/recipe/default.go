@@ -31,6 +31,9 @@ var billing []byte
 //go:embed gc.yaml
 var gc []byte
 
+//go:embed rangedloop.yaml
+var rangedLoop []byte
+
 // Defaults is a map for recipes included in the binary.
 var Defaults = map[string][]byte{
 	"minimal":         minimal,
@@ -41,4 +44,5 @@ var Defaults = map[string][]byte{
 	"tracing":         tracing,
 	"billing":         billing,
 	"gc":              gc,
+	"ranged-loop":     rangedLoop,
 }
