@@ -32,5 +32,4 @@ func TestStandalone(t *testing.T) {
 
 	err = runtime.ApplyRecipes(st, rt, st.AllRecipeNames())
 	require.NoError(t, err)
-
 }
