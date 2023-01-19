@@ -29,6 +29,22 @@ func init() {
 
 // updateEntrypoint sets the entrypoint of the docker image.
 func updateEntryPoint(composeService *types.ServiceConfig) error {
-	composeService.Volumes = append(composeService.Volumes, common.CreateBind("./entrypoint.sh", "/var/lib/storj/entrypoint.sh"))
+	const scriptName = "entrypoint.sh"
+	const source = "./" + scriptName
+	const target = "/var/lib/storj/entrypoint.sh"
+
+	// Ensure the script exists
+	if err := common.IsRegularFile(scriptName); err != nil {
+		return err
+	}
+
+	// Check if the bind mount already exists before adding.
+	for _, volume := range composeService.Volumes {
+		if volume.Type == "bind" && volume.Target == target {
+			return nil
+		}
+	}
+
+	composeService.Volumes = append(composeService.Volumes, common.CreateBind(source, target))
 	return nil
 }

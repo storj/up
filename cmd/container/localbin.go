@@ -114,6 +114,11 @@ func mountBinaries(composeService *types.ServiceConfig) error {
 	}
 	source := filepath.Join(path.Join(dir, subdir), execName)
 	target := filepath.Join("/var/lib/storj/go/bin", execName)
+
+	if err := common.IsRegularFile(source); err != nil {
+		return err
+	}
+
 	for i, volume := range composeService.Volumes {
 		if volume.Type == "bind" &&
 			volume.Target == target {

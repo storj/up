@@ -71,8 +71,7 @@ func CreateBind(source string, target string) types.ServiceVolumeConfig {
 		ReadOnly:    false,
 		Consistency: "",
 		Bind: &types.ServiceVolumeBind{
-			Propagation:    "",
-			CreateHostPath: true,
+			Propagation: "",
 		},
 	}
 }
