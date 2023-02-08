@@ -59,7 +59,7 @@ if [ "$STORJ_ROLE" == "uplink" ]; then
     eval $(storj-up credentials -e satellite-api test@storj.io)
   fi
 fi
-mkdir -p /var/lib/storj/.local/share/storj/satellite
+mkdir -p /var/lib/storj/.local/share/storj/satellite || true
 
 if [ "$GO_DLV" ]; then
   echo "Starting with go dlv"
