@@ -119,7 +119,7 @@ func generateProjectUsage(database, email string, bucketname string, valueattr s
 					Name:                        bucketname,
 					ProjectID:                   p.ID,
 					PartnerID:                   uuid.UUID{},
-					UserAgent:                   nil,
+					UserAgent:                   []byte(valueattr),
 					Created:                     dayTenOfMonth,
 					PathCipher:                  0,
 					DefaultRedundancyScheme:     storj.RedundancyScheme{},
