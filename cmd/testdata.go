@@ -25,7 +25,7 @@ import (
 )
 
 var (
-	database, email, bucket, valueattr, period string
+	database, email, bucket, useragent, period string
 	gb                                         = decimal.NewFromInt(1e9)
 	tb                                         = decimal.NewFromInt(1e12)
 	getRate                                    = int64(20)
@@ -66,13 +66,13 @@ func projectUsageCmd() *cobra.Command {
 			if err != nil {
 				return errs.New("invalid date specified specified. accepted format is yyyy-mm: %v", err)
 			}
-			return generateProjectUsage(database, email, bucket, valueattr, usagePeriod)
+			return generateProjectUsage(database, email, bucket, useragent, usagePeriod)
 		},
 	}
 	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "cockroach://root@localhost:26257/master?sslmode=disable", "Database connection string to generate data")
 	projectUsageCmd.PersistentFlags().StringVarP(&email, "email", "e", "test@storj.io", "the email address of the user to add data for")
 	projectUsageCmd.PersistentFlags().StringVarP(&bucket, "bucket", "b", "storage-bucket", "the bucket to add the usage for")
-	projectUsageCmd.PersistentFlags().StringVarP(&valueattr, "valueattr", "v", "", "value attribution for the bucket")
+	projectUsageCmd.PersistentFlags().StringVarP(&useragent, "useragent", "u", "", "useragent for value attribution")
 	projectUsageCmd.PersistentFlags().StringVarP(&period, "period", "p", "", "the month to add usage for. defaults to the previous month")
 
 	return projectUsageCmd
@@ -84,7 +84,7 @@ func init() {
 	testdataCmd.AddCommand(projectUsageCmd())
 }
 
-func generateProjectUsage(database, email string, bucketname string, valueattr string, period time.Time) error {
+func generateProjectUsage(database, email string, bucketname string, useragent string, period time.Time) error {
 	ctx := context.Background()
 	db, err := satellitedb.Open(ctx, zap.L().Named("db"), database, satellitedb.Options{ApplicationName: "satellite-compensation"})
 	if err != nil {
@@ -119,7 +119,7 @@ func generateProjectUsage(database, email string, bucketname string, valueattr s
 					Name:                        bucketname,
 					ProjectID:                   p.ID,
 					PartnerID:                   uuid.UUID{},
-					UserAgent:                   []byte(valueattr),
+					UserAgent:                   []byte(useragent),
 					Created:                     dayTenOfMonth,
 					PathCipher:                  0,
 					DefaultRedundancyScheme:     storj.RedundancyScheme{},
