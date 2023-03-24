@@ -94,11 +94,6 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		_ = db.Close()
 	}()
 
-	byEmail, err := db.Console().Users().GetByEmail(ctx, email)
-	if err != nil {
-		return err
-	}
-
 	projects, err := db.Console().Projects().GetAll(ctx)
 	if err != nil {
 		return err
@@ -113,9 +108,14 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		bucket, err = db.Buckets().GetBucket(ctx, []byte(bucketname), p.ID)
 		if err != nil {
 			if storj.ErrBucketNotFound.Has(err) {
+				var bucketID uuid.UUID
+				bucketID, err = uuid.New()
+				if err != nil {
+					return err
+				}
 				// try to create it instead
 				bucket, err = db.Buckets().CreateBucket(ctx, storj.Bucket{
-					ID:                          byEmail.ID,
+					ID:                          bucketID,
 					Name:                        bucketname,
 					ProjectID:                   p.ID,
 					PartnerID:                   uuid.UUID{},
@@ -329,7 +329,7 @@ func updateUsage(tally accounting.BucketStorageTally) error {
 
 	_, err = db.Exec(
 		`INSERT INTO bucket_storage_tallies (
-		interval_start, 
+		interval_start,
         bucket_name, project_id,
 		total_bytes, inline, remote,
 		total_segments_count, remote_segments_count, inline_segments_count,
