@@ -13,7 +13,7 @@ func authserviceConfig() []Option {
 		},
 		{
 			Name:        "STORJ_AUTH_TOKEN",
-			Description: "auth security token to validate requests",
+			Description: "auth security token(s) to validate requests",
 			Default:     "",
 		},
 		{
@@ -30,6 +30,11 @@ func authserviceConfig() []Option {
 			Name:        "STORJ_CACHE_EXPIRATION",
 			Description: "length of time satellite addresses are cached for",
 			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_SHUTDOWN_DELAY",
+			Description: "time to delay server shutdown while returning 503s on the health endpoint",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_KVBACKEND",
@@ -62,11 +67,6 @@ func authserviceConfig() []Option {
 			Default:     ":20003",
 		},
 		{
-			Name:        "STORJ_LETS_ENCRYPT",
-			Description: "use lets-encrypt to handle TLS certificates",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CERT_FILE",
 			Description: "server certificate file",
 			Default:     "",
@@ -78,33 +78,33 @@ func authserviceConfig() []Option {
 		},
 		{
 			Name:        "STORJ_PUBLIC_URL",
-			Description: "public url for the server, for the TLS certificate",
+			Description: "comma separated list of public urls for the server TLS certificates (e.g. https://auth.example.com,https://auth.us1.example.com)",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_DELETE_UNUSED_RUN",
-			Description: "whether to run unused records deletion chore",
+			Name:        "STORJ_CERT_MAGIC_ENABLED",
+			Description: "use CertMagic to handle TLS certificates",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_DELETE_UNUSED_INTERVAL",
-			Description: "interval unused records deletion chore waits to start next iteration",
-			Default:     "24h",
+			Name:        "STORJ_CERT_MAGIC_KEY_FILE",
+			Description: "path to the service account key file",
+			Default:     "",
 		},
 		{
-			Name:        "STORJ_DELETE_UNUSED_AS_OF_SYSTEM_INTERVAL",
-			Description: "the interval specified in AS OF SYSTEM in unused records deletion chore query as negative interval",
-			Default:     "5s",
+			Name:        "STORJ_CERT_MAGIC_EMAIL",
+			Description: "email address to use when creating an ACME account",
+			Default:     "",
 		},
 		{
-			Name:        "STORJ_DELETE_UNUSED_SELECT_SIZE",
-			Description: "batch size of records selected for deletion at a time",
-			Default:     "10000",
+			Name:        "STORJ_CERT_MAGIC_STAGING",
+			Description: "use staging CA endpoints",
+			Default:     "",
 		},
 		{
-			Name:        "STORJ_DELETE_UNUSED_DELETE_SIZE",
-			Description: "batch size of records to delete from selected records at a time",
-			Default:     "1000",
+			Name:        "STORJ_CERT_MAGIC_BUCKET",
+			Description: "bucket to use for certificate storage with optional prefix (bucket/prefix)",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_NODE_ID",
@@ -199,16 +199,6 @@ func authserviceConfig() []Option {
 		{
 			Name:        "STORJ_NODE_BACKUP_SECRET_ACCESS_KEY",
 			Description: "secret key for backup bucket",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_MIGRATION_MIGRATION_SELECT_SIZE",
-			Description: "page size while performing migration",
-			Default:     "1000",
-		},
-		{
-			Name:        "STORJ_NODE_MIGRATION_SOURCE_SQLAUTH_KVBACKEND",
-			Description: "source key/value store backend (must be sqlauth) url",
 			Default:     "",
 		},
 	}

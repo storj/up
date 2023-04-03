@@ -62,14 +62,24 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_SERVER_DISABLE_TCPTLS",
-			Description: "disable TCP/TLS listener on a server",
+			Name:        "STORJ_SERVER_DISABLE_TCP",
+			Description: "disable TCP listener on a server",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_SERVER_DEBUG_LOG_TRAFFIC",
 			Description: "",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_SERVER_TCPFAST_OPEN",
+			Description: "enable support for tcp fast open experiment",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_SERVER_TCPFAST_OPEN_QUEUE",
+			Description: "the size of the tcp fast open queue",
+			Default:     "256",
 		},
 		{
 			Name:        "STORJ_DEBUG_ADDRESS",
@@ -94,6 +104,16 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_ADMIN_STATIC_DIR",
 			Description: "an alternate directory path which contains the static assets to serve. When empty, it uses the embedded assets",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_ALLOWED_OAUTH_HOST",
+			Description: "the oauth host allowed to bypass token authentication.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_GROUPS_LIMIT_UPDATE",
+			Description: "the group which is only allowed to update user and project limits and freeze and unfreeze accounts.",
 			Default:     "",
 		},
 		{
@@ -217,6 +237,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_OVERLAY_MINIMUM_NEW_NODE_IDDIFFICULTY",
+			Description: "the minimum node id difficulty required for new nodes. existing nodes remain allowed",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_OFFLINE_NODES_INTERVAL",
 			Description: "how often to check for offline nodes and send them emails",
 			Default:     "1h",
@@ -245,6 +270,31 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_NODE_EVENTS_SELECTION_WAIT_PERIOD",
 			Description: "how long the earliest instance of an event for a particular email should exist in the DB before it is selected",
 			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_NOTIFIER",
+			Description: "which notification provider to use",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_CUSTOMERIO_URL",
+			Description: "the url for the customer.io endpoint to send node event data to",
+			Default:     "https://track.customer.io/api/v1",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_CUSTOMERIO_SITE_ID",
+			Description: "the account id for the customer.io api",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_CUSTOMERIO_APIKEY",
+			Description: "api key for the customer.io api",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_EVENTS_CUSTOMERIO_REQUEST_TIMEOUT",
+			Description: "timeout for the http request to customer.io endpoint",
+			Default:     "30s",
 		},
 		{
 			Name:        "STORJ_STRAY_NODES_ENABLE_DQ",
@@ -444,7 +494,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_MULTIPLE_VERSIONS",
 			Description: "feature flag to enable using multple objects versions in the system internally",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
@@ -495,6 +545,16 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_ORDERS_ORDERS_SEMAPHORE_SIZE",
 			Description: "how many concurrent orders to process at once. zero is unlimited",
 			Default:     "2",
+		},
+		{
+			Name:        "STORJ_USERINFO_ENABLED",
+			Description: "Whether the private Userinfo rpc endpoint is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_USERINFO_ALLOWED_PEERS",
+			Description: "A comma delimited list of peers (IDs/addresses) allowed to use this endpoint.",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_REPUTATION_AUDIT_REPAIR_WEIGHT",
@@ -662,6 +722,16 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_REPAIRER_REPUTATION_UPDATE_ENABLED",
+			Description: "whether the audit score of nodes should be updated as a part of repair",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_REPAIRER_USE_RANGED_LOOP",
+			Description: "whether to use ranged loop instead of segment loop",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_AUDIT_MAX_RETRIES_STAT_DB",
 			Description: "max number of times to attempt updating a statdb batch",
 			Default:     "3",
@@ -707,6 +777,11 @@ func satellitecoreConfig() []Option {
 			Default:     "2",
 		},
 		{
+			Name:        "STORJ_AUDIT_USE_RANGED_LOOP",
+			Description: "whether or not to use the ranged loop observer instead of the chore.",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_AUDIT_REVERIFY_WORKER_CONCURRENCY",
 			Description: "number of workers to run reverify audits on pieces",
 			Default:     "2",
@@ -714,6 +789,11 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_AUDIT_REVERIFICATION_RETRY_INTERVAL",
 			Description: "how long a single reverification job can take before it may be taken over by another worker",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_AUDIT_CONTAINMENT_SYNC_CHORE_INTERVAL",
+			Description: "how often to run the containment-sync chore",
 			Default:     "",
 		},
 		{
@@ -767,6 +847,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_USE_RANGED_LOOP",
+			Description: "whether to use ranged loop instead of segment loop",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_INITIAL_PIECES",
 			Description: "the initial number of pieces expected for a storage node to have, used for creating a filter",
 			Default:     "",
@@ -795,6 +880,26 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXPIRE_IN",
 			Description: "how quickly uploaded bloom filters will be automatically deleted",
 			Default:     "336h",
+		},
+		{
+			Name:        "STORJ_RANGED_LOOP_PARALLELISM",
+			Description: "how many chunks of segments to process in parallel",
+			Default:     "2",
+		},
+		{
+			Name:        "STORJ_RANGED_LOOP_BATCH_SIZE",
+			Description: "how many items to query in a batch",
+			Default:     "2500",
+		},
+		{
+			Name:        "STORJ_RANGED_LOOP_AS_OF_SYSTEM_INTERVAL",
+			Description: "as of system interval",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_RANGED_LOOP_INTERVAL",
+			Description: "how often to run the loop",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_EXPIRED_DELETION_INTERVAL",
@@ -849,6 +954,11 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_TALLY_USE_OBJECTS_LOOP",
 			Description: "flag to switch between calculating bucket tallies using objects loop or custom query",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_TALLY_USE_RANGED_LOOP",
+			Description: "flag whether to use ranged loop instead of segment loop",
 			Default:     "false",
 		},
 		{
@@ -914,7 +1024,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_PROJECT_BWCLEANUP_INTERVAL",
 			Description: "how often to remove unused project bandwidth rollups",
-			Default:     "168h",
+			Default:     "24h",
 		},
 		{
 			Name:        "STORJ_PROJECT_BWCLEANUP_RETAIN_MONTHS",
@@ -1002,39 +1112,19 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_COINPAYMENTS_PUBLIC_KEY",
-			Description: "coinpayments API public key",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_COINPAYMENTS_PRIVATE_KEY",
-			Description: "coinpayments API private key key",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_TRANSACTION_UPDATE_INTERVAL",
-			Description: "amount of time we wait before running next transaction update loop",
-			Default:     "2m",
-		},
-		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_ACCOUNT_BALANCE_UPDATE_INTERVAL",
-			Description: "amount of time we wait before running next account balance update loop",
-			Default:     "2m",
-		},
-		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_CONVERSION_RATES_CYCLE_INTERVAL",
-			Description: "amount of time we wait before running next conversion rates update loop",
-			Default:     "10m",
-		},
-		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_AUTO_ADVANCE",
-			Description: "toogle autoadvance feature for invoice creation",
+			Description: "toggle autoadvance feature for invoice creation",
 			Default:     "false",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_LISTING_LIMIT",
 			Description: "sets the maximum amount of items before we start paging on requests",
 			Default:     "100",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_SKIP_EMPTY_INVOICES",
+			Description: "if set, skips the creation of empty invoices for customers with zero usage for the billing period",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STORJSCAN_ENDPOINT",
@@ -1067,18 +1157,18 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STORAGE_TBPRICE",
-			Description: "price user should pay for storing TB per month",
+			Name:        "STORJ_PAYMENTS_USAGE_PRICE_STORAGE_TB",
+			Description: "price user should pay for storage per month in dollars/TB",
 			Default:     "4",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_EGRESS_TBPRICE",
-			Description: "price user should pay for each TB of egress",
+			Name:        "STORJ_PAYMENTS_USAGE_PRICE_EGRESS_TB",
+			Description: "price user should pay for egress in dollars/TB",
 			Default:     "7",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_SEGMENT_PRICE",
-			Description: "price user should pay for each segment stored in network per month",
+			Name:        "STORJ_PAYMENTS_USAGE_PRICE_SEGMENT",
+			Description: "price user should pay for segments stored on network per month in dollars/segment",
 			Default:     "0.0000088",
 		},
 		{
@@ -1105,6 +1195,16 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_PAYMENTS_NODE_DISK_SPACE_PRICE",
 			Description: "price node receive for storing disk space in cents/TB",
 			Default:     "150",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_USAGE_PRICE_OVERRIDES_OVERRIDE_MAP",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_PACKAGE_PLANS_PACKAGES",
+			Description: "",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_RESTKEYS_DEFAULT_EXPIRATION",
@@ -1257,14 +1357,19 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_ACCESS_GRANT_FLOW",
-			Description: "indicates if new access grant flow should be used",
-			Default:     "true",
+			Name:        "STORJ_CONSOLE_ALL_PROJECTS_DASHBOARD",
+			Description: "indicates if all projects dashboard should be used",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_NEW_BILLING_SCREEN",
 			Description: "indicates if new billing screens should be used",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_NEW_ACCESS_GRANT_FLOW",
+			Description: "indicates if new access grant flow should be used",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_GENERATED_APIENABLED",
@@ -1287,8 +1392,8 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_ENCRYPTION_PASSPHRASE_FLOW_ENABLED",
-			Description: "indicates if new encryption passphrase flow is enabled",
+			Name:        "STORJ_CONSOLE_PRICING_PACKAGES_ENABLED",
+			Description: "whether to allow purchasing pricing packages",
 			Default:     "false",
 		},
 		{
@@ -1499,7 +1604,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
 			Description: "expiration time for account recovery and activation tokens",
-			Default:     "24h",
+			Default:     "30m",
 		},
 		{
 			Name:        "STORJ_EMAIL_REMINDERS_FIRST_VERIFICATION_REMINDER",
@@ -1519,7 +1624,27 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_EMAIL_REMINDERS_ENABLE",
 			Description: "enable sending emails reminding users to verify their email",
-			Default:     "",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_ENABLED",
+			Description: "whether to run this chore.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_INTERVAL",
+			Description: "How often to run this chore, which is how often unpaid invoices are checked.",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_GRACE_PERIOD",
+			Description: "How long to wait between a warning event and freezing an account.",
+			Default:     "720h",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_PRICE_THRESHOLD",
+			Description: "The failed invoice amount beyond which an account will not be frozen",
+			Default:     "2000",
 		},
 		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
@@ -1550,6 +1675,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_CHORE_INTERVAL",
 			Description: "how often to run the transfer queue chore.",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_USE_RANGED_LOOP",
+			Description: "whether or not to use the ranged loop observer instead of the chore.",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_ENDPOINT_BATCH_SIZE",
@@ -1595,6 +1725,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_TRANSFER_QUEUE_BATCH_SIZE",
 			Description: "batch size (crdb specific) for deleting and adding items to the transfer queue",
 			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_METRICS_USE_RANGED_LOOP",
+			Description: "whether to use ranged loop instead of segment loop",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_COMPENSATION_RATES_AT_REST_GBHOURS_VALUE",

@@ -62,14 +62,24 @@ func storagenodeConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_SERVER_DISABLE_TCPTLS",
-			Description: "disable TCP/TLS listener on a server",
+			Name:        "STORJ_SERVER_DISABLE_TCP",
+			Description: "disable TCP listener on a server",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_SERVER_DEBUG_LOG_TRAFFIC",
 			Description: "",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_SERVER_TCPFAST_OPEN",
+			Description: "enable support for tcp fast open experiment",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_SERVER_TCPFAST_OPEN_QUEUE",
+			Description: "the size of the tcp fast open queue",
+			Default:     "256",
 		},
 		{
 			Name:        "STORJ_DEBUG_ADDRESS",
@@ -170,6 +180,11 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_STORAGE2_DELETE_QUEUE_SIZE",
 			Description: "size of the piece delete queue",
 			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_STORAGE2_EXISTS_CHECK_WORKERS",
+			Description: "how many workers to use to check if satellite pieces exists",
+			Default:     "5",
 		},
 		{
 			Name:        "STORJ_STORAGE2_ORDER_LIMIT_GRACE_PERIOD",

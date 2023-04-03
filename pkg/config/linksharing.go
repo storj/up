@@ -52,7 +52,7 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_HANDLER_TXT_RECORD_TTL",
+			Name:        "STORJ_HANDLER_TXTRECORD_TTL",
 			Description: "",
 			Default:     "",
 		},
@@ -132,11 +132,6 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_HANDLER_USE_QOS_AND_CC",
-			Description: "",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_HANDLER_CLIENT_TRUSTED_IPS_LIST",
 			Description: "",
 			Default:     "",
@@ -153,6 +148,11 @@ func linksharingConfig() []Option {
 		},
 		{
 			Name:        "STORJ_HANDLER_STANDARD_VIEWS_HTML",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SHUTDOWN_DELAY",
 			Description: "",
 			Default:     "",
 		},
