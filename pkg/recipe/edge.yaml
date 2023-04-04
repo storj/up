@@ -36,7 +36,7 @@ add:
       STORJ_AUTH_TOKEN: super-secret
       STORJ_DEBUG_ADDR: '{{ Host .This "external" }}:{{ Port .This "debug" }}'
       STORJ_ENDPOINT: 'http://{{ Host "gateway-mt" "external" }}:{{ Port "gateway-mt" "public" }}'
-      STORJ_KV_BACKEND: memory://
+      STORJ_KV_BACKEND: badger://
       STORJ_LISTEN_ADDR: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
