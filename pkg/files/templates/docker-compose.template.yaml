@@ -25,7 +25,7 @@ services:
       STORJ_DEBUG_ADDR: 0.0.0.0:11111
       STORJ_DEFAULTS: dev
       STORJ_ENDPOINT: http://localhost:9999
-      STORJ_KV_BACKEND: memory://
+      STORJ_KV_BACKEND: badger://
       STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
