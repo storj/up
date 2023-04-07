@@ -113,7 +113,7 @@ func mountBinaries(composeService *types.ServiceConfig) error {
 		execName = command
 	}
 	source := filepath.Join(path.Join(dir, subdir), execName)
-	target := filepath.Join("/var/lib/storj/go/bin", execName)
+	target := path.Join("/var/lib/storj/go/bin", execName)
 
 	if err := common.IsRegularFile(source); err != nil {
 		return err
