@@ -157,15 +157,11 @@ func mountWebDir(composeService *types.ServiceConfig) error {
 }
 
 func stripNumeric(s string) string {
-	var lastIndex int
 	for i := len(s) - 1; i >= 0; i-- {
 		b := s[i]
-		if '0' <= b && b <= '9' {
-			continue
-		} else {
-			lastIndex = i + 1
-			break
+		if b < '0' || '9' < b {
+			return s[:i+1]
 		}
 	}
-	return s[:lastIndex]
+	return ""
 }

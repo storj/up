@@ -112,19 +112,10 @@ func startServices() error {
 }
 
 func runCommand(cmd *exec.Cmd, runPath string) error {
-
-	curDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	err = os.Chdir(runPath)
-	if err != nil {
-		return err
-	}
-
 	stderr, _ := cmd.StderrPipe()
 	fmt.Println("*** Storj-Up Running " + strings.Join(cmd.Args, " ") + " from " + runPath + " ***")
-	err = cmd.Start()
+	cmd.Dir = runPath
+	err := cmd.Start()
 	if err != nil {
 		return err
 	}
@@ -135,11 +126,6 @@ func runCommand(cmd *exec.Cmd, runPath string) error {
 		fmt.Println(m)
 	}
 	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-
-	err = os.Chdir(curDir)
 	if err != nil {
 		return err
 	}
