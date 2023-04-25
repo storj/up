@@ -15,7 +15,7 @@ import (
 	"storj.io/storj-up/pkg/files/templates"
 )
 
-var branch, ref string
+var branch, commit, ref string
 
 const (
 	github = "github"
@@ -49,6 +49,7 @@ services through positional arguments. See the list of supported service running
 		},
 	}
 	githubCmd.PersistentFlags().StringVarP(&branch, "branch", "b", "main", "The branch to checkout and build")
+	githubCmd.PersistentFlags().StringVarP(&commit, "commit", "c", "", "The commit to checkout and build")
 	return githubCmd
 }
 
@@ -122,6 +123,20 @@ func updateCompose(services []string, remoteType string) error {
 					err = setArg(&composeProject.Services[i], "BRANCH="+branch)
 					if err != nil {
 						return errs.Wrap(err)
+					}
+					err = setArg(&composeProject.Services[i], "SOURCE=branch")
+					if err != nil {
+						return errs.Wrap(err)
+					}
+					if commit != "" {
+						err = setArg(&composeProject.Services[i], "COMMIT="+commit)
+						if err != nil {
+							return errs.Wrap(err)
+						}
+						err = setArg(&composeProject.Services[i], "SOURCE=commit")
+						if err != nil {
+							return errs.Wrap(err)
+						}
 					}
 				case gerrit:
 					err = setArg(&composeProject.Services[i], "REF="+ref)

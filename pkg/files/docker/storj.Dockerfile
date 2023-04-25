@@ -1,11 +1,21 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
+ARG SOURCE
 FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20221220-2  AS base
 
-FROM base AS github
+FROM base AS commit
+ARG BRANCH
+ARG COMMIT
+RUN git clone https://github.com/storj/storj.git --branch ${BRANCH}
+RUN cd storj && git reset --hard ${COMMIT}
+WORKDIR storj
+
+FROM base AS branch
 ARG BRANCH
 RUN git clone https://github.com/storj/storj.git --depth=1 --branch ${BRANCH}
 WORKDIR storj
+
+FROM ${SOURCE} AS github
 
 FROM base AS gerrit
 ARG REF

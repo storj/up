@@ -1,11 +1,21 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
+ARG SOURCE
 FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20221220-2 AS base
 
-FROM base AS github
+FROM base AS commit
 ARG BRANCH
-RUN git clone --depth=1 https://github.com/storj/gateway-mt.git --branch ${BRANCH}
+ARG COMMIT
+RUN git clone https://github.com/storj/gateway-mt.git --branch ${BRANCH}
+RUN cd gateway-mt && git reset --hard ${COMMIT}
 WORKDIR gateway-mt
+
+FROM base AS branch
+ARG BRANCH
+RUN git clone https://github.com/storj/gateway-mt.git --depth=1 --branch ${BRANCH}
+WORKDIR gateway-mt
+
+FROM ${SOURCE} AS github
 
 FROM base AS gerrit
 ARG REF
