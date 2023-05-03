@@ -71,7 +71,7 @@ func localBinCmd() *cobra.Command {
 	}
 	mountCmd.PersistentFlags().StringVarP(&dir, "dir", "d", filepath.Join(os.Getenv("GOPATH"), "bin"), "path where binaries are located")
 	mountCmd.PersistentFlags().StringVarP(&subdir, "subdir", "s", "", "sub directory of the path where binaries are located")
-	mountCmd.PersistentFlags().StringVarP(&command, "command", "", "", "command to mount. If not specified, the name of the service will be used (eg. gateway-mt binary for the gateway-mt service)")
+	mountCmd.PersistentFlags().StringVarP(&command, "command", "c", "", "command to mount. If not specified, the name of the service will be used (eg. gateway-mt binary for the gateway-mt service)")
 	return mountCmd
 }
 
