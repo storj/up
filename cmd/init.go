@@ -90,16 +90,28 @@ func initCmd() *cobra.Command {
 			Use:     "shell",
 			Aliases: []string{"standalone"},
 		}
+		storjProjDir := shellCmd.Flags().StringP("storjdir", "s", "", "Directory of the storj code.")
+		gatewayProjDir := shellCmd.Flags().StringP("gatewaydir", "g", "", "Directory of the gateway code.")
 		shellCmd.RunE = func(cmd *cobra.Command, args []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return err
 			}
-			projectDir := os.Getenv("STORJUP_PROJECT_DIR")
-			if projectDir == "" {
-				return errs.Errorf("Please set \"STORJUP_PROJECT_DIR\" environment variable with the location of your checked out storj/storj project. (Required to use web resources")
+			storjProjectDir := os.Getenv("STORJ_PROJECT_DIR")
+			if *storjProjDir != "" {
+				storjProjectDir = *storjProjDir
 			}
-			n, err := standalone.NewStandalone(pwd, projectDir)
+			if storjProjectDir == "" {
+				return errs.Errorf("Please set \"STORJ_PROJECT_DIR\" environment variable or add -s flag with the location of your checked out storj/storj project. (Required to use web resources")
+			}
+			gatewayProjectDir := os.Getenv("GATEWAY_PROJECT_DIR")
+			if *gatewayProjDir != "" {
+				gatewayProjectDir = *gatewayProjDir
+			}
+			if gatewayProjectDir == "" {
+				return errs.Errorf("Please set \"GATEWAY_PROJECT_DIR\" environment variable or add -g flag with the location of your checked out storj/gateway-mt project. (Required to use web resources")
+			}
+			n, err := standalone.NewStandalone(pwd, storjProjectDir, gatewayProjectDir)
 			if err != nil {
 				return err
 			}

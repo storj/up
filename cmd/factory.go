@@ -30,11 +30,15 @@ func FromDir(dir string) (runtime.Runtime, error) {
 
 	_, err = os.Stat(filepath.Join(dir, "supervisord.conf"))
 	if err == nil {
-		projectDir := os.Getenv("STORJUP_PROJECT_DIR")
-		if projectDir == "" {
-			return nil, errs.Errorf("Please set \"STORJUP_PROJECT_DIR\" environment variable with the location of your checked out storj/storj project. (Required to use web resources")
+		storjProjectDir := os.Getenv("STORJ_PROJECT_DIR")
+		if storjProjectDir == "" {
+			return nil, errs.Errorf("Please set \"STORJ_PROJECT_DIR\" environment variable with the location of your checked out storj/storj project. (Required to use web resources")
 		}
-		return standalone.NewStandalone(dir, projectDir)
+		gatewayProjectDir := os.Getenv("GATEWAY_PROJECT_DIR")
+		if gatewayProjectDir == "" {
+			return nil, errs.Errorf("Please set \"GATEWAY_PROJECT_DIR\" environment variable with the location of your checked out storj/gateway project. (Required to use web resources")
+		}
+		return standalone.NewStandalone(dir, storjProjectDir, gatewayProjectDir)
 	}
 
 	return nil, errors.New("directory doesn't contain supported deployment descriptor")

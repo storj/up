@@ -182,7 +182,7 @@ func (c *Standalone) serviceCount(name string) int {
 }
 
 // NewStandalone returns with a new runtime, starting services without any container isolation (like storj-sim).
-func NewStandalone(dir string, projectDir string) (*Standalone, error) {
+func NewStandalone(dir string, storjProjectDir, gatewayProjectDir string) (*Standalone, error) {
 	s := &Standalone{
 		clean:    true,
 		dir:      dir,
@@ -194,24 +194,24 @@ func NewStandalone(dir string, projectDir string) (*Standalone, error) {
 				"dir":      filepath.Join(dir, "cockroach", "0", "data"),
 			},
 			"storagenode": {
-				"staticDir": filepath.Join(projectDir, "storj/web/storagenode"),
+				"staticDir": filepath.Join(storjProjectDir, "web/storagenode"),
 			},
 			"redis": {
 				"url": "redis://localhost:6379",
 			},
 			"satellite-api": {
-				"mailTemplateDir": filepath.Join(projectDir, "storj/web/satellite/static/emails"),
-				"staticDir":       filepath.Join(projectDir, "storj/web/satellite"),
+				"mailTemplateDir": filepath.Join(storjProjectDir, "web/satellite/static/emails"),
+				"staticDir":       filepath.Join(storjProjectDir, "web/satellite"),
 			},
 			"satellite-core": {
-				"mailTemplateDir": filepath.Join(projectDir, "storj/web/satellite/static/emails"),
+				"mailTemplateDir": filepath.Join(storjProjectDir, "web/satellite/static/emails"),
 			},
 			"satellite-admin": {
-				"staticDir": filepath.Join(projectDir, "storj/web/satellite"),
+				"staticDir": filepath.Join(storjProjectDir, "web/satellite"),
 			},
 			"linksharing": {
-				"webDir":    filepath.Join(projectDir, "gateway-mt/pkg/linksharing/web"),
-				"staticDir": filepath.Join(projectDir, "gateway-mt/pkg/linksharing/web/static"),
+				"webDir":    filepath.Join(gatewayProjectDir, "pkg/linksharing/web"),
+				"staticDir": filepath.Join(gatewayProjectDir, "pkg/linksharing/web/static"),
 			},
 		},
 	}
