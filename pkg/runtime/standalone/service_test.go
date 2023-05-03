@@ -29,7 +29,7 @@ func TestAddConfig(t *testing.T) {
 	require.Equal(t, "debug.control: false", s.config[4])
 
 	require.NoError(t, s.AddConfig("STORJ_DEBUG_TRACE_OUT", "xxx"))
-	require.Equal(t, "debug.trace-out: \"xxx\"", s.config[7])
+	require.Equal(t, "debug.trace-out: xxx", s.config[7])
 
 	require.NoError(t, s.AddConfig("new", "xxx"))
 	require.Equal(t, "new: xxx", s.config[8])

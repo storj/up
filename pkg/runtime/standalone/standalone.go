@@ -11,7 +11,6 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -177,9 +176,9 @@ func (c *Standalone) AddService(recipe recipe.Service) (runtime.Service, error) 
 
 		configFile = filepath.Join(serviceDir, "config.yaml")
 		if _, err := os.Stat(configFile); os.IsNotExist(err) && len(recipe.Command) > 0 {
-			args := []string{"setup", "--config-dir=" + path.Dir(configFile)}
+			args := []string{"setup", "--config-dir=" + filepath.Dir(configFile)}
 			if id.Name == "storagenode" {
-				args = append(args, "--identity-dir", path.Dir(configFile))
+				args = append(args, "--identity-dir", filepath.Dir(configFile))
 			}
 			cmd := exec.Command(recipe.Command[0], args...)
 			out, err := cmd.CombinedOutput()
@@ -209,7 +208,7 @@ func (c *Standalone) AddService(recipe recipe.Service) (runtime.Service, error) 
 	}
 
 	if recipe.HasLabel("storj") {
-		err := s.AddFlag("--config-dir=" + path.Dir(configFile))
+		err := s.AddFlag("--config-dir=" + "\"" + filepath.Dir(configFile) + "\"")
 		if err != nil {
 			return s, err
 		}

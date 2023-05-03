@@ -82,15 +82,9 @@ func (s *service) AddConfig(key string, value string) error {
 		}
 		parts := strings.SplitN(line, ":", 2)
 		if len(parts) == 2 {
-			k := parts[0]
-			v := strings.TrimSpace(parts[1])
-			k = strings.TrimSpace(strings.TrimPrefix(k, "#"))
-
+			k := strings.TrimSpace(strings.TrimPrefix(parts[0], "#"))
 			if camelToUpperCase(k) == key {
-				if len(v) > 0 && rune(v[0]) == '"' {
-					value = "\"" + value + "\""
-				}
-				s.config[ix] = fmt.Sprintf("%s: %s", k, value)
+				s.config[ix] = fmt.Sprintf("%s: %s", k, strings.TrimSpace(value))
 				return nil
 			}
 		}
