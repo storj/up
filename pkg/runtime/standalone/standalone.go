@@ -4,9 +4,11 @@
 package standalone
 
 import (
+	"bufio"
 	"context"
 	_ "embed"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
@@ -46,7 +48,53 @@ type Standalone struct {
 
 // Reload implements runtime.Runtime.
 func (c *Standalone) Reload(stack recipe.Stack) error {
-	panic("implement me")
+	scripts, err := find(c.dir, ".sh")
+	if err != nil {
+		return err
+	}
+	for _, script := range scripts {
+		for _, recipe := range stack {
+			for _, service := range recipe.Add {
+				if strings.Contains(script, service.Name) {
+					err := c.reloadEnvironment(service, script)
+					if err != nil {
+						return err
+					}
+					_, err = c.AddService(*service)
+					if err != nil {
+						return err
+					}
+					err = os.Remove(script)
+					if err != nil {
+						return err
+					}
+					_ = os.Remove(strings.TrimSuffix(script, filepath.Ext(script)) + ".run.xml")
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Standalone) reloadEnvironment(recipe *recipe.Service, script string) error {
+	recipe.Environment = make(map[string]string)
+	file, err := os.Open(script)
+	if err != nil {
+		return err
+	}
+	defer func() { err = file.Close() }()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "export ") {
+			line = strings.TrimPrefix(line, "export ")
+			if env, value, ok := strings.Cut(line, "="); ok {
+				recipe.Environment[env] = strings.Trim(value, "\"")
+			}
+		}
+	}
+	return nil
 }
 
 // GetServices implements runtime.Runtime.
@@ -290,4 +338,21 @@ func (c *Standalone) uniqueName(s *service) string {
 		u += strconv.Itoa(s.id.Instance + 1)
 	}
 	return s.id.Name + u
+}
+
+func find(root, ext string) ([]string, error) {
+	var a []string
+	err := filepath.WalkDir(root, func(s string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if filepath.Ext(d.Name()) == ext {
+			a = append(a, s)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return a, nil
 }
