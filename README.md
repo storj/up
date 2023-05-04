@@ -18,7 +18,16 @@ go install storj.io/storj-up@latest
 Go to an empty directory and initialize docker compose:
 
 ```
-storj-up init
+storj-up init db,core,admin,edge,minimal
+```
+
+If you're on a Mac, or running on a remote box, you'll need to tell some services your IP address:
+
+```
+storj-up env setenv satellite-api STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL=http://ipaddr:8888
+storj-up env setenv satellite-api STORJ_CONSOLE_LINKSHARING_URL=http://ipaddr:9090
+storj-up env setenv authservice STORJ_ENDPOINT=http://ipaddr:9999
+storj-up env setenv linksharing STORJ_PUBLIC_URL=http://ipaddr:9090
 ```
 
 Start the cluster:
