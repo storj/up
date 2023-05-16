@@ -33,7 +33,7 @@ func TestAddFlag(t *testing.T) {
 	err := runtime.ApplyRecipes(st, rt, []string{"base"})
 	require.NoError(t, err)
 
-	err = addFlag(st, rt, []string{"base", "--nf=2"})
+	err = addFlag(st, rt, []string{"base", "nf=2"})
 	require.NoError(t, err)
 
 	s := rt.GetServices()[0]
@@ -65,7 +65,7 @@ func TestRemoveFlag(t *testing.T) {
 	err := runtime.ApplyRecipes(st, rt, []string{"base"})
 	require.NoError(t, err)
 
-	err = removeFlag(st, rt, []string{"base", "--flag"})
+	err = removeFlag(st, rt, []string{"base", "flag"})
 	require.NoError(t, err)
 
 	s := rt.GetServices()[0]

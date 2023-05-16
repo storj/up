@@ -42,12 +42,12 @@ func removeFlagCmd() *cobra.Command {
 
 func addFlag(st recipe.Stack, rt runtime.Runtime, args []string) error {
 	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		return s.AddFlag(args[len(args)-1])
+		return s.AddFlag("--" + args[len(args)-1])
 	})
 }
 
 func removeFlag(st recipe.Stack, rt runtime.Runtime, args []string) error {
 	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		return s.RemoveFlag(args[len(args)-1])
+		return s.RemoveFlag("--" + args[len(args)-1])
 	})
 }
