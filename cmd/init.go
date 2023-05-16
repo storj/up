@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -109,7 +110,8 @@ func initCmd() *cobra.Command {
 				gatewayProjectDir = *gatewayProjDir
 			}
 			if gatewayProjectDir == "" {
-				return errs.Errorf("Please set \"GATEWAY_PROJECT_DIR\" environment variable or add -g flag with the location of your checked out storj/gateway-mt project. (Required to use web resources")
+				fmt.Println("WARNING: \"GATEWAY_PROJECT_DIR\" environment variable not set! Please set or add -g flag with the location of your checked out storj/gateway-mt project to use web resources.")
+				gatewayProjectDir = "/tmp"
 			}
 			n, err := standalone.NewStandalone(pwd, storjProjectDir, gatewayProjectDir)
 			if err != nil {

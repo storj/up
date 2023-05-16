@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -36,7 +37,8 @@ func FromDir(dir string) (runtime.Runtime, error) {
 		}
 		gatewayProjectDir := os.Getenv("GATEWAY_PROJECT_DIR")
 		if gatewayProjectDir == "" {
-			return nil, errs.Errorf("Please set \"GATEWAY_PROJECT_DIR\" environment variable with the location of your checked out storj/gateway project. (Required to use web resources")
+			fmt.Println("WARNING: \"GATEWAY_PROJECT_DIR\" environment variable not set! Please set or add -g flag with the location of your checked out storj/gateway-mt project to use web resources.")
+			gatewayProjectDir = "/tmp"
 		}
 		return standalone.NewStandalone(dir, storjProjectDir, gatewayProjectDir)
 	}
