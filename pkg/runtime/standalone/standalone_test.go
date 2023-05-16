@@ -24,7 +24,12 @@ func TestIdentity(t *testing.T) {
 func TestStandalone(t *testing.T) {
 	tempDir := t.TempDir()
 	defer os.Remove(tempDir) //nolint:errcheck
-	rt, err := NewStandalone(tempDir, tempDir, tempDir)
+	rt, err := NewStandalone(Paths{
+		ScriptDir:  tempDir,
+		StorjDir:   tempDir,
+		GatewayDir: tempDir,
+		CleanDir:   false,
+	})
 	require.NoError(t, err)
 
 	st, err := recipe.GetEmbeddedStack()

@@ -12,7 +12,7 @@ add:
       - start-single-node
       - --insecure
       - --http-addr=localhost:8086
-      - --store={{ Environment .This "dir" }}
+      - --store="{{ Environment .This "dir" }}"
     persistence:
       - /cockroach/cockroach-data
   - name: redis

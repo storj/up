@@ -40,7 +40,12 @@ func FromDir(dir string) (runtime.Runtime, error) {
 			fmt.Println("WARNING: \"GATEWAY_PROJECT_DIR\" environment variable not set! Please set or add -g flag with the location of your checked out storj/gateway-mt project to use web resources.")
 			gatewayProjectDir = "/tmp"
 		}
-		return standalone.NewStandalone(dir, storjProjectDir, gatewayProjectDir)
+		return standalone.NewStandalone(standalone.Paths{
+			ScriptDir:  dir,
+			StorjDir:   storjProjectDir,
+			GatewayDir: gatewayProjectDir,
+			CleanDir:   false,
+		})
 	}
 
 	return nil, errors.New("directory doesn't contain supported deployment descriptor")

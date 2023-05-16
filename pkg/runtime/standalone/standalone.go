@@ -45,6 +45,14 @@ type Standalone struct {
 	ProjectDir string
 }
 
+// Paths contains directories required for storj-up standalone instances.
+type Paths struct {
+	ScriptDir  string
+	StorjDir   string
+	GatewayDir string
+	CleanDir   bool
+}
+
 // Reload implements runtime.Runtime.
 func (c *Standalone) Reload(stack recipe.Stack) error {
 	scripts, err := find(c.dir, ".sh")
@@ -55,28 +63,42 @@ func (c *Standalone) Reload(stack recipe.Stack) error {
 		for _, recipe := range stack {
 			for _, service := range recipe.Add {
 				if strings.Contains(script, service.Name) {
-					err := c.reloadEnvironment(service, script)
-					if err != nil {
-						return err
-					}
 					_, err = c.AddService(*service)
 					if err != nil {
 						return err
 					}
-					err = os.Remove(script)
-					if err != nil {
-						return err
-					}
-					_ = os.Remove(strings.TrimSuffix(script, filepath.Ext(script)) + ".run.xml")
 				}
+			}
+		}
+	}
+	for _, script := range scripts {
+		for _, service := range c.services {
+			scriptPath := strings.TrimSuffix(script, filepath.Ext(script))
+			sInst := runtime.ServiceInstanceFromIndexedName(filepath.Base(scriptPath))
+			if service.id.Name == sInst.Name && service.id.Instance == sInst.Instance {
+				err := c.reloadEnvironment(service, script)
+				if err != nil {
+					return err
+				}
+				err = c.reloadConfig(service)
+				if err != nil {
+					return err
+				}
+				err = os.Remove(script)
+				if err != nil {
+					return err
+				}
+				_ = os.Remove(scriptPath + ".run.xml")
 			}
 		}
 	}
 	return nil
 }
 
-func (c *Standalone) reloadEnvironment(recipe *recipe.Service, script string) error {
-	recipe.Environment = make(map[string]string)
+func (c *Standalone) reloadEnvironment(service *service, script string) error {
+	if service.Environment == nil {
+		service.Environment = make(map[string]string)
+	}
 	file, err := os.Open(script)
 	if err != nil {
 		return err
@@ -89,8 +111,27 @@ func (c *Standalone) reloadEnvironment(recipe *recipe.Service, script string) er
 		if strings.HasPrefix(line, "export ") {
 			line = strings.TrimPrefix(line, "export ")
 			if env, value, ok := strings.Cut(line, "="); ok {
-				recipe.Environment[env] = strings.Trim(value, "\"")
+				service.Environment[env] = strings.Trim(value, "\"")
 			}
+		}
+	}
+	return nil
+}
+
+func (c *Standalone) reloadConfig(service *service) error {
+	serviceDir := filepath.Join(c.dir, service.id.Name, strconv.Itoa(service.id.Instance))
+	configFile := filepath.Join(serviceDir, "config.yaml")
+	if _, err := os.Stat(configFile); err == nil {
+		file, err := os.Open(configFile)
+		if err != nil {
+			return err
+		}
+		defer func() { err = file.Close() }()
+		service.config = nil
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			service.config = append(service.config, line)
 		}
 	}
 	return nil
@@ -229,36 +270,36 @@ func (c *Standalone) serviceCount(name string) int {
 }
 
 // NewStandalone returns with a new runtime, starting services without any container isolation (like storj-sim).
-func NewStandalone(dir string, storjProjectDir, gatewayProjectDir string) (*Standalone, error) {
+func NewStandalone(paths Paths) (*Standalone, error) {
 	s := &Standalone{
-		clean:    true,
-		dir:      dir,
+		clean:    paths.CleanDir,
+		dir:      paths.ScriptDir,
 		services: []*service{},
 		variables: map[string]map[string]string{
 			"cockroach": {
 				"main":     "cockroach://root@localhost:26257/master?sslmode=disable",
 				"metainfo": "cockroach://root@localhost:26257/metainfo?sslmode=disable",
-				"dir":      filepath.Join(dir, "cockroach", "0", "data"),
+				"dir":      filepath.Join(paths.ScriptDir, "cockroach", "0", "data"),
 			},
 			"storagenode": {
-				"staticDir": filepath.Join(storjProjectDir, "web/storagenode"),
+				"staticDir": filepath.Join(paths.StorjDir, "web/storagenode"),
 			},
 			"redis": {
 				"url": "redis://localhost:6379",
 			},
 			"satellite-api": {
-				"mailTemplateDir": filepath.Join(storjProjectDir, "web/satellite/static/emails"),
-				"staticDir":       filepath.Join(storjProjectDir, "web/satellite"),
+				"mailTemplateDir": filepath.Join(paths.StorjDir, "web/satellite/static/emails"),
+				"staticDir":       filepath.Join(paths.StorjDir, "web/satellite"),
 			},
 			"satellite-core": {
-				"mailTemplateDir": filepath.Join(storjProjectDir, "web/satellite/static/emails"),
+				"mailTemplateDir": filepath.Join(paths.StorjDir, "web/satellite/static/emails"),
 			},
 			"satellite-admin": {
-				"staticDir": filepath.Join(storjProjectDir, "web/satellite"),
+				"staticDir": filepath.Join(paths.StorjDir, "web/satellite"),
 			},
 			"linksharing": {
-				"webDir":    filepath.Join(gatewayProjectDir, "pkg/linksharing/web"),
-				"staticDir": filepath.Join(gatewayProjectDir, "pkg/linksharing/web/static"),
+				"webDir":    filepath.Join(paths.GatewayDir, "pkg/linksharing/web"),
+				"staticDir": filepath.Join(paths.GatewayDir, "pkg/linksharing/web/static"),
 			},
 		},
 	}
