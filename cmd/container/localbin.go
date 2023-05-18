@@ -48,16 +48,17 @@ var frontendDict = map[string]mount{
 
 // BinaryDict contains the executable app for each supported service.
 var BinaryDict = map[string]string{
-	"authservice":     "authservice",
-	"gateway-mt":      "gateway-mt",
-	"linksharing":     "linksharing",
-	"satellite-admin": "satellite",
-	"satellite-api":   "satellite",
-	"satellite-core":  "satellite",
-	"storagenode":     "storagenode",
-	"uplink":          "uplink",
-	"versioncontrol":  "versioncontrol",
-	"storjscan":       "storjscan",
+	"authservice":          "authservice",
+	"gateway-mt":           "gateway-mt",
+	"linksharing":          "linksharing",
+	"satellite-admin":      "satellite",
+	"satellite-api":        "satellite",
+	"satellite-core":       "satellite",
+	"storagenode":          "storagenode",
+	"uplink":               "uplink",
+	"versioncontrol":       "versioncontrol",
+	"storjscan":            "storjscan",
+	"satellite-rangedloop": "satellite",
 }
 
 func localBinCmd() *cobra.Command {
