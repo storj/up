@@ -32,12 +32,20 @@ func (c *Compose) Reload(stack recipe.Stack) error {
 		Name:        common.ComposeFileName,
 		ConfigPaths: []string{filepath.Join(c.dir, common.ComposeFileName)},
 	}
-
 	composeProject, err := cli.ProjectFromOptions(&options)
 	if err != nil {
 		return err
 	}
 	c.project = composeProject
+	for i, service := range c.project.Services {
+		for _, recipe := range stack {
+			for _, baseService := range recipe.Add {
+				if strings.Contains(service.Name, baseService.Name) && len(baseService.Label) > 0 {
+					c.project.Services[i].Extensions = map[string]interface{}{"labels": baseService.Label}
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -46,6 +54,10 @@ func (c *Compose) GetServices() []runtime.Service {
 	k := make([]runtime.Service, len(c.project.Services))
 	for ix, s := range c.project.Services {
 		id := runtime.ServiceInstanceFromIndexedName(s.Name)
+		var labels []string
+		if s.Extensions["labels"] != nil {
+			labels = s.Extensions["labels"].([]string)
+		}
 		k[ix] = &Service{
 			id:         id,
 			project:    c.project,
@@ -53,6 +65,7 @@ func (c *Compose) GetServices() []runtime.Service {
 			render: func(s string) (string, error) {
 				return runtime.Render(c, id, s)
 			},
+			labels: labels,
 		}
 	}
 	return k
@@ -211,7 +224,9 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		Deploy: &types.DeployConfig{
 			Replicas: &one,
 		},
-		Ports: []types.ServicePortConfig{},
+		Ports:      []types.ServicePortConfig{},
+		Image:      recipe.Image,
+		Extensions: map[string]interface{}{"labels": recipe.Label},
 	}
 
 	if recipe.Name == "storagenode" || recipe.Name == "satellite-core" || recipe.Name == "satellite-admin" {
@@ -223,8 +238,6 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 	} else if recipe.Name == "authservice" {
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 	}
-
-	s.Image = recipe.Image
 
 	c.project.Services = append(c.project.Services, s)
 
