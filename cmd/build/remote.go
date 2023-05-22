@@ -143,10 +143,13 @@ func updateCompose(services []string, remoteType string) error {
 					if err != nil {
 						return errs.Wrap(err)
 					}
+					err = setArg(&composeProject.Services[i], "SOURCE=none")
+					if err != nil {
+						return errs.Wrap(err)
+					}
 				default:
 					return errs.Errorf("Unsupported remote: %s", remoteType)
 				}
-
 			}
 		}
 	}
