@@ -18,17 +18,18 @@ type Recipe struct {
 
 // Service contains all the parameters to run one service.
 type Service struct {
-	Name        string
-	Label       []string
-	Instance    int
-	Image       string
-	Command     []string
-	Environment map[string]string
-	Config      map[string]string
-	Persistence []string
-	Port        []PortDefinition
-	File        []File
-	Folder      []Folder
+	Name          string
+	ContainerName string
+	Label         []string
+	Instance      int
+	Image         string
+	Command       []string
+	Environment   map[string]string
+	Config        map[string]string
+	Persistence   []string
+	Port          []PortDefinition
+	File          []File
+	Folder        []Folder
 
 	// port forward outside->inside
 	PortForwards map[int]int
@@ -75,6 +76,7 @@ type PortDefinition struct {
 	Name        string
 	Description string
 	Target      int
+	Protocol    string
 }
 
 // HasLabel checks if the service has one specific label.

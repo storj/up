@@ -164,7 +164,7 @@ func (s *Service) AddPortForward(ports runtime.PortMap) error {
 				Mode:      "ingress",
 				Target:    uint32(ports.Internal),
 				Published: uint32(ports.External),
-				Protocol:  "tcp",
+				Protocol:  ports.Protocol,
 			})
 		}
 	}

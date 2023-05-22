@@ -103,38 +103,38 @@ func (c *Compose) GetHost(service runtime.ServiceInstance, hostType string) stri
 // GetPort implements runtime.Runtime.
 func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) runtime.PortMap {
 	if portType == "debug" {
-		return runtime.PortMap{Internal: 11111, External: 11111}
+		return runtime.PortMap{Internal: 11111, External: 11111, Protocol: "tcp"}
 	}
 	switch service.Name {
 	case "satellite-api":
 		switch portType {
 		case "public":
-			return runtime.PortMap{Internal: 7777, External: 7777}
+			return runtime.PortMap{Internal: 7777, External: 7777, Protocol: "tcp"}
 		case "console":
-			return runtime.PortMap{Internal: 10000, External: 10000}
+			return runtime.PortMap{Internal: 10000, External: 10000, Protocol: "tcp"}
 		}
 	case "storagenode":
 		p, _ := runtime.PortConvention(service, portType)
-		return runtime.PortMap{Internal: p, External: p}
+		return runtime.PortMap{Internal: p, External: p, Protocol: "tcp"}
 	case "gateway-mt":
 		if portType == "public" {
-			return runtime.PortMap{Internal: 9999, External: 9999}
+			return runtime.PortMap{Internal: 9999, External: 9999, Protocol: "tcp"}
 		}
 	case "authservice":
 		if portType == "public" {
-			return runtime.PortMap{Internal: 8888, External: 8888}
+			return runtime.PortMap{Internal: 8888, External: 8888, Protocol: "tcp"}
 		}
 	case "linksharing":
 		if portType == "public" {
-			return runtime.PortMap{Internal: 9090, External: 9090}
+			return runtime.PortMap{Internal: 9090, External: 9090, Protocol: "tcp"}
 		}
 	case "satellite-admin":
 		if portType == "console" {
-			return runtime.PortMap{Internal: 8080, External: 9080}
+			return runtime.PortMap{Internal: 8080, External: 9080, Protocol: "tcp"}
 		}
 	}
 
-	return runtime.PortMap{Internal: -1, External: -1}
+	return runtime.PortMap{Internal: -1, External: -1, Protocol: "tcp"}
 }
 
 var _ runtime.Runtime = &Compose{}
@@ -205,8 +205,12 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 
 	index := c.serviceCount(recipe.Name)
 	name := recipe.Name
+	containerName := recipe.ContainerName
 	if index > 0 {
 		name += strconv.Itoa(index + 1)
+		if containerName != "" {
+			containerName += strconv.Itoa(index + 1)
+		}
 	}
 	if index == 1 {
 		for ix, ds := range c.project.Services {
@@ -218,9 +222,10 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 
 	one := uint64(1)
 	s := types.ServiceConfig{
-		Name:        name,
-		Command:     []string{},
-		Environment: map[string]*string{},
+		Name:          name,
+		ContainerName: containerName,
+		Command:       []string{},
+		Environment:   map[string]*string{},
 		Deploy: &types.DeployConfig{
 			Replicas: &one,
 		},

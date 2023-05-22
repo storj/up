@@ -173,7 +173,7 @@ func (c *Standalone) GetPort(service runtime.ServiceInstance, portType string) r
 	if err != nil {
 		panic(err.Error())
 	}
-	return runtime.PortMap{Internal: port, External: port}
+	return runtime.PortMap{Internal: port, External: port, Protocol: "tcp"}
 }
 
 var (

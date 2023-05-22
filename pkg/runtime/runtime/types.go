@@ -44,6 +44,7 @@ type Runtime interface {
 type PortMap struct {
 	Internal int
 	External int
+	Protocol string
 }
 
 // VolumeMount defines the type source and target fields when mounting a volume to the container.
