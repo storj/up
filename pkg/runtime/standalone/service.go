@@ -65,6 +65,11 @@ func (s *service) AddPortForward(runtime.PortMap) error {
 	return nil
 }
 
+func (s *service) RemovePortForward(runtime.PortMap) error {
+	// all ports are available, by default...
+	return nil
+}
+
 func (s *service) ID() runtime.ServiceInstance {
 	return s.id
 }

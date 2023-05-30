@@ -74,6 +74,7 @@ type Service interface {
 	AddEnvironment(key string, value string) error
 
 	AddPortForward(PortMap) error
+	RemovePortForward(PortMap) error
 	Persist(dir string) error
 	Labels() []string
 

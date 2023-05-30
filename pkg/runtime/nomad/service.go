@@ -71,6 +71,11 @@ func (s *service) AddPortForward(runtime.PortMap) error {
 	return nil
 }
 
+// RemovePortForward implements runtime.Service.
+func (s *service) RemovePortForward(runtime.PortMap) error {
+	return nil
+}
+
 func (s *service) ID() runtime.ServiceInstance {
 	return s.id
 }

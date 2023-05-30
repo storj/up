@@ -97,6 +97,12 @@ func (m *MockService) AddPortForward(portMap PortMap) error {
 	return nil
 }
 
+// RemovePortForward implements runtime.Service.
+func (m *MockService) RemovePortForward(portMap PortMap) error {
+	delete(m.Ports, portMap.External)
+	return nil
+}
+
 // Persist  implements runtime.Service.
 func (m *MockService) Persist(dir string) error {
 	m.Persisted = append(m.Persisted, dir)

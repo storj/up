@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/compose-spec/compose-go/types"
+	"golang.org/x/exp/slices"
 
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
@@ -166,6 +167,22 @@ func (s *Service) AddPortForward(ports runtime.PortMap) error {
 				Published: uint32(ports.External),
 				Protocol:  ports.Protocol,
 			})
+		}
+	}
+	return nil
+}
+
+// RemovePortForward implements runtime.Service.
+func (s *Service) RemovePortForward(ports runtime.PortMap) error {
+	for ix, ds := range s.project.Services {
+		if filtered(s, ds) {
+			service := &s.project.Services[ix]
+			i := slices.IndexFunc(service.Ports, func(port types.ServicePortConfig) bool {
+				return port.Target == uint32(ports.Internal)
+			})
+			if i >= 0 {
+				service.Ports = slices.Delete(service.Ports, i, i+1)
+			}
 		}
 	}
 	return nil
