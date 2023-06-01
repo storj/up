@@ -17,6 +17,8 @@ type MockService struct {
 	Label       []string
 }
 
+var _ Service = (*MockService)(nil)
+
 // GetENV implements runtime.Service.
 func (m *MockService) GetENV() map[string]*string {
 	// TODO implement me

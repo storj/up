@@ -28,6 +28,7 @@ var Store = composedb.ComposeHistory{DB: composedb.FileDatabase{}}
 type ComposeFile struct {
 	Version  string // used for compatibility with Compose V1
 	Services types.Services
+	Networks types.Networks
 }
 
 // LoadComposeFromFile parses docker-compose file from the current directory.
@@ -102,7 +103,7 @@ func WriteComposeFile(dir string, compose *types.Project) error {
 // WriteComposeFileNoHistory persists current docker-compose project to docker-compose.yaml without saving a record
 // of the current compose file.
 func WriteComposeFileNoHistory(dir string, compose *types.Project) error {
-	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services})
+	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Services: compose.Services, Networks: compose.Networks})
 	if err != nil {
 		return errs.Wrap(err)
 	}

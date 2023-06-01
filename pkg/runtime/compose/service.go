@@ -24,6 +24,9 @@ type Service struct {
 	labels     []string
 }
 
+var _ runtime.Service = (*Service)(nil)
+var _ runtime.ManageableNetwork = (*Service)(nil)
+
 // GetENV implements runtime.Service.
 func (s *Service) GetENV() map[string]*string {
 	for ix, ds := range s.project.Services {
@@ -183,6 +186,37 @@ func (s *Service) RemovePortForward(ports runtime.PortMap) error {
 			if i >= 0 {
 				service.Ports = slices.Delete(service.Ports, i, i+1)
 			}
+		}
+	}
+	return nil
+}
+
+// AddNetwork implements runtime.ManageableNetwork.
+func (s *Service) AddNetwork(networkAlias string) error {
+	if _, ok := s.project.Networks[networkAlias]; !ok {
+		s.project.Networks[networkAlias] = types.NetworkConfig{
+			Name: networkAlias,
+			External: types.External{
+				External: true,
+			},
+			Driver: "default",
+		}
+	}
+	for ix, ds := range s.project.Services {
+		if filtered(s, ds) {
+			if s.project.Services[ix].Networks[networkAlias] == nil {
+				s.project.Services[ix].Networks[networkAlias] = &types.ServiceNetworkConfig{}
+			}
+		}
+	}
+	return nil
+}
+
+// RemoveNetwork implements runtime.ManageableNetwork.
+func (s *Service) RemoveNetwork(networkAlias string) error {
+	for ix, ds := range s.project.Services {
+		if filtered(s, ds) {
+			delete(s.project.Services[ix].Networks, networkAlias)
 		}
 	}
 	return nil

@@ -23,6 +23,8 @@ type service struct {
 	labels      []string
 }
 
+var _ runtime.Service = (*service)(nil)
+
 func (s *service) GetVolumes() []runtime.VolumeMount {
 	// TODO implement me
 	return nil

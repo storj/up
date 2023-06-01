@@ -23,6 +23,8 @@ type service struct {
 	labels []string
 }
 
+var _ runtime.Service = (*service)(nil)
+
 func (s *service) GetENV() map[string]*string {
 	// TODO implement me
 	return nil

@@ -54,6 +54,12 @@ type VolumeMount struct {
 	Target    string
 }
 
+// ManageableNetwork is the interface to configure docker networks.
+type ManageableNetwork interface {
+	AddNetwork(string) error
+	RemoveNetwork(string) error
+}
+
 // Service is the interface to modify any service.
 type Service interface {
 
@@ -75,6 +81,7 @@ type Service interface {
 
 	AddPortForward(PortMap) error
 	RemovePortForward(PortMap) error
+
 	Persist(dir string) error
 	Labels() []string
 
