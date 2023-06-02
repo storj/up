@@ -5,6 +5,7 @@ package compose
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -95,6 +96,10 @@ func (c *Compose) GetHost(service runtime.ServiceInstance, hostType string) stri
 		}
 		return service.Name
 	case "external":
+		dockerHost := os.Getenv("STORJ_DOCKER_HOST")
+		if dockerHost != "" {
+			return dockerHost
+		}
 		return "localhost"
 	}
 	return "???"

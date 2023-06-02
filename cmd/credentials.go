@@ -43,9 +43,9 @@ func credentialsCmd() *cobra.Command {
 	pflags := credentialsCmd.PersistentFlags()
 	pflags.IntP("retry", "r", 300, "Number of retry with 1 second interval. Default 300 = 5 minutes.")
 	pflags.StringP("email", "m", "test@storj.io", "The email of the test user to use/create")
-	pflags.StringP("satellite", "s", "localhost:7777", "The host and port of of the satellite api to connect")
-	pflags.StringP("console", "c", "localhost:10000", "The host and port of of the satellite api console to connect")
-	pflags.StringP("authservice", "a", "http://localhost:8888", "Host of the auth service")
+	pflags.StringP("satellite", "s", "localhost:7777", "The host and port of of the satellite api to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	pflags.StringP("console", "c", "localhost:10000", "The host and port of of the satellite api console to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	pflags.StringP("authservice", "a", "http://localhost:8888", "Host of the auth service. Defaults to localhost or STORJ_DOCKER_HOST if set.")
 	pflags.BoolP("export", "e", false, "Turn it off to get bash compatible output with export statements.")
 	pflags.BoolP("write", "w", false, "DEPRECATED. Write the right entries to rclone config file (storjdev, storj)")
 	pflags.BoolP("s3", "", false, "Generate S3 credentials. IMPORTANT: this command MUST be executed INSIDE containers as gateway will use it.")
@@ -64,8 +64,14 @@ func addCredentials(ctx context.Context) error {
 
 	satelliteAddress := viper.GetString("satellite")
 	consoleAddress := viper.GetString("console")
-	email := viper.GetString("email")
 	authService := viper.GetString("authservice")
+	dockerHost := os.Getenv("STORJ_DOCKER_HOST")
+	if dockerHost != "" {
+		satelliteAddress = dockerHost + ":7777"
+		consoleAddress = dockerHost + ":10000"
+		authService = "http://" + dockerHost + ":8888"
+	}
+	email := viper.GetString("email")
 	export := viper.GetBool("export")
 	s3 := viper.GetBool("s3")
 

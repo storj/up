@@ -144,7 +144,7 @@ docker restart up-satellite-core-1 up-satellite-api-1 up-satellite-admin-1
 
 to restart already-running containers.
 
-#### Development Environment
+#### Local Development Environment
 
 During development, changes to the code will require building a new binary and restarting the containers.
 To simplify this workflow during development, you can supply ENV variables either in the service config or
@@ -165,6 +165,22 @@ If you wish to always use a local binary across all storj-up instances, you can 
 level `STORJ_UP_LOCAL_<service_name>=<path_to_build_service>` for a particular service. After setting this, anytime 
 you have a local binary mounted for this service, you can use `storj-up start` to rebuild the binary and start the 
 services.
+
+#### Remote Development Environment
+
+If you are developing on a remote machine, or you are using a remote docker daemon on your local machine, you can
+set the `STORJ_DOCKER_HOST` environment variable to point to the location of the docker daemon you're using. The IP
+or hostname you assign to the env variable will be used by the services for all external API connections. For example,
+
+- **local dev remote daemon**: Set the `STORJ_DOCKER_HOST` environment variable on the local machine to the IP or hostname of the remote docker daemon
+you're using.
+
+- **remote dev and daemon**: Set the `STORJ_DOCKER_HOST` environment variable on the remote machine to the IP or hostname of that machine. 
+Do not use localhost.
+
+Without this setting, or manually adjusting the service config, localhost will be used for all external API calls, and
+may return errors when trying to use the services.
+
 
 #### Frontend
 
