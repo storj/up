@@ -60,3 +60,16 @@ func ResolveServices(selectors []string) ([]string, error) {
 	}
 	return res, nil
 }
+
+// ServiceMatches returns true if the service names match, regardless of the
+// case or the numeric instance ID appended to the end of the service name.
+func ServiceMatches(service1, service2 string) bool {
+	// remove any numbers from the end of the strings
+	service1 = strings.TrimRightFunc(service1, func(r rune) bool {
+		return r >= '0' && r <= '9'
+	})
+	service2 = strings.TrimRightFunc(service2, func(r rune) bool {
+		return r >= '0' && r <= '9'
+	})
+	return strings.EqualFold(service1, service2)
+}

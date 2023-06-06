@@ -161,7 +161,7 @@ func updateCompose(services []string, remoteType string) error {
 
 	for _, service := range resolvedServices {
 		for i, composeService := range composeProject.AllServices() {
-			if strings.EqualFold(composeService.Name, service) {
+			if common.ServiceMatches(composeService.Name, service) {
 				composeProject.Services[i].Image = strings.Split(common.BuildDict[service], "-")[1]
 			}
 		}
