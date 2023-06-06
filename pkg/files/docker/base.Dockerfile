@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM golang:1.18 AS storjup
+FROM --platform=$TARGETPLATFORM golang:1.19 AS storjup
 COPY . /go/storj-up
 WORKDIR /go/storj-up
 RUN --mount=type=cache,target=/root/.cache/go-build \

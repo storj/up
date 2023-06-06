@@ -1,5 +1,5 @@
 VERSION 0.6
-FROM golang:1.18
+FROM golang:1.19
 WORKDIR /go/storj-up
 
 lint:
@@ -43,7 +43,7 @@ test:
 integration:
    FROM earthly/dind:ubuntu
    RUN apt-get update && apt-get install -y docker-compose-plugin gcc
-   RUN bash -c "curl --fail -L https://go.dev/dl/go1.18.10.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go"
+   RUN bash -c "curl --fail -L https://go.dev/dl/go1.19.9.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go"
    RUN go install github.com/rclone/rclone@v1.59.1
    RUN go install storj.io/storj/cmd/uplink@latest
    RUN go install storj.io/storjscan/cmd/storjscan@latest
