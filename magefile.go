@@ -89,7 +89,7 @@ func DockerBasePublish() error {
 }
 
 func dockerBase(publish bool) error {
-	return withDockerTag("storj-base.last", publish, func(tag string) error {
+	return withDockerTag("base.last", publish, func(tag string) error {
 		return buildxRun(publish,
 			"build",
 			"--tag", "img.dev.storj.io/storjup/base:"+tag,
