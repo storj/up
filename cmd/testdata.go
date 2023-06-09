@@ -19,6 +19,7 @@ import (
 	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
 	"storj.io/storj/satellite/accounting"
+	"storj.io/storj/satellite/buckets"
 	"storj.io/storj/satellite/compensation"
 	"storj.io/storj/satellite/overlay"
 	"storj.io/storj/satellite/satellitedb"
@@ -104,21 +105,20 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		dayTenOfMonth := time.Date(period.Year(), period.Month(), 10, 1, 0, 0, 0, period.Location())
 		lastDayOfMonth := time.Date(period.Year(), period.Month(), 1, 0, 0, 0, 0, period.Location()).AddDate(0, 1, -1)
 
-		var bucket storj.Bucket
+		var bucket buckets.Bucket
 		bucket, err = db.Buckets().GetBucket(ctx, []byte(bucketname), p.ID)
 		if err != nil {
-			if storj.ErrBucketNotFound.Has(err) {
+			if buckets.ErrBucketNotFound.Has(err) {
 				var bucketID uuid.UUID
 				bucketID, err = uuid.New()
 				if err != nil {
 					return err
 				}
 				// try to create it instead
-				bucket, err = db.Buckets().CreateBucket(ctx, storj.Bucket{
+				bucket, err = db.Buckets().CreateBucket(ctx, buckets.Bucket{
 					ID:                          bucketID,
 					Name:                        bucketname,
 					ProjectID:                   p.ID,
-					PartnerID:                   uuid.UUID{},
 					UserAgent:                   []byte(useragent),
 					Created:                     dayTenOfMonth,
 					PathCipher:                  0,
