@@ -23,6 +23,11 @@ RUN git clone https://github.com/storj/gateway-mt.git
 WORKDIR gateway-mt
 RUN git fetch https://review.dev.storj.io/storj/gateway-mt ${REF} && git checkout FETCH_HEAD
 
+FROM base AS local
+ARG PATH
+WORKDIR /var/lib/storj/gateway-mt
+COPY --chown=storj ${PATH} .
+
 FROM --platform=$TARGETPLATFORM ${TYPE} AS binaries
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \

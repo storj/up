@@ -25,6 +25,11 @@ RUN git clone https://github.com/storj/storj.git
 WORKDIR storj
 RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD
 
+FROM base AS local
+ARG PATH
+WORKDIR /var/lib/storj/storj
+COPY --chown=storj ${PATH} .
+
 FROM ${TYPE} AS binaries
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/satellite && npm install && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
