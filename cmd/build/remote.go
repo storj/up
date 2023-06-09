@@ -118,6 +118,12 @@ func updateCompose(services []string, remoteType string) error {
 				if err != nil {
 					return errs.Wrap(err)
 				}
+				if skipFrontend {
+					err = setArg(&composeProject.Services[i], "SKIP_FRONTEND_BUILD=true")
+					if err != nil {
+						return errs.Wrap(err)
+					}
+				}
 				switch remoteType {
 				case github:
 					err = setArg(&composeProject.Services[i], "BRANCH="+branch)
