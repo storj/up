@@ -6,6 +6,7 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -29,7 +30,7 @@ func healthCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&table, "table", "t", "nodes", "table to use for health check")
 	cmd.PersistentFlags().IntVarP(&number, "number", "n", 10, "number of entries to expect in the table")
 	cmd.PersistentFlags().IntVarP(&timeout, "duration", "d", 0, "time to wait (in seconds) for health check")
-	cmd.PersistentFlags().StringVarP(&host, "host", "", "localhost", "host/ip address to use for health check")
+	cmd.PersistentFlags().StringVarP(&host, "host", "", "127.0.0.1", "host/ip address to use for health check. Defaults to 127.0.0.1 or STORJ_DOCKER_HOST if set.")
 	cmd.PersistentFlags().IntVarP(&port, "port", "p", 26257, "port to use for health check")
 	return cmd
 }
@@ -67,6 +68,10 @@ func checkHealthWithTimeout(table string, records, timeout int) error {
 // checkHealth polls the database until all storagenodes are checked in.
 func checkHealth(table string, records int) error {
 	prevCount := -1
+	defaultHost := os.Getenv("STORJ_DOCKER_HOST")
+	if host == "127.0.0.1" && defaultHost != "" {
+		host = defaultHost
+	}
 	for {
 		time.Sleep(1 * time.Second)
 		db, err := sql.Open("pgx", "host="+host+" port="+strconv.Itoa(port)+" user=root dbname=master sslmode=disable")
