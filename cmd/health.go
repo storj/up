@@ -16,7 +16,7 @@ import (
 	"github.com/zeebo/errs/v2"
 )
 
-var table, host string
+var table, host, user, dbname string
 var number, timeout, port int
 
 func healthCmd() *cobra.Command {
@@ -32,6 +32,8 @@ func healthCmd() *cobra.Command {
 	cmd.PersistentFlags().IntVarP(&timeout, "duration", "d", 0, "time to wait (in seconds) for health check")
 	cmd.PersistentFlags().StringVarP(&host, "host", "", "127.0.0.1", "host/ip address to use for health check. Defaults to 127.0.0.1 or STORJ_DOCKER_HOST if set.")
 	cmd.PersistentFlags().IntVarP(&port, "port", "p", 26257, "port to use for health check")
+	cmd.Flags().StringVarP(&user, "user", "u", "root", "user to connect to the DB as")
+	cmd.Flags().StringVarP(&dbname, "dbname", "", "master", "DB name to connect to")
 	return cmd
 }
 
@@ -74,7 +76,7 @@ func checkHealth(table string, records int) error {
 	}
 	for {
 		time.Sleep(1 * time.Second)
-		db, err := sql.Open("pgx", "host="+host+" port="+strconv.Itoa(port)+" user=root dbname=master sslmode=disable")
+		db, err := sql.Open("pgx", "host="+host+" port="+strconv.Itoa(port)+" user="+user+" dbname="+dbname+" sslmode=disable")
 		if err != nil {
 			fmt.Printf("Couldn't connect to the database: %s\n", err.Error())
 			continue
