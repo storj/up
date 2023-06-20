@@ -18,7 +18,8 @@ if [ "$STORJ_IDENTITY_DIR" ]; then
 fi
 
 if [ "$STORJ_WAIT_FOR_DB" ]; then
-  storj-up util wait-for-port cockroach:26257
+  # parse host and port from database connection string
+  storj-up util wait-for-port $(sed -E 's;.*@([^:]+):.*;\1;' <<< "$STORJ_DATABASE"):$(sed -E 's;.*:([^:]+)/.*;\1;' <<< "$STORJ_DATABASE")
   storj-up util wait-for-port redis:6379
 fi
 

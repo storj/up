@@ -13,6 +13,9 @@ var minimal []byte
 //go:embed db.yaml
 var db []byte
 
+//go:embed postgres.yaml
+var postgres []byte
+
 //go:embed edge.yaml
 var edge []byte
 
@@ -40,6 +43,7 @@ var Defaults = map[string][]byte{
 	"satellite-core":  satelliteCore,
 	"satellite-admin": satelliteAdmin,
 	"db":              db,
+	"postgres":        postgres,
 	"edge":            edge,
 	"tracing":         tracing,
 	"billing":         billing,
