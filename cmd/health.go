@@ -4,14 +4,14 @@
 package cmd
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
 	// imported for using postgres.
-	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jackc/pgx/v5"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 )
@@ -76,14 +76,14 @@ func checkHealth(table string, records int) error {
 	}
 	for {
 		time.Sleep(1 * time.Second)
-		db, err := sql.Open("pgx", "host="+host+" port="+strconv.Itoa(port)+" user="+user+" dbname="+dbname+" sslmode=disable")
+		db, err := pgx.Connect(context.TODO(), "host="+host+" port="+strconv.Itoa(port)+" user="+user+" dbname="+dbname+" sslmode=disable")
 		if err != nil {
 			fmt.Printf("Couldn't connect to the database: %s\n", err.Error())
 			continue
 		}
 
 		count, err := dbRecordCount(db, table)
-		_ = db.Close()
+		_ = db.Close(context.TODO())
 		if err != nil {
 			fmt.Printf("Couldn't query database for records: %s\n", err.Error())
 			continue
@@ -102,8 +102,8 @@ func checkHealth(table string, records int) error {
 	}
 }
 
-func dbRecordCount(db *sql.DB, table string) (int, error) {
-	row := db.QueryRow("select count(*) from " + table)
+func dbRecordCount(db *pgx.Conn, table string) (int, error) {
+	row := db.QueryRow(context.TODO(), "select count(*) from "+table)
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
