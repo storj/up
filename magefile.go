@@ -117,6 +117,7 @@ func dockerBuild(publish bool) error {
 	return withDockerTag("build.last", publish, func(tag string) error {
 		return buildxRun(publish,
 			"build",
+			"--build-arg", "SOURCE=branch",
 			"--build-arg", "TYPE=github",
 			"--build-arg", "BRANCH=main",
 			"--build-arg", "REPO=https://github.com/storj/storj.git",
@@ -131,6 +132,7 @@ func dockerCore(version string, publish bool) error {
 		"build",
 		"-t", "img.dev.storj.io/storjup/storj:"+version,
 		"--build-arg", "BRANCH=v"+version,
+		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
 		"-f", "pkg/files/docker/storj.Dockerfile", ".")
 	if err != nil {
@@ -163,6 +165,7 @@ func dockerEdge(version string, publish bool) error {
 		"build",
 		"-t", "img.dev.storj.io/storjup/edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
+		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
 		"-f", "pkg/files/docker/edge.Dockerfile", ".")
 	if err != nil {

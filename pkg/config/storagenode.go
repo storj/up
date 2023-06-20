@@ -73,13 +73,18 @@ func storagenodeConfig() []Option {
 		},
 		{
 			Name:        "STORJ_SERVER_TCPFAST_OPEN",
-			Description: "enable support for tcp fast open experiment",
+			Description: "enable support for tcp fast open",
 			Default:     "true",
 		},
 		{
 			Name:        "STORJ_SERVER_TCPFAST_OPEN_QUEUE",
 			Description: "the size of the tcp fast open queue",
 			Default:     "256",
+		},
+		{
+			Name:        "STORJ_SERVER_DEBOUNCING_ENABLED",
+			Description: "whether to debounce incoming messages",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_DEBUG_ADDRESS",
@@ -272,6 +277,21 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_STORAGE2_MONITOR_VERIFY_DIR_READABLE_TIMEOUT",
+			Description: "how long to wait for a storage directory readability verification to complete",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_STORAGE2_MONITOR_VERIFY_DIR_WRITABLE_TIMEOUT",
+			Description: "how long to wait for a storage directory writability verification to complete",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_STORAGE2_MONITOR_VERIFY_DIR_WARN_ONLY",
+			Description: "if the storage directory verification check fails, log a warning instead of killing the node",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE",
 			Description: "how much disk space a node at minimum has to advertise",
 			Default:     "500GB",
@@ -340,6 +360,11 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_PIECES_DELETE_TO_TRASH",
 			Description: "move pieces to trash upon deletion. Warning: if set to false, you risk disqualification for failed audits if a satellite database is restored from backup.",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PIECES_ENABLE_LAZY_FILEWALKER",
+			Description: "run garbage collection and used-space calculation filewalkers as a separate subprocess with lower IO priority",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_RETAIN_MAX_TIME_SKEW",

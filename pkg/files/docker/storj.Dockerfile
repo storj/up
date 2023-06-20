@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
 ARG SOURCE
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20230607-1  AS base
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20230616-1  AS base
 
 ARG SKIP_FRONTEND_BUILD
 
@@ -41,7 +41,7 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
     go install ./cmd/...
 
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20230607-1 AS final
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20230616-1 AS final
 # copy objects. the '[]' are to avoid the COPY command from failing if the files are missing.
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/stati[c] /var/lib/storj/storj/web/satellite/static

@@ -37,6 +37,21 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_SERVER_STARTUP_CHECK_CONFIG_ENABLED",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SERVER_STARTUP_CHECK_CONFIG_SATELLITES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SERVER_STARTUP_CHECK_CONFIG_TIMEOUT",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_HANDLER_URLBASES",
 			Description: "",
 			Default:     "",
@@ -113,6 +128,21 @@ func linksharingConfig() []Option {
 		},
 		{
 			Name:        "STORJ_HANDLER_UPLINK",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_SATELLITE_CONNECTION_POOL_CAPACITY",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_SATELLITE_CONNECTION_POOL_KEY_CAPACITY",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_SATELLITE_CONNECTION_POOL_IDLE_EXPIRATION",
 			Description: "",
 			Default:     "",
 		},

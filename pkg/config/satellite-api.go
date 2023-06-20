@@ -73,13 +73,18 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_SERVER_TCPFAST_OPEN",
-			Description: "enable support for tcp fast open experiment",
+			Description: "enable support for tcp fast open",
 			Default:     "true",
 		},
 		{
 			Name:        "STORJ_SERVER_TCPFAST_OPEN_QUEUE",
 			Description: "the size of the tcp fast open queue",
 			Default:     "256",
+		},
+		{
+			Name:        "STORJ_SERVER_DEBOUNCING_ENABLED",
+			Description: "whether to debounce incoming messages",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_DEBUG_ADDRESS",
@@ -170,6 +175,16 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_OVERLAY_NODE_DISTINCT_IP",
 			Description: "require distinct IPs when choosing nodes for upload",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_OVERLAY_NODE_NETWORK_PREFIX_IPV4",
+			Description: "the prefix to use in determining 'network' for IPv4 addresses",
+			Default:     "24",
+		},
+		{
+			Name:        "STORJ_OVERLAY_NODE_NETWORK_PREFIX_IPV6",
+			Description: "the prefix to use in determining 'network' for IPv6 addresses",
+			Default:     "64",
 		},
 		{
 			Name:        "STORJ_OVERLAY_NODE_MINIMUM_DISK_SPACE",
@@ -334,7 +349,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_MAX_ENCRYPTED_OBJECT_KEY_LENGTH",
 			Description: "maximum encrypted object key length",
-			Default:     "1280",
+			Default:     "1750",
 		},
 		{
 			Name:        "STORJ_METAINFO_MAX_SEGMENT_SIZE",
@@ -437,6 +452,21 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_ENABLED",
+			Description: "whether rate limiting is enabled.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_SINGLE_OBJECT_LIMIT",
+			Description: "how often we can upload to the single object (the same location) per API instance",
+			Default:     "1s",
+		},
+		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_CACHE_CAPACITY",
+			Description: "number of object locations to cache.",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_METAINFO_PROJECT_LIMITS_MAX_BUCKETS",
 			Description: "max bucket count for a project.",
 			Default:     "100",
@@ -490,11 +520,6 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY_DISABLED",
 			Description: "disable already enabled server-side copy. this is because once server side copy is enabled, delete code should stay changed, even if you want to disable server side copy",
 			Default:     "false",
-		},
-		{
-			Name:        "STORJ_METAINFO_MULTIPLE_VERSIONS",
-			Description: "feature flag to enable using multple objects versions in the system internally",
-			Default:     "true",
 		},
 		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
@@ -682,6 +707,11 @@ func satelliteapiConfig() []Option {
 			Default:     "100",
 		},
 		{
+			Name:        "STORJ_CHECKER_DO_DECLUMPING",
+			Description: "Treat pieces on the same network as in need of repair",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_REPAIRER_MAX_REPAIR",
 			Description: "maximum segments that can be repaired concurrently",
 			Default:     "",
@@ -728,7 +758,12 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_REPAIRER_USE_RANGED_LOOP",
-			Description: "whether to use ranged loop instead of segment loop",
+			Description: "whether to enable repair checker observer with ranged loop",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_REPAIRER_DO_DECLUMPING",
+			Description: "repair pieces on the same network to other nodes",
 			Default:     "false",
 		},
 		{
@@ -778,8 +813,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_AUDIT_USE_RANGED_LOOP",
-			Description: "whether or not to use the ranged loop observer instead of the chore.",
-			Default:     "false",
+			Description: "whether use Audit observer with ranged loop.",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_AUDIT_REVERIFY_WORKER_CONCURRENCY",
@@ -828,7 +863,7 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_EXPIRE_IN",
-			Description: "Expiration of newly created objects. These objects store error messages.",
+			Description: "Expiration of newly created objects in the bucket. These objects are under the prefix error-[timestamp] and store error messages.",
 			Default:     "336h",
 		},
 		{
@@ -849,6 +884,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_USE_RANGED_LOOP",
 			Description: "whether to use ranged loop instead of segment loop",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_USE_SYNC_OBSERVER",
+			Description: "whether to use test GC SyncObserver with ranged loop",
 			Default:     "false",
 		},
 		{
@@ -878,7 +918,7 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXPIRE_IN",
-			Description: "how quickly uploaded bloom filters will be automatically deleted",
+			Description: "how long bloom filters will remain in the bucket for gc/sender to consume before being automatically deleted",
 			Default:     "336h",
 		},
 		{
@@ -900,6 +940,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_RANGED_LOOP_INTERVAL",
 			Description: "how often to run the loop",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_RANGED_LOOP_SUSPICIOUS_PROCESSED_RATIO",
+			Description: "ratio where to consider processed count as supicious",
+			Default:     "0.03",
 		},
 		{
 			Name:        "STORJ_EXPIRED_DELETION_INTERVAL",
@@ -958,8 +1003,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_TALLY_USE_RANGED_LOOP",
-			Description: "flag whether to use ranged loop instead of segment loop",
-			Default:     "false",
+			Description: "whether to enable node tally with ranged loop",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_TALLY_LIST_LIMIT",
@@ -1087,6 +1132,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_MOCK_PROVIDER",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL",
 			Description: "billing chore interval to query for new transactions from all payment types",
 			Default:     "15s",
@@ -1125,6 +1175,31 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_SKIP_EMPTY_INVOICES",
 			Description: "if set, skips the creation of empty invoices for customers with zero usage for the billing period",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_MAX_PARALLEL_CALLS",
+			Description: "the maximum number of concurrent Stripe API calls in invoicing methods",
+			Default:     "10",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
+			Description: "the duration of the first retry interval",
+			Default:     "20ms",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_MAX_BACKOFF",
+			Description: "the maximum duration of any retry interval",
+			Default:     "5s",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_MULTIPLIER",
+			Description: "the factor by which the retry interval will be multiplied on each iteration",
+			Default:     "2",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_MAX_RETRIES",
+			Description: "the maximum number of times to retry a request",
+			Default:     "10",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STORJSCAN_ENDPOINT",
@@ -1170,6 +1245,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_PAYMENTS_USAGE_PRICE_SEGMENT",
 			Description: "price user should pay for segments stored on network per month in dollars/segment",
 			Default:     "0.0000088",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_USAGE_PRICE_EGRESS_DISCOUNT_RATIO",
+			Description: "",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_BONUS_RATE",
@@ -1352,23 +1432,8 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_PROJECT_DASHBOARD",
-			Description: "indicates if new project dashboard should be used",
-			Default:     "true",
-		},
-		{
 			Name:        "STORJ_CONSOLE_ALL_PROJECTS_DASHBOARD",
 			Description: "indicates if all projects dashboard should be used",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_NEW_BILLING_SCREEN",
-			Description: "indicates if new billing screens should be used",
-			Default:     "true",
-		},
-		{
-			Name:        "STORJ_CONSOLE_NEW_ACCESS_GRANT_FLOW",
-			Description: "indicates if new access grant flow should be used",
 			Default:     "false",
 		},
 		{
@@ -1484,7 +1549,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
 			Description: "the default free-tier storage usage limit",
-			Default:     "150.00GB",
+			Default:     "25.00GB",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_PAID",
@@ -1494,7 +1559,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_FREE",
 			Description: "the default free-tier bandwidth usage limit",
-			Default:     "150.00GB",
+			Default:     "25.00GB",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_PAID",
@@ -1504,7 +1569,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_FREE",
 			Description: "the default free-tier segment usage limit",
-			Default:     "150000",
+			Default:     "10000",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_PAID",
@@ -1627,6 +1692,36 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_ENABLED",
+			Description: "whether to run this chore",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_INTERVAL",
+			Description: "interval between chore cycles",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_AS_OF_SYSTEM_TIME_INTERVAL",
+			Description: "interval for 'AS OF SYSTEM TIME' clause (CockroachDB specific) to read from the DB at a specific time in the past",
+			Default:     "-5m",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_PAGE_SIZE",
+			Description: "maximum number of database records to scan at once",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_MAX_UNVERIFIED_USER_AGE",
+			Description: "maximum lifetime of unverified user account records",
+			Default:     "168h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DBCLEANUP_MAX_PROJECT_INVITATION_AGE",
+			Description: "maximum lifetime of project member invitation records",
+			Default:     "168h",
+		},
+		{
 			Name:        "STORJ_ACCOUNT_FREEZE_ENABLED",
 			Description: "whether to run this chore.",
 			Default:     "false",
@@ -1643,8 +1738,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_PRICE_THRESHOLD",
-			Description: "The failed invoice amount beyond which an account will not be frozen",
-			Default:     "2000",
+			Description: "The failed invoice amount (in cents) beyond which an account will not be frozen",
+			Default:     "10000",
 		},
 		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
@@ -1678,8 +1773,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_USE_RANGED_LOOP",
-			Description: "whether or not to use the ranged loop observer instead of the chore.",
-			Default:     "false",
+			Description: "whether use GE observer with ranged loop.",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_ENDPOINT_BATCH_SIZE",
@@ -1725,11 +1820,6 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_TRANSFER_QUEUE_BATCH_SIZE",
 			Description: "batch size (crdb specific) for deleting and adding items to the transfer queue",
 			Default:     "1000",
-		},
-		{
-			Name:        "STORJ_METRICS_USE_RANGED_LOOP",
-			Description: "whether to use ranged loop instead of segment loop",
-			Default:     "false",
 		},
 		{
 			Name:        "STORJ_COMPENSATION_RATES_AT_REST_GBHOURS_VALUE",
