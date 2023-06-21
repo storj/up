@@ -12,3 +12,9 @@ add:
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_DB: master
+modify:
+  - match:
+      name: satellite-api
+    config:
+      STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"
