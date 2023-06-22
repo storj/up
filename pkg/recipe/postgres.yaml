@@ -18,3 +18,18 @@ modify:
     config:
       STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
       STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"
+  - match:
+      name: satellite-core
+    config:
+      STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"
+  - match:
+      name: satellite-repair
+    config:
+      STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"
+  - match:
+      name: satellite-rangedloop
+    config:
+      STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"

@@ -59,6 +59,7 @@ var BinaryDict = map[string]string{
 	"versioncontrol":       "versioncontrol",
 	"storjscan":            "storjscan",
 	"satellite-rangedloop": "satellite",
+	"satellite-repair":     "satellite",
 }
 
 func localBinCmd() *cobra.Command {
