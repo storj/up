@@ -247,7 +247,7 @@ func (c *Nomad) AddService(rcp recipe.Service) (runtime.Service, error) {
 	c.jobs = append(c.jobs, s)
 	if rcp.Name == "satellite-api" {
 		err := errs.Combine(
-			s.AddEnvironment("STORJ_ROLE", "satellite-api"),
+			s.AddEnvironment("STORJUP_ROLE", "satellite-api"),
 			s.AddEnvironment("STORJ_IDENTITY_DIR", "/var/lib/storj/identities/1"),
 			s.AddFlag("--identity-dir=/var/lib/storj/identities/1"))
 		if err != nil {
@@ -256,7 +256,7 @@ func (c *Nomad) AddService(rcp recipe.Service) (runtime.Service, error) {
 	}
 	if strings.HasPrefix(rcp.Name, "storagenode") {
 		err := errs.Combine(
-			s.AddEnvironment("STORJ_ROLE", "storagenode"),
+			s.AddEnvironment("STORJUP_ROLE", "storagenode"),
 			s.AddEnvironment("STORJ_IDENTITY_DIR", "/var/lib/storj/.local/share/storj/identity/storagenode/"),
 			s.AddFlag("--identity-dir=/var/lib/storj/.local/share/storj/identity/storagenode/"))
 

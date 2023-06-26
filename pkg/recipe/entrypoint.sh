@@ -4,6 +4,8 @@ echo "Starting Storj development container"
 #Identifying IP address
 export STORJ_NODE_IP=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 
+: ${STORJUP_ROLE:=$STORJ_ROLE}
+
 #Generate identity if missing
 if [ "$STORJ_IDENTITY_DIR" ]; then
   if [ ! -f "$STORJ_IDENTITY_DIR/identity.key" ]; then
@@ -28,7 +30,7 @@ if [ "$STORJ_WAIT_FOR_SATELLITE" ]; then
 fi
 
 
-if [ "$STORJ_ROLE" == "satellite-api" ]; then
+if [ "$STORJUP_ROLE" == "satellite-api" ]; then
   mkdir -p /var/lib/storj/.local
 
   #only migrate first time
@@ -38,7 +40,7 @@ if [ "$STORJ_ROLE" == "satellite-api" ]; then
   fi
 fi
 
-if [ "$STORJ_ROLE" == "storagenode" ]; then
+if [ "$STORJUP_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
   : ${STORJ_CONTACT_EXTERNAL_ADDRESS:=$STORJ_NODE_IP:28967}
   if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
@@ -47,14 +49,14 @@ if [ "$STORJ_ROLE" == "storagenode" ]; then
   storagenode setup
 fi
 
-if [ "$STORJ_ROLE" == "multinode" ]; then
+if [ "$STORJUP_ROLE" == "multinode" ]; then
   if [ -f "/var/lib/storj/.local/share/storj/multinode/config.yaml" ]; then
     rm "/var/lib/storj/.local/share/storj/multinode/config.yaml"
   fi
   multinode setup
 fi
 
-if [ "$STORJ_ROLE" == "uplink" ]; then
+if [ "$STORJUP_ROLE" == "uplink" ]; then
   if [ "$1" != "/usr/bin/sleep"  ]; then
     storj-up credentials -e satellite-api test@storj.io
     eval $(storj-up credentials -e satellite-api test@storj.io)

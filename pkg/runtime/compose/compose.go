@@ -240,12 +240,15 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 	}
 
 	if recipe.Name == "storagenode" || recipe.Name == "satellite-core" || recipe.Name == "satellite-admin" {
+		s.Environment["STORJUP_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_WAIT_FOR_SATELLITE"] = ptrStr("true")
 	} else if recipe.Name == "satellite-api" {
+		s.Environment["STORJUP_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_WAIT_FOR_DB"] = ptrStr("true")
 	} else if recipe.Name == "authservice" {
+		s.Environment["STORJUP_ROLE"] = ptrStr(recipe.Name)
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 	}
 
@@ -283,6 +286,7 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 
 	if recipe.Name == "satellite-api" {
 		err := errs.Combine(
+			r.AddEnvironment("STORJUP_ROLE", "satellite-api"),
 			r.AddEnvironment("STORJ_ROLE", "satellite-api"),
 			r.AddEnvironment("STORJ_IDENTITY_DIR", "{{ Environment .This \"identityDir\"}}"))
 		if err != nil {
@@ -292,7 +296,7 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 	if strings.HasPrefix(recipe.Name, "storagenode") {
 		err := errs.Combine(
 			r.AddPortForward(c.GetPort(id, "console")),
-			r.AddEnvironment("STORJ_ROLE", "storagenode"),
+			r.AddEnvironment("STORJUP_ROLE", "storagenode"),
 			r.AddEnvironment("STORJ_IDENTITY_DIR", "{{ Environment .This \"identityDir\"}}"))
 		if err != nil {
 			return nil, err
