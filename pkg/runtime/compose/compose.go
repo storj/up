@@ -157,23 +157,18 @@ func NewCompose(dir string) (*Compose, error) {
 			},
 			"storagenode": {
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/storagenode/",
-				"staticDir":   "/var/lib/storj/web/storagenode",
 			},
 			"redis": {
 				"url": "redis://redis:6379",
 			},
 			"satellite-api": {
-				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
-				"staticDir":       "/var/lib/storj/storj/web/satellite/",
-				"identityDir":     "/var/lib/storj/.local/share/storj/identity/satellite-api/",
-				"identity":        common.Satellite0Identity,
+				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identity":    common.Satellite0Identity,
 			},
 			"satellite-core": {
-				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
-				"identityDir":     "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-admin": {
-				"staticDir":   "/var/lib/storj/storj/satellite/admin/ui/build",
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-gc": {
