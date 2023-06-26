@@ -29,7 +29,7 @@ services:
       STORJ_LISTEN_ADDR: 0.0.0.0:8888
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
-      STORJ_ROLE: authservice
+      STORJUP_ROLE: authservice
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
@@ -174,7 +174,7 @@ services:
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
-      STORJ_ROLE: satellite-admin
+      STORJUP_ROLE: satellite-admin
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
@@ -220,7 +220,7 @@ services:
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
-      STORJ_ROLE: satellite-api
+      STORJUP_ROLE: satellite-api
       STORJ_SERVER_ADDRESS: satellite-api:7777
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
       STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
@@ -264,7 +264,7 @@ services:
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
-      STORJ_ROLE: satellite-core
+      STORJUP_ROLE: satellite-core
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
@@ -287,7 +287,7 @@ services:
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_OPERATOR_EMAIL: storage9@mail.test
       STORJ_OPERATOR_WALLET: "0x0123456789012345678901234567890123456789"
-      STORJ_ROLE: storagenode
+      STORJUP_ROLE: storagenode
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
       STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
@@ -326,7 +326,7 @@ services:
     - /usr/bin/sleep
     - infinity
     environment:
-      STORJ_ROLE: uplink
+      STORJUP_ROLE: uplink
     image: img.dev.storj.io/storjup/storj:1.62.4
     networks:
       default: null
