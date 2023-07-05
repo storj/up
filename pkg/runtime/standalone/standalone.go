@@ -255,6 +255,24 @@ func (c *Standalone) AddService(recipe recipe.Service) (runtime.Service, error) 
 		}
 	}
 
+	// these locations are part of the docker images, therefore we need to set here
+	switch id.Name {
+	case "satellite-api":
+		err = s.AddEnvironment("STORJ_CONSOLE_STATIC_DIR", c.Get(s.id, "staticDir"))
+		if err != nil {
+			return s, err
+		}
+		err = s.AddEnvironment("STORJ_MAIL_TEMPLATE_PATH", c.Get(s.id, "mailTemplateDir"))
+		if err != nil {
+			return s, err
+		}
+	case "storagenode":
+		err = s.AddEnvironment("STORJ_CONSOLE_STATIC_DIR", c.Get(s.id, "staticDir"))
+		if err != nil {
+			return s, err
+		}
+	}
+
 	c.services = append(c.services, s)
 	return s, nil
 }

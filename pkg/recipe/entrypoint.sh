@@ -43,6 +43,9 @@ fi
 if [ "$STORJUP_ROLE" == "storagenode" ]; then
   #Initialize config, required only to have all the dirs created
   : ${STORJ_CONTACT_EXTERNAL_ADDRESS:=$STORJ_NODE_IP:28967}
+
+  #This is a workaround to set different static dir for statellite/storagenode with env variables.
+  : ${STORJ_CONSOLE_STATIC_DIR:=$STORJ_STORAGENODE_CONSOLE_STATIC_DIR}
   if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
     rm "/var/lib/storj/.local/share/storj/storagenode/config.yaml"
   fi

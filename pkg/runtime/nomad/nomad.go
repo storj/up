@@ -60,14 +60,11 @@ func NewNomad(dir string, name string) (*Nomad, error) {
 				"url": "redis://localhost:6379",
 			},
 			"satellite-api": {
-				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
-				"staticDir":       "/var/lib/storj/storj/web/satellite/",
-				"identityDir":     "/var/lib/storj/identities/1",
-				"identity":        common.Satellite0Identity,
+				"identityDir": "/var/lib/storj/identities/1",
+				"identity":    common.Satellite0Identity,
 			},
 			"satellite-core": {
-				"mailTemplateDir": "/var/lib/storj/storj/web/satellite/static/emails/",
-				"identityDir":     "/var/lib/storj/identities/1",
+				"identityDir": "/var/lib/storj/identities/1",
 			},
 			"satellite-admin": {
 				"staticDir":   "/var/lib/storj/storj/web/satellite/",
