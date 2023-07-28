@@ -14,7 +14,7 @@ add:
       POSTGRES_DB: master
 modify:
   - match:
-      name: satellite-api
+      name: satellite-api,satellite-core,satellite-admin
     config:
       STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
       STORJ_METAINFO_DATABASE_URL: "postgres://postgres@postgres:5432/master?sslmode=disable"

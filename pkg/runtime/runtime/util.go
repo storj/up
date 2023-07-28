@@ -4,6 +4,8 @@
 package runtime
 
 import (
+	"strings"
+
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/pkg/recipe"
@@ -89,7 +91,12 @@ func Match(service Service, matcher recipe.Matcher) bool {
 			}
 		}
 	}
-	return matcher.Name == service.ID().Name
+	for _, name := range strings.Split(matcher.Name, ",") {
+		if strings.TrimSpace(name) == service.ID().Name {
+			return true
+		}
+	}
+	return false
 }
 
 // ApplyRecipes can apply full recipes and other services (partial recipes) based on the selectors.

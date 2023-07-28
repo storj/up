@@ -61,15 +61,7 @@ add:
         target: 8546
 modify:
   - match:
-      name: satellite-core
-    config:
-      STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
-      STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
-      STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
-      STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
-      STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
-  - match:
-      name: satellite-api
+      name: satellite-core,satellite-api
     config:
       STORJ_PAYMENTS_BILLING_CONFIG_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_AUTH_IDENTIFIER: us1
