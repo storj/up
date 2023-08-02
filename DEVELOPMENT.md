@@ -12,12 +12,27 @@ Build image contains all the tools required to create local builds.
 
 To publish a new `storjup/build` image:
 
- 0. `go install github.com/magefile/mage@v1.11.0`
- 1. `mage dockerBaseBuild` (only build)
- 2. `mage dockerBasePublish` (build and publish)
+ 0. `go install github.com/magefile/mage`
+ 1. `mage dockerBuildBuild` (only build)
+ 2. `mage dockerBuildPublish` (build and publish)
  3. New tag is saved to `build.last`. Please commit that file with your PR.
  4. Use the new tag in `edge.Dockerfile` and `storj.Dockerfile`
 
 Note: This process is assuming that you already authorized yourself with `img.dev.storj.io` with `docker login`.
 
 Note: publishing base image is very similar
+
+## Update Storj image
+
+Storj image contains all the binaries required to run the satellite.
+
+To publish a new `storjup/storj` image:
+
+0. `go install github.com/magefile/mage`
+1. `mage DockerStorj <latest release version> <false>` (only build)
+2. `mage DockerStorj <latest release version> <true>` (build and publish)
+3. Use the new tag in recipe files
+
+Note: This process is assuming that you already authorized yourself with `img.dev.storj.io` with `docker login`.
+
+Note: publishing edge image is very similar

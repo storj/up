@@ -4,7 +4,7 @@ add:
   - name: storjscan
     label:
       - storjscan
-    image: img.dev.storj.io/storjup/storjscan:1.0.2
+    image: img.dev.storj.io/storjup/storjscan:1.0.3
     command:
       - storjscan
       - run

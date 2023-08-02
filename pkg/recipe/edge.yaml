@@ -5,8 +5,7 @@ add:
     label:
       - storj
       - edge
-      -
-    image: img.dev.storj.io/storjup/edge:1.50.0
+    image: img.dev.storj.io/storjup/edge:1.58.1
     command:
       - gateway-mt
       - run
@@ -26,7 +25,7 @@ add:
     label:
       - storj
       - edge
-    image: img.dev.storj.io/storjup/edge:1.50.0
+    image: img.dev.storj.io/storjup/edge:1.58.1
     command:
       - authservice
       - run
@@ -46,7 +45,7 @@ add:
     label:
       - storj
       - edge
-    image: img.dev.storj.io/storjup/edge:1.50.0
+    image: img.dev.storj.io/storjup/edge:1.58.1
     command:
       - linksharing
       - run

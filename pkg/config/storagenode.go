@@ -122,6 +122,21 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_CONTACT_TAGS_TAGS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONTACT_TAGS_XXX_UNRECOGNIZED",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONTACT_TAGS_XXX_SIZECACHE",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_OPERATOR_EMAIL",
 			Description: "operator email address",
 			Default:     "",

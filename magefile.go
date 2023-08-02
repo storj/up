@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
@@ -348,7 +347,7 @@ func doOnMissing(containerName string, repoName string, action func(string, stri
 
 // writeDockerTag persist the last used docker tag to a file.
 func writeDockerTag(tagFile string, tag string) error {
-	return ioutil.WriteFile(tagFile, []byte(tag), 0o644)
+	return os.WriteFile(tagFile, []byte(tag), 0o644)
 }
 
 // ListVersions prints out the available container / release versions.

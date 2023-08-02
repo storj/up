@@ -1,6 +1,6 @@
 module storj.io/storj-up
 
-go 1.18
+go 1.19
 
 require (
 	github.com/compose-spec/compose-go v1.0.3
