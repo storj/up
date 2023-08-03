@@ -5,6 +5,8 @@ package cmd
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base32"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -26,12 +28,17 @@ import (
 )
 
 const (
+	encKeyVersionByte = byte(77) // magic number EncryptionKey encoding
+	secKeyVersionByte = byte(78) // magic number SecretKey encoding
+
 	password = "123a123"
 	secret   = "Welcome1"
 	filename = ".creds"
 )
 
 var (
+	base32Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
+
 	retry   int
 	export  bool
 	s3      bool
@@ -43,6 +50,12 @@ var (
 
 	credentials Credentials
 )
+
+// EncryptionKey is an encryption key that an access/secret are encrypted with.
+type EncryptionKey [16]byte
+
+// SecretKey is the secret key used to sign requests.
+type SecretKey [32]byte
 
 // Credentials is the structure of the credentials file.
 type Credentials struct {
@@ -81,7 +94,7 @@ func credentialsCmd() *cobra.Command {
 					if err != nil {
 						return err
 					}
-					err = executeWithRetry(context.Background(), generateS3Credentials)
+					err = executeWithRetry(context.Background(), registerS3Credentials)
 					if err != nil {
 						return err
 					}
@@ -108,7 +121,7 @@ func credentialsCmd() *cobra.Command {
 	pflags.StringVarP(&console, "console", "c", "localhost:10000", "The host and port of of the satellite api console to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
 	pflags.StringVarP(&authservice, "authservice", "a", "http://localhost:8888", "Host of the auth service. Defaults to localhost or STORJ_DOCKER_HOST if set.")
 	pflags.BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
-	pflags.BoolVarP(&s3, "s3", "", false, "Generate S3 credentials. IMPORTANT: this command MUST be executed INSIDE containers as gateway will use it.")
+	pflags.BoolVarP(&s3, "s3", "", false, "Register S3 credentials with authservice. IMPORTANT: Proper registration requires this command to be executed INSIDE containers.")
 	pflags.BoolVarP(&persist, "persist", "p", false, "Persist credentials to disk for reuse. If persisted credentials are found, they are returned instead of regenerating, however repeated calls with persist flag will regenerate and persist new credentials.")
 	pflags.VisitAll(func(flag *pflag.Flag) {
 		_ = viper.BindPFlag(flag.Name, flag)
@@ -198,16 +211,20 @@ func generateCredentials(ctx context.Context) error {
 	}
 
 	if s3 {
-		err = generateS3Credentials(ctx)
+		err = registerS3Credentials(ctx)
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
+	} else {
+		credentials.AccessKey = newEncryptionKey()
+		credentials.SecretKey = newSecretKey()
+		credentials.Endpoint = ""
 	}
 
 	return err
 }
 
-func generateS3Credentials(ctx context.Context) error {
+func registerS3Credentials(ctx context.Context) error {
 	if _, err := os.Stat("docker-compose.yaml"); err == nil {
 		fmt.Println("Looks like you have a docker-compose.yaml. I suspect you execute this command from the host, not from the container. Please note that S3 compatible access Grant should use the container network host (satellite-api). Therefore it should be executed from the container. (docker-compose exec satellite-api storj-up credentials -s3)")
 	}
@@ -251,35 +268,54 @@ func printCredentials() error {
 		fmt.Printf("Password: %s\n", password)
 		fmt.Printf("ProjectID: %s\n", credentials.ProjectID)
 		fmt.Printf("Cookie: _tokenKey=%s\n", credentials.Cookie)
-
 		fmt.Printf("API key: %s\n", credentials.ApiKey)
 		fmt.Println()
 
 		fmt.Printf("Encryption secret: %s \n", secret)
 		fmt.Printf("Grant: %s\n", credentials.Grant)
+		fmt.Println()
 
-		if s3 {
-			fmt.Printf("Access key: %s\n", credentials.AccessKey)
-			fmt.Printf("Secret key: %s\n", credentials.SecretKey)
-			fmt.Printf("Endpoint: %s\n", credentials.Endpoint)
-		}
+		fmt.Printf("Access key: %s\n", credentials.AccessKey)
+		fmt.Printf("Secret key: %s\n", credentials.SecretKey)
+		fmt.Printf("Endpoint: %s\n", credentials.Endpoint)
 	} else {
 		fmt.Printf("export STORJ_USER=%s\n", credentials.StorjUser)
 		fmt.Printf("export STORJ_USER_PASSWORD=%s\n", password)
 		fmt.Printf("export STORJ_PROJECT_ID=%s\n", credentials.ProjectID)
 		fmt.Printf("export STORJ_SESSION_COOKIE=Cookie: _tokenKey=%s\n", credentials.Cookie)
-
 		fmt.Printf("export STORJ_API_KEY=%s\n", credentials.ApiKey)
 
 		fmt.Printf("export STORJ_ENCRYPTION_SECRET=%s\n", secret)
 		fmt.Printf("export STORJ_ACCESS=%s\n", credentials.Grant)
 		fmt.Printf("export UPLINK_ACCESS=%s\n", credentials.Grant)
 
-		if s3 {
-			fmt.Printf("export AWS_ACCESS_KEY_ID=%s\n", credentials.AccessKey)
-			fmt.Printf("export AWS_SECRET_ACCESS_KEY=%s\n", credentials.SecretKey)
-			fmt.Printf("export STORJ_GATEWAY=%s\n", credentials.Endpoint)
-		}
+		fmt.Printf("export AWS_ACCESS_KEY_ID=%s\n", credentials.AccessKey)
+		fmt.Printf("export AWS_SECRET_ACCESS_KEY=%s\n", credentials.SecretKey)
+		fmt.Printf("export STORJ_GATEWAY=%s\n", credentials.Endpoint)
 	}
 	return nil
+}
+
+func newEncryptionKey() string {
+	key := EncryptionKey{encKeyVersionByte}
+	if _, err := rand.Read(key[:]); err != nil {
+		return ""
+	}
+	return strings.ToLower(
+		base32Encoding.EncodeToString(
+			append([]byte{encKeyVersionByte}, key[:]...),
+		),
+	)
+}
+
+func newSecretKey() string {
+	secretKey := SecretKey{secKeyVersionByte}
+	if _, err := rand.Read(secretKey[:]); err != nil {
+		return ""
+	}
+	return strings.ToLower(
+		base32Encoding.EncodeToString(
+			append([]byte{secKeyVersionByte}, secretKey[:]...),
+		),
+	)
 }
