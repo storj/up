@@ -112,11 +112,14 @@ func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) runt
 	}
 	switch service.Name {
 	case "satellite-api":
+		offset := service.Instance * 10
 		switch portType {
 		case "public":
-			return runtime.PortMap{Internal: 7777, External: 7777, Protocol: "tcp"}
+			return runtime.PortMap{Internal: 7777, External: 7777 + offset, Protocol: "tcp"}
 		case "console":
-			return runtime.PortMap{Internal: 10000, External: 10000, Protocol: "tcp"}
+			return runtime.PortMap{Internal: 10000, External: 10000 + offset, Protocol: "tcp"}
+		case "private":
+			return runtime.PortMap{Internal: 5559, External: 10009 + offset, Protocol: "tcp"}
 		}
 	case "storagenode":
 		p, _ := runtime.PortConvention(service, portType)
