@@ -10,7 +10,7 @@ cleanup(){
 trap cleanup EXIT
 
 {{ range $k,$v := .Service.Environment}}
-export {{$k}}="{{$v}}"{{end}}
+export {{$k}}="{{Safe $v}}"{{end}}
 mkdir -p ./{{.Service.ID.Name}}/{{.Service.ID.Instance}}
 
 #RUN

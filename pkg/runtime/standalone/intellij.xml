@@ -3,10 +3,10 @@
                    factoryName="Go Application">
         <module name="{{ .Package }}"/>
         <working_directory value="$PROJECT_DIR$/.run"/>
-        <parameters value="{{ Join (Tail .Service.Command) " "}}"/>
+        <parameters value="{{ Safe (Join (Tail .Service.Command) " ")}}"/>
         <envs>
             {{ range $k, $v := .Service.Environment}}
-            <env name="{{$k}}" value="{{$v}}"/>{{end}}
+            <env name="{{$k}}" value="{{Safe $v}}"/>{{end}}
         </envs>
         <kind value="PACKAGE"/>
         <package value="storj.io/{{ .Package }}/cmd/{{ .Executable }}"/>

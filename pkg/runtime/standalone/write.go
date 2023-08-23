@@ -95,6 +95,16 @@ func (c *Standalone) writeService(s *service) error {
 	t, err := template.New("start.sh").
 		Funcs(map[string]interface{}{
 			"HasPrefix": strings.HasPrefix,
+			"Safe": func(p string) string {
+				out := ""
+				for i := 0; i < len(p); i++ {
+					if i > 0 && p[i] == '"' && p[i-1] != '\\' {
+						out += "\\"
+					}
+					out += string(p[i])
+				}
+				return out
+			},
 		}).
 		Parse(string(startTemplate))
 	if err != nil {
@@ -142,6 +152,9 @@ func (c *Standalone) writeIntelliJRunner(s *service) error {
 				return a
 			},
 			"Join": strings.Join,
+			"Safe": func(p string) string {
+				return strings.ReplaceAll(p, "\"", "&quot;")
+			},
 		}).
 		Parse(string(intelliJTemplate))
 	if err != nil {
