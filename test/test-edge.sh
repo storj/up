@@ -14,33 +14,37 @@ cleanup() {
 
 trap cleanup EXIT
 
-go install storj.io/storj-up@latest
+go install -C ../
 
 export STORJUP_NO_HISTORY=true
 
-storj-up init
+storj-up init minimal,edge,db,uplink
 
 docker compose down -v
 docker compose up -d
 
-storj-up health -d 60
+storj-up health -d 90
 
-dd if=/dev/random of=data count=10240 bs=1024
-sha256sum data > sha256.sum
+docker compose exec -T -u 0 uplink bash <<-'EOF'
 
-eval $(storj-up credentials -e)
-rclone config create --non-interactive storjdev3 storj access_grant=$UPLINK_ACCESS
+  dd if=/dev/random of=data count=10240 bs=1024
+  sha256sum data > sha256.sum
 
-# using internal satellite-api address
-eval $(docker-compose exec -T satellite-api storj-up credentials --s3 -e -a http://authservice:8888 -s satellite-api:7777)
-rclone config create --non-interactive storjdevs3 s3 type=s3 provider=Storj access_key_id=$AWS_ACCESS_KEY_ID secret_access_key=$AWS_SECRET_ACCESS_KEY endpoint=http://localhost:9999
+  eval $(storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -a http://authservice:8888 -e --s3)
+  #todo: add curl and unzip to base image
+  apt-get update
+  apt-get -y install curl unzip
+  curl https://rclone.org/install.sh | bash
+  rclone config create storjdevs3 s3 env_auth true provider Minio access_key_id $AWS_ACCESS_KEY_ID secret_access_key $AWS_SECRET_ACCESS_KEY endpoint http://gateway-mt:9999 chunk_size 64M upload_cutoff 64M
 
-BUCKET=bucket$RANDOM
-rclone mkdir storjdevs3:$BUCKET
-rclone copy data storjdevs3:$BUCKET/data
-sha256sum -c sha256.sum
+  BUCKET=bucket$RANDOM
+  rclone mkdir storjdevs3:$BUCKET
+  rclone copy data storjdevs3:$BUCKET/data
+  sha256sum -c sha256.sum
 
-rm data
-rclone copy storjdevs3:$BUCKET/data download
-mv download/data ./
-sha256sum -c sha256.sum
+  rm data
+  rclone copy storjdevs3:$BUCKET/data download
+  mv download/data ./
+  sha256sum -c sha256.sum
+
+EOF

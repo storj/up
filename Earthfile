@@ -42,18 +42,19 @@ test:
 
 integration:
    FROM earthly/dind:ubuntu
-   RUN apt-get update && apt-get install -y docker-compose-plugin gcc
-   RUN bash -c "curl --fail -L https://go.dev/dl/go1.19.1.linux-amd64.tar.gz | tar -C /usr/local -xz && cp /usr/local/go/bin/go /usr/local/bin/go"
-   RUN go install github.com/rclone/rclone@v1.59.1
-   RUN go install storj.io/storj/cmd/uplink@latest
-   RUN go install storj.io/storjscan/cmd/storjscan@latest
-   RUN go install github.com/rclone/rclone@v1.59.1
-   COPY +build/storj-up /root/go/bin/storj-up
+   RUN apt-get update && apt-get install -y golang-go docker-compose-plugin gcc
    ENV PATH=$PATH:/root/go/bin
+   COPY . .
    WORKDIR /test
-   COPY ./test .
-   WITH DOCKER
-      RUN ./test.sh
+   WITH DOCKER --pull img.dev.storj.io/storjup/storj:1.83.2 \
+               --pull img.dev.storj.io/storjup/edge:1.58.1 \
+               --pull cockroachdb/cockroach \
+               --pull redis:6.0.9 \
+               --pull img.dev.storj.io/storjup/storjscan:1.0.3 \
+               --pull ethereum/client-go
+      RUN ./test.sh && \
+          ./test-edge.sh && \
+          ./test-storjscan.sh
    END
 
 check-format:

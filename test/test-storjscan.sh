@@ -14,15 +14,9 @@ cleanup() {
 
 trap cleanup EXIT
 
-go install storj.io/storj-up
-
-if [ ! "$(which storjscan )" ]; then
-   go install storj.io/storjscan/cmd/storjscan@latest
-fi
-
-if [ ! "$(which cethacea)" ]; then
-   go install github.com/elek/cethacea@latest
-fi
+go install -C ../
+go install storj.io/storjscan/cmd/storjscan@latest
+go install github.com/elek/cethacea@main
 
 export STORJUP_NO_HISTORY=true
 
@@ -35,7 +29,7 @@ storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true
 docker compose down -v
 docker compose up -d
 
-storj-up health -d 60
+storj-up health -d 90
 
 eval $(storj-up credentials -e)
 COOKIE=$(storj-up credentials | grep -o 'Cookie.*')
@@ -61,12 +55,15 @@ ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header 
 #ACCOUNT is defined with environment variables above
 for i in {1..15}; do cethacea token transfer 1000 "$ADDRESS"; done
 
-storj-up health -t billing_transactions -n 3 -d 12
+storj-up health -t billing_transactions -n 6 -d 12
 
 RESPONSE=$(curl -X GET http://localhost:10000/api/v0/payments/wallet/payments --header "$COOKIE")
-STATUS=$(echo $RESPONSE | jq -r '.payments[-1].Status')
+STATUS=$(echo "$RESPONSE" | jq -r '.payments[-4].Status')
+STATUS_BONUS=$(echo "$RESPONSE" | jq -r '.payments[-1].Status')
 
-if [ "${STATUS}" != 'confirmed' ]; then
-  echo "Test FAILED. Payment status: "${STATUS}""
+if [ "${STATUS_BONUS}" != 'complete' ] || [ "${STATUS}" != 'confirmed' ]; then
+  echo "Test FAILED. Payment status: ${STATUS} Payment bonus status: ${STATUS_BONUS}"
   exit 1
+else
+  echo "Test PASSED."
 fi

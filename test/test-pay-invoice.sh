@@ -15,14 +15,8 @@ cleanup() {
 trap cleanup EXIT
 
 go install storj.io/storj-up
-
-if [ ! "$(which storjscan )" ]; then
-   go install storj.io/storjscan/cmd/storjscan@latest
-fi
-
-if [ ! "$(which cethacea)" ]; then
-   go install github.com/elek/cethacea@latest
-fi
+go install storj.io/storjscan/cmd/storjscan@latest
+go install github.com/elek/cethacea@main
 
 export STORJUP_NO_HISTORY=true
 
@@ -38,7 +32,7 @@ storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true
 docker compose down -v
 docker compose up -d
 
-storj-up health
+storj-up health -d 90
 
 eval $(storj-up credentials -e)
 COOKIE=$(storj-up credentials | grep -o 'Cookie.*')
@@ -58,7 +52,7 @@ ADDRESS=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header 
 #ACCOUNT is defined with environment variables above
 for i in {1..15}; do cethacea token transfer 1000000000 "$ADDRESS"; done
 
-storj-up health -t billing_transactions -n 3 -d 12
+storj-up health -t billing_transactions -n 6 -d 12
 
 curl -X GET http://localhost:10000/api/v0/payments/wallet --header "$COOKIE"
 curl -X POST http://localhost:10000/api/v0/payments/account --header "$COOKIE"
@@ -90,7 +84,7 @@ docker compose exec satellite-admin satellite billing finalize-invoices --log.le
 
 #adding 5 transactions for a total of 20 means 8 should be fully confirmed
 for i in {1..5}; do cethacea token transfer 1000000000 "$ADDRESS"; done
-storj-up health -t billing_transactions -n 8 -d 12
+storj-up health -t billing_transactions -n 16 -d 12
 
 docker compose exec satellite-admin satellite billing pay-invoices "$LAST_MONTH_YEAR"-"$LAST_MONTH" --log.level=info --log.output=stdout
 
@@ -98,5 +92,8 @@ BALANCE=$(curl -X GET -s http://localhost:10000/api/v0/payments/wallet --header 
 
 if [[ $BALANCE == -* ]]
 then
+  echo "Test FAILED. Balance is negative."
   exit 1
+else
+  echo "Test PASSED."
 fi

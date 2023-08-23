@@ -14,25 +14,30 @@ cleanup() {
 
 trap cleanup EXIT
 
-go install storj.io/storj-up@latest
+go install -C ../
 
 export STORJUP_NO_HISTORY=true
 
-storj-up init minimal,db
+storj-up init minimal,db,uplink
 
 docker compose down -v
 docker compose up -d
 
-storj-up health -d 60
-dd if=/dev/random of=data count=10240 bs=1024
-sha256sum data > sha256.sum
+storj-up health -d 90
 
-eval $(storj-up credentials -e)
+docker compose exec -T uplink bash <<-'EOF'
 
-BUCKET=bucket$RANDOM
-uplink mb sj://$BUCKET
-uplink cp data sj://$BUCKET/data
+  dd if=/dev/random of=data count=10240 bs=1024
+  sha256sum data > sha256.sum
 
-rm data
-uplink cp sj://$BUCKET/data data 
-sha256sum -c sha256.sum
+  eval $(storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -e)
+
+  BUCKET=bucket$RANDOM
+  uplink --interactive=false mb sj://$BUCKET
+  uplink --interactive=false cp data sj://$BUCKET/data
+
+  rm data
+  uplink --interactive=false cp sj://$BUCKET/data data
+  sha256sum -c sha256.sum
+
+EOF
