@@ -73,7 +73,7 @@ func TestApplyRecipeCreateByRecipe(t *testing.T) {
 			},
 		},
 	}
-	err := ApplyRecipes(st, rt, []string{"minimal"})
+	err := ApplyRecipes(st, rt, []string{"minimal"}, 0)
 	require.NoError(t, err)
 
 	require.Len(t, rt.Services, 1)
@@ -109,7 +109,7 @@ func TestApplyRecipeModifyExisting(t *testing.T) {
 			},
 		},
 	}
-	err := ApplyRecipes(st, rt, []string{"minimal"})
+	err := ApplyRecipes(st, rt, []string{"minimal"}, 0)
 	require.NoError(t, err)
 
 	require.Len(t, rt.Services, 2)

@@ -27,7 +27,7 @@ func Test_Undo(t *testing.T) {
 	st, err := recipe.GetStack()
 	require.NoError(t, err)
 
-	err = runtime.ApplyRecipes(st, rt, []string{"satellite-api"})
+	err = runtime.ApplyRecipes(st, rt, []string{"satellite-api"}, 0)
 	require.NoError(t, err)
 
 	// first modification

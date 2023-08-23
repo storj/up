@@ -100,7 +100,7 @@ func Match(service Service, matcher recipe.Matcher) bool {
 }
 
 // ApplyRecipes can apply full recipes and other services (partial recipes) based on the selectors.
-func ApplyRecipes(st recipe.Stack, rt Runtime, selector []string) error {
+func ApplyRecipes(st recipe.Stack, rt Runtime, selector []string, instanceOverride int) error {
 	for _, name := range selector {
 		rcp, err := st.Get(name)
 		if err == nil {
@@ -116,17 +116,15 @@ func ApplyRecipes(st recipe.Stack, rt Runtime, selector []string) error {
 		for _, r := range st {
 			for _, s := range r.Add {
 				if s.Name == name {
-					instance := s.Instance
-					if instance == 0 {
-						instance = 1
+					if instanceOverride != 0 {
+						s.Instance = instanceOverride
 					}
 
-					for i := 1; i <= instance; i++ {
-						err = AddServiceToRuntime(rt, *s)
-						if err != nil {
-							return errs.Wrap(err)
-						}
+					err = AddServiceToRuntime(rt, *s)
+					if err != nil {
+						return errs.Wrap(err)
 					}
+
 					added++
 				}
 

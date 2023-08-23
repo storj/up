@@ -34,7 +34,7 @@ func TestAddPort(t *testing.T) {
 	})
 
 	rt := compose.NewEmptyCompose(dir)
-	err := runtime.ApplyRecipes(st, rt, []string{"base"})
+	err := runtime.ApplyRecipes(st, rt, []string{"base"}, 0)
 	require.NoError(t, err)
 
 	err = addPort(st, rt, []string{"base", "90"})
@@ -89,7 +89,7 @@ func TestRemovePort(t *testing.T) {
 	})
 
 	rt := compose.NewEmptyCompose(dir)
-	err := runtime.ApplyRecipes(st, rt, []string{"base"})
+	err := runtime.ApplyRecipes(st, rt, []string{"base"}, 0)
 	require.NoError(t, err)
 
 	err = removePort(st, rt, []string{"base", "80"})

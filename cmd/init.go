@@ -48,7 +48,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
 			if err != nil {
 				return err
 			}
@@ -75,7 +75,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
 			if err != nil {
 				return err
 			}
@@ -126,7 +126,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args))
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
 			if err != nil {
 				return err
 			}

@@ -30,7 +30,7 @@ func TestAddFlag(t *testing.T) {
 	})
 
 	rt := compose.NewEmptyCompose(dir)
-	err := runtime.ApplyRecipes(st, rt, []string{"base"})
+	err := runtime.ApplyRecipes(st, rt, []string{"base"}, 0)
 	require.NoError(t, err)
 
 	err = addFlag(st, rt, []string{"base", "nf=2"})
@@ -62,7 +62,7 @@ func TestRemoveFlag(t *testing.T) {
 	})
 
 	rt := compose.NewEmptyCompose(dir)
-	err := runtime.ApplyRecipes(st, rt, []string{"base"})
+	err := runtime.ApplyRecipes(st, rt, []string{"base"}, 0)
 	require.NoError(t, err)
 
 	err = removeFlag(st, rt, []string{"base", "flag"})

@@ -30,6 +30,6 @@ func InitCompose(dir string) (st recipe.Stack, rt runtime.Runtime, err error) {
 	if err != nil {
 		return
 	}
-	err = runtime.ApplyRecipes(st, rt, []string{"db", "minimal"})
+	err = runtime.ApplyRecipes(st, rt, []string{"db", "minimal"}, 0)
 	return
 }

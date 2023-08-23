@@ -50,6 +50,6 @@ func TestNomad(t *testing.T) {
 	st, err := recipe.GetEmbeddedStack()
 	require.NoError(t, err)
 
-	err = runtime.ApplyRecipes(st, rt, st.AllRecipeNames())
+	err = runtime.ApplyRecipes(st, rt, st.AllRecipeNames(), 0)
 	require.NoError(t, err)
 }
