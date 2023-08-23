@@ -184,6 +184,9 @@ func NewCompose(dir string) (*Compose, error) {
 			"satellite-rangedloop": {
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
 			},
+			"satellite-repair": {
+				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+			},
 			"linksharing": {
 				"webDir":    "/var/lib/storj/pkg/linksharing/web/",
 				"staticDir": "/var/lib/storj/pkg/linksharing/web/static",

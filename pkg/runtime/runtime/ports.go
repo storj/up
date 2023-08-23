@@ -14,6 +14,7 @@ var basePorts = map[string]int{
 	"satellite-core":       10300,
 	"satellite-admin":      10400,
 	"satellite-rangedloop": 10500,
+	"satellite-repair":     10600,
 	"storagenode":          30000,
 	"gateway-mt":           20000,
 	"authservice":          21000,

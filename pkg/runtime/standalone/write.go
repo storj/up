@@ -120,13 +120,15 @@ func (c *Standalone) writeService(s *service) error {
 }
 
 var runnerSupported = map[string]string{
-	"satellite-api": "storj",
-	"satellite-gc":  "storj",
-	"satellite":     "storj",
-	"storagenode":   "storj",
-	"gateway-mt":    "gateway-mt",
-	"authservice":   "gateway-mt",
-	"linksharing":   "gateway-mt",
+	"satellite-api":        "storj",
+	"satellite-rangedloop": "storj",
+	"satellite-repair":     "storj",
+	"satellite-gc":         "storj",
+	"satellite":            "storj",
+	"storagenode":          "storj",
+	"gateway-mt":           "gateway-mt",
+	"authservice":          "gateway-mt",
+	"linksharing":          "gateway-mt",
 }
 
 func (c *Standalone) writeIntelliJRunner(s *service) error {
