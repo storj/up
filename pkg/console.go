@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -242,19 +243,58 @@ func (ce *ConsoleEndpoint) activateUser(ctx context.Context, userID string, emai
 }
 
 // GetOrCreateProject return with project to use in this session.
+// this method will try to get/create the project using the old graphql endpoint,
+// and if it fails, it will try to get/create the project using the new http endpoint.
+// see the changes in https://github.com/storj/storj/commit/516241e406923dedcc66df06b7e7c1479dc98b91
+// for the update from old API to new.
+// TODO: update this method when the old API is no longer needed.
 func (ce *ConsoleEndpoint) GetOrCreateProject(ctx context.Context) (string, string, error) {
-	projectID, token, err := ce.getProject(ctx)
+	projectID, token, err := ce.getGraphqlProject(ctx)
+	if errors.Is(err, io.EOF) {
+		projectID, token, err = ce.getHttpProject(ctx)
+	}
 	if err == nil {
 		return projectID, token, nil
 	}
-	projectID, token, err = ce.createProject(ctx)
+	projectID, token, err = ce.createGraphqlProject(ctx)
+	if errors.Is(err, io.EOF) {
+		projectID, token, err = ce.createHttpProject(ctx)
+	}
 	if err == nil {
 		return projectID, token, nil
 	}
-	return ce.getProject(ctx)
+	return "", "", err
 }
 
-func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, string, error) {
+func (ce *ConsoleEndpoint) getHttpProject(ctx context.Context) (string, string, error) {
+	var projects []struct {
+		ID string `json:"id"`
+	}
+	err := ce.projectQuery(ctx, &projects)
+	if err != nil {
+		return "", "", err
+	}
+	if len(projects) == 0 {
+		return "", "", errs.New("No project exists")
+	}
+	return projects[0].ID, ce.token, nil
+}
+
+func (ce *ConsoleEndpoint) createHttpProject(ctx context.Context) (string, string, error) {
+	rng := rand.NewSource(time.Now().UnixNano())
+	body := fmt.Sprintf(`{"name":"TestProject-%d","description":""}`, rng.Int63())
+
+	var createdProject struct {
+		ID string `json:"id"`
+	}
+	err := ce.projectMutation(ctx, body, &createdProject)
+	if err != nil {
+		return "", "", err
+	}
+	return createdProject.ID, ce.token, nil
+}
+
+func (ce *ConsoleEndpoint) getGraphqlProject(ctx context.Context) (string, string, error) {
 	query := `query {myProjects{id}}`
 	var getProjects struct {
 		MyProjects []struct {
@@ -262,13 +302,16 @@ func (ce *ConsoleEndpoint) getProject(ctx context.Context) (string, string, erro
 		}
 	}
 	err := ce.graphqlQuery(ctx, query, &getProjects)
+	if err != nil {
+		return "", "", err
+	}
 	if len(getProjects.MyProjects) == 0 {
 		return "", "", errs.New("No project exists")
 	}
-	return getProjects.MyProjects[0].ID, ce.token, err
+	return getProjects.MyProjects[0].ID, ce.token, nil
 }
 
-func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, string, error) {
+func (ce *ConsoleEndpoint) createGraphqlProject(ctx context.Context) (string, string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createProjectQuery := fmt.Sprintf(
 		`mutation {createProject(input:{name:"TestProject-%d",description:""}){id}}`,
@@ -280,11 +323,27 @@ func (ce *ConsoleEndpoint) createProject(ctx context.Context) (string, string, e
 		}
 	}
 	err := ce.graphqlMutation(ctx, createProjectQuery, &createProject)
-	return createProject.CreateProject.ID, ce.token, err
+	if err != nil {
+		return "", "", err
+	}
+	return createProject.CreateProject.ID, ce.token, nil
 }
 
 // CreateAPIKey creates new API key to access Storj services.
+// this method will try to create the key using the old graphql endpoint,
+// and if it fails, it will try to get the project using the new http endpoint.
+// see the changes in https://github.com/storj/storj/commit/516241e406923dedcc66df06b7e7c1479dc98b91
+// for the update from old API to new.
+// TODO: update this method when the old API is no longer needed.
 func (ce *ConsoleEndpoint) CreateAPIKey(ctx context.Context, projectID string) (string, error) {
+	key, err := ce.createGraphqlAPIKey(ctx, projectID)
+	if errors.Is(err, io.EOF) {
+		key, err = ce.createAPIKey(ctx, projectID)
+	}
+	return key, err
+}
+
+func (ce *ConsoleEndpoint) createGraphqlAPIKey(ctx context.Context, projectID string) (string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createAPIKeyQuery := fmt.Sprintf(
 		`mutation {createAPIKey(projectID:%q,name:"TestKey-%d"){key}}`,
@@ -296,7 +355,84 @@ func (ce *ConsoleEndpoint) CreateAPIKey(ctx context.Context, projectID string) (
 		}
 	}
 	err := ce.graphqlMutation(ctx, createAPIKeyQuery, &createAPIKey)
-	return createAPIKey.CreateAPIKey.Key, err
+	if err != nil {
+		return "", err
+	}
+	return createAPIKey.CreateAPIKey.Key, nil
+}
+
+func (ce *ConsoleEndpoint) createAPIKey(ctx context.Context, projectID string) (string, error) {
+	rng := rand.NewSource(time.Now().UnixNano())
+	apiKeyName := fmt.Sprintf("TestKey-%d", rng.Int63())
+
+	var createdKey struct {
+		Key string `json:"key"`
+	}
+	err := ce.apiKeyMutation(ctx, apiKeyName, projectID, &createdKey)
+	if err != nil {
+		return "", err
+	}
+	return createdKey.Key, nil
+}
+
+func (ce *ConsoleEndpoint) projectQuery(ctx context.Context, response interface{}) error {
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		ce.projectEndpointPath(),
+		nil)
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	request.AddCookie(&http.Cookie{
+		Name:  ce.cookieName,
+		Value: ce.token,
+	})
+
+	request.Header.Add("Content-Type", "application/json")
+
+	return ce.httpDo(request, response)
+}
+
+func (ce *ConsoleEndpoint) projectMutation(ctx context.Context, query string, response interface{}) error {
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		ce.projectEndpointPath(),
+		bytes.NewReader([]byte(query)))
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	request.AddCookie(&http.Cookie{
+		Name:  ce.cookieName,
+		Value: ce.token,
+	})
+
+	request.Header.Add("Content-Type", "application/json")
+
+	return ce.httpDo(request, response)
+}
+
+func (ce *ConsoleEndpoint) apiKeyMutation(ctx context.Context, apiKeyName, projectID string, response interface{}) error {
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		ce.apiKeyEndpointPath()+"/create/"+projectID,
+		bytes.NewReader([]byte(apiKeyName)))
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	request.AddCookie(&http.Cookie{
+		Name:  ce.cookieName,
+		Value: ce.token,
+	})
+
+	request.Header.Add("Content-Type", "application/json")
+
+	return ce.httpDo(request, response)
 }
 
 func (ce *ConsoleEndpoint) graphqlQuery(ctx context.Context, createAPIKeyQuery string, response interface{}) error {
@@ -409,6 +545,38 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 	return json.NewDecoder(bytes.NewReader(response.Data)).Decode(jsonResponse)
 }
 
+func (ce *ConsoleEndpoint) httpDo(request *http.Request, jsonResponse interface{}) error {
+	resp, err := ce.client.Do(request)
+	if err != nil {
+		return err
+	}
+	defer func() { err = errs.Combine(err, resp.Body.Close()) }()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if jsonResponse == nil {
+		return errs.New("empty response: %q", b)
+	}
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return json.NewDecoder(bytes.NewReader(b)).Decode(jsonResponse)
+	}
+
+	var errResponse struct {
+		Error string `json:"error"`
+	}
+
+	err = json.NewDecoder(bytes.NewReader(b)).Decode(&errResponse)
+	if err != nil {
+		return err
+	}
+
+	return errs.New("request failed with status %d: %s", resp.StatusCode, errResponse.Error)
+}
+
 func (ce *ConsoleEndpoint) appendPath(suffix string) string {
 	return ce.base + suffix
 }
@@ -431,6 +599,14 @@ func (ce *ConsoleEndpoint) tokenEndpointPath() string {
 
 func (ce *ConsoleEndpoint) graphQLEndpointPath() string {
 	return ce.appendPath("/api/v0/graphql")
+}
+
+func (ce *ConsoleEndpoint) projectEndpointPath() string {
+	return ce.appendPath("/api/v0/projects")
+}
+
+func (ce *ConsoleEndpoint) apiKeyEndpointPath() string {
+	return ce.appendPath("/api/v0/api-keys")
 }
 
 // RegisterAccess creates new access registered to linksharing.
