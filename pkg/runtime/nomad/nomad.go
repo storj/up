@@ -82,6 +82,9 @@ func NewNomad(dir string, name string) (*Nomad, error) {
 			"satellite-repair": {
 				"identityDir": "/var/lib/storj/identities/1",
 			},
+			"satellite-audit": {
+				"identityDir": "/var/lib/storj/identities/1",
+			},
 			"linksharing": {
 				"webDir":    "/var/lib/storj/pkg/linksharing/web/",
 				"staticDir": "/var/lib/storj/pkg/linksharing/web/static",

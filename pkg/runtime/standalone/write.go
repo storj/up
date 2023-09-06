@@ -123,6 +123,7 @@ var runnerSupported = map[string]string{
 	"satellite-api":        "storj",
 	"satellite-rangedloop": "storj",
 	"satellite-repair":     "storj",
+	"satellite-audit":      "storj",
 	"satellite-gc":         "storj",
 	"satellite":            "storj",
 	"storagenode":          "storj",
