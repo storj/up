@@ -102,7 +102,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 
 	for _, p := range projects {
 
-		dayTenOfMonth := time.Date(period.Year(), period.Month(), 10, 1, 0, 0, 0, period.Location())
+		firstDayOfMonth := time.Date(period.Year(), period.Month(), 1, 1, 0, 0, 0, period.Location())
 		lastDayOfMonth := time.Date(period.Year(), period.Month(), 1, 0, 0, 0, 0, period.Location()).AddDate(0, 1, -1)
 
 		var bucket buckets.Bucket
@@ -120,7 +120,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 					Name:                        bucketname,
 					ProjectID:                   p.ID,
 					UserAgent:                   []byte(useragent),
-					Created:                     dayTenOfMonth,
+					Created:                     firstDayOfMonth,
 					PathCipher:                  0,
 					DefaultRedundancyScheme:     storj.RedundancyScheme{},
 					DefaultEncryptionParameters: storj.EncryptionParameters{},
@@ -138,11 +138,11 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		Object := int64(1)
 		SegmentCount := int64(2)
 
-		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth, Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, firstDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
-		err = updateUsage(crateTally(bucket.Name, p.ID, dayTenOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(crateTally(bucket.Name, p.ID, firstDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
 			return err
 		}
@@ -154,7 +154,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		if err != nil {
 			return err
 		}
-		intervalStart := dayTenOfMonth
+		intervalStart := firstDayOfMonth
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
@@ -165,7 +165,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 			if err != nil {
 				return err
 			}
-			intervalStart = intervalStart.Add(-1 * time.Hour)
+			intervalStart = intervalStart.Add(1 * time.Hour)
 		}
 		err = updateStripeUser(time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02"))
 		if err != nil {
