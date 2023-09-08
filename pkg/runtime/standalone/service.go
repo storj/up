@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/zeebo/errs"
+	"golang.org/x/exp/slices"
 
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
@@ -50,11 +50,13 @@ func (s *service) Labels() []string {
 }
 
 func (s *service) RemoveFlag(flag string) error {
-	return errs.New("RemoveFlag for Standalone is not yet implemented")
+	fmt.Println("RemoveFlag for Standalone is not yet implemented!")
+	return nil
 }
 
 func (s *service) Persist(dir string) error {
-	return errs.New("Standalone runner doesn't use containers. No need to persist directories.")
+	// NOOP: Standalone runner doesn't use containers. No need to persist directories
+	return nil
 }
 
 func (s *service) ChangeImage(func(string) string) error {
@@ -104,6 +106,15 @@ func (s *service) AddFlag(flag string) error {
 	f, err := s.render(flag)
 	if err != nil {
 		return err
+	}
+	eqIndex := strings.Index(f, "=")
+	if eqIndex >= 0 {
+		commandIndex := slices.IndexFunc(s.Command, func(command string) bool {
+			return strings.HasPrefix(command, f[:eqIndex+1])
+		})
+		if commandIndex >= 0 {
+			s.Command = slices.Delete(s.Command, commandIndex, commandIndex+1)
+		}
 	}
 	s.Command = append(s.Command, f)
 	return nil

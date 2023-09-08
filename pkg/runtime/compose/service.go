@@ -230,6 +230,15 @@ func (s *Service) AddFlag(flag string) error {
 			if err != nil {
 				return err
 			}
+			eqIndex := strings.Index(rendered, "=")
+			if eqIndex >= 0 {
+				commandIndex := slices.IndexFunc(s.project.Services[ix].Command, func(command string) bool {
+					return strings.HasPrefix(command, rendered[:eqIndex+1])
+				})
+				if commandIndex >= 0 {
+					s.project.Services[ix].Command = slices.Delete(s.project.Services[ix].Command, commandIndex, commandIndex+1)
+				}
+			}
 			s.project.Services[ix].Command = append(s.project.Services[ix].Command, rendered)
 		}
 	}
