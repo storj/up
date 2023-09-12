@@ -1,0 +1,28 @@
+name: audit
+description: "satellite audit service"
+add:
+  - name: satellite-audit
+    label:
+      - storj
+      - core
+    image: img.dev.storj.io/storjup/storj:1.83.2
+    command:
+      - satellite
+      - run
+      - auditor
+      - --defaults=dev
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
+      STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+    environment:
+      STORJ_WAIT_FOR_SATELLITE: 1
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'
+      STORJ_USE_PREDEFINED_IDENTITY: 1
