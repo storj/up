@@ -44,9 +44,9 @@ var (
 	s3      bool
 	persist bool
 
-	satellite   string
-	console     string
-	authservice string
+	satelliteHost   string
+	consoleHost     string
+	authServiceHost string
 
 	credentials Credentials
 )
@@ -117,9 +117,9 @@ func credentialsCmd() *cobra.Command {
 	pflags := credentialsCmd.PersistentFlags()
 	pflags.IntVarP(&retry, "retry", "r", 300, "Number of retry with 1 second interval. Default 300 = 5 minutes.")
 	pflags.StringVarP(&credentials.StorjUser, "email", "m", "test@storj.io", "The email of the test user to use/create")
-	pflags.StringVarP(&satellite, "satellite", "s", "localhost:7777", "The host and port of of the satellite api to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
-	pflags.StringVarP(&console, "console", "c", "localhost:10000", "The host and port of of the satellite api console to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
-	pflags.StringVarP(&authservice, "authservice", "a", "http://localhost:8888", "Host of the auth service. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	pflags.StringVarP(&satelliteHost, "satellite", "s", "localhost:7777", "The host and port of of the satellite api to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	pflags.StringVarP(&consoleHost, "console", "c", "localhost:10000", "The host and port of of the satellite api console to connect. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	pflags.StringVarP(&authServiceHost, "authservice", "a", "http://localhost:8888", "Host of the auth service. Defaults to localhost or STORJ_DOCKER_HOST if set.")
 	pflags.BoolVarP(&export, "export", "e", false, "Turn it off to get bash compatible output with export statements.")
 	pflags.BoolVarP(&s3, "s3", "", false, "Register S3 credentials with authservice. IMPORTANT: Proper registration requires this command to be executed INSIDE containers.")
 	pflags.BoolVarP(&persist, "persist", "p", false, "Persist credentials to disk for reuse. If persisted credentials are found, they are returned instead of regenerating, however repeated calls with persist flag will regenerate and persist new credentials.")
@@ -151,21 +151,21 @@ func executeWithRetry(ctx context.Context, f func(ctx context.Context) error) er
 func attemptUpdateDockerHost() error {
 	dockerHost := os.Getenv("STORJ_DOCKER_HOST")
 	if dockerHost != "" {
-		satelliteUrl, err := url.Parse("http://" + satellite)
+		satelliteUrl, err := url.Parse("http://" + satelliteHost)
 		if err != nil {
 			return err
 		}
-		consoleUrl, err := url.Parse("http://" + console)
+		consoleUrl, err := url.Parse("http://" + consoleHost)
 		if err != nil {
 			return err
 		}
-		authUrl, err := url.Parse(authservice)
+		authUrl, err := url.Parse(authServiceHost)
 		if err != nil {
 			return err
 		}
-		satellite = strings.Replace(satellite, satelliteUrl.Hostname(), dockerHost, 1)
-		console = strings.Replace(console, consoleUrl.Hostname(), dockerHost, 1)
-		authservice = strings.Replace(authservice, authUrl.Hostname(), dockerHost, 1)
+		satelliteHost = strings.Replace(satelliteHost, satelliteUrl.Hostname(), dockerHost, 1)
+		consoleHost = strings.Replace(consoleHost, consoleUrl.Hostname(), dockerHost, 1)
+		authServiceHost = strings.Replace(authServiceHost, authUrl.Hostname(), dockerHost, 1)
 	}
 	return nil
 }
@@ -179,12 +179,12 @@ func generateCredentials(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satellite)
+	satelliteNodeURL, err := pkg.GetSatelliteID(ctx, satelliteHost)
 	if err != nil {
 		return errs.Wrap(err)
 	}
 
-	consoleEndpoint := pkg.NewConsoleEndpoints(console, credentials.StorjUser)
+	consoleEndpoint := pkg.NewConsoleEndpoints(consoleHost, credentials.StorjUser)
 	err = consoleEndpoint.Login(ctx)
 	if err != nil {
 		return errs.Wrap(err)
@@ -205,7 +205,7 @@ func generateCredentials(ctx context.Context) error {
 		return errs.Wrap(err)
 	}
 
-	credentials.Grant, err = consolewasm.GenAccessGrant(satelliteNodeURL+"@"+satellite, credentials.ApiKey, secret, base64.StdEncoding.EncodeToString(projectUUID.Bytes()))
+	credentials.Grant, err = consolewasm.GenAccessGrant(satelliteNodeURL+"@"+satelliteHost, credentials.ApiKey, secret, base64.StdEncoding.EncodeToString(projectUUID.Bytes()))
 	if err != nil {
 		return errs.Wrap(err)
 	}
@@ -229,7 +229,7 @@ func registerS3Credentials(ctx context.Context) error {
 		fmt.Println("Looks like you have a docker-compose.yaml. I suspect you execute this command from the host, not from the container. Please note that S3 compatible access Grant should use the container network host (satellite-api). Therefore it should be executed from the container. (docker-compose exec satellite-api storj-up credentials -s3)")
 	}
 	var err error
-	credentials.AccessKey, credentials.SecretKey, credentials.Endpoint, err = pkg.RegisterAccess(ctx, authservice, credentials.Grant)
+	credentials.AccessKey, credentials.SecretKey, credentials.Endpoint, err = pkg.RegisterAccess(ctx, authServiceHost, credentials.Grant)
 	if err != nil {
 		return errs.Wrap(err)
 	}

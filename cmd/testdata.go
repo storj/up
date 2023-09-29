@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"context"
-	"database/sql"
 	"math/rand"
 	"time"
 
@@ -18,6 +17,7 @@ import (
 	"storj.io/common/storj"
 	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
+	"storj.io/storj/satellite"
 	"storj.io/storj/satellite/accounting"
 	"storj.io/storj/satellite/buckets"
 	"storj.io/storj/satellite/compensation"
@@ -97,7 +97,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 
 	projects, err := db.Console().Projects().GetAll(ctx)
 	if err != nil {
-		return err
+		return errs.Wrap(err)
 	}
 
 	for _, p := range projects {
@@ -112,7 +112,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 				var bucketID uuid.UUID
 				bucketID, err = uuid.New()
 				if err != nil {
-					return err
+					return errs.Wrap(err)
 				}
 				// try to create it instead
 				bucket, err = db.Buckets().CreateBucket(ctx, buckets.Bucket{
@@ -129,7 +129,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 			}
 			if err != nil {
 				// couldn't get nor create bucket
-				return err
+				return errs.Wrap(err)
 			}
 		}
 
@@ -138,38 +138,40 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		Object := int64(1)
 		SegmentCount := int64(2)
 
-		err = updateUsage(crateTally(bucket.Name, p.ID, firstDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(ctx, db, crateTally(bucket.Name, p.ID, firstDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
-		err = updateUsage(crateTally(bucket.Name, p.ID, firstDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(ctx, db, crateTally(bucket.Name, p.ID, firstDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
-		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(ctx, db, crateTally(bucket.Name, p.ID, lastDayOfMonth, Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
-		err = updateUsage(crateTally(bucket.Name, p.ID, lastDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
+		err = updateUsage(ctx, db, crateTally(bucket.Name, p.ID, lastDayOfMonth.Add(1*time.Minute), Object, SegmentCount, StoredData, MetadataSize))
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
 		intervalStart := firstDayOfMonth
 		for i := 0; i < 24; i++ {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
 			if err != nil {
-				return err
+				return errs.Wrap(err)
 			}
 			err = db.Orders().UpdateBucketBandwidthSettle(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), 0, intervalStart)
 			if err != nil {
-				return err
+				return errs.Wrap(err)
 			}
 			intervalStart = intervalStart.Add(1 * time.Hour)
 		}
-		err = updateStripeUser(time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02"))
+
+		createdAt := time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
+		_, err = db.Testing().RawDB().Exec(ctx, "UPDATE stripe_customers SET created_at = $1 WHERE true", createdAt)
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
 	}
 	return nil
@@ -272,12 +274,12 @@ func generatePayments(database string) error {
 			return nil
 		})
 		if err != nil {
-			return err
+			return errs.Wrap(err)
 		}
 	}
 	err = db.Compensation().RecordPeriod(ctx, paystubs, payments)
 	if err != nil {
-		return err
+		return errs.Wrap(err)
 	}
 	return nil
 }
@@ -295,39 +297,8 @@ func crateTally(bucketName string, projectID uuid.UUID, intervalStart time.Time,
 	}
 }
 
-func updateStripeUser(createdAt string) error {
-	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	defer func() {
-		_ = db.Close()
-	}()
-
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("UPDATE stripe_customers SET created_at = $1 WHERE true", createdAt)
-	return err
-}
-
-func updateUsage(tally accounting.BucketStorageTally) error {
-	db, err := sql.Open("pgx", "host=localhost port=26257 user=root dbname=master sslmode=disable")
-	if err != nil {
-		return errs.Wrap(err)
-	}
-	defer func() {
-		_ = db.Close()
-	}()
-
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(
+func updateUsage(ctx context.Context, db satellite.DB, tally accounting.BucketStorageTally) error {
+	_, err := db.Testing().RawDB().Exec(ctx,
 		`INSERT INTO bucket_storage_tallies (
 		interval_start,
         bucket_name, project_id,
@@ -350,5 +321,5 @@ func updateUsage(tally accounting.BucketStorageTally) error {
 		tally.TotalBytes, 0, 0,
 		tally.TotalSegmentCount, 0, 0,
 		tally.ObjectCount, tally.MetadataSize)
-	return err
+	return errs.Wrap(err)
 }
