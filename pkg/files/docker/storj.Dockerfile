@@ -35,6 +35,7 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/satellite && npm install && n
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/ui && npm install && npm run build ; fi
+RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/back-office/ui && npm install && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh ; fi
 
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
@@ -51,6 +52,7 @@ COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
 COPY --from=binaries /var/lib/storj/storj/web/satellite/stati[c] /var/lib/storj/storj/web/satellite/static
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dis[t] /var/lib/storj/storj/web/satellite/dist
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/build /var/lib/storj/storj/satellite/admin/ui/build
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-office/ui/build /var/lib/storj/storj/satellite/admin/back-office/ui/build
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/stati[c] /var/lib/storj/web/storagenode/static
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/dis[t] /var/lib/storj/web/storagenode/dist
 COPY --from=binaries /var/lib/storj/storj/web/multinode/stati[c] /var/lib/storj/web/multinode/static
