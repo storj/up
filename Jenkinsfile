@@ -1,6 +1,6 @@
 pipeline {
     agent {
-       label 'node4'
+       label('nomad || ondemand')
     }
 
     options {
@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         GOTRACEBACK = 'all'
+        NO_COLOR = '1'
     }
 
     stages {
@@ -17,20 +18,34 @@ pipeline {
                checkout scm
             }
         }
-	stage('Lint') {
-		steps {
-			sh "earthly +lint"
-		}
-	}
-	stage('Test') {
-		steps {
-			sh "earthly +test"
-		}
-	}
-	stage('Integration') {
-		steps {
-			sh "earthly -P +integration"
-		}
-	}
+        stage('Lint') {
+            steps {
+                sh "earthly +lint"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh "earthly +test"
+            }
+        }
+        stage('Integration') {
+            parallel {
+                stage('Uplink') {
+                    steps {
+                        sh "earthly -P ./test/uplink+test"
+                    }
+                }
+                stage('Edge') {
+                    steps {
+                        sh "earthly -P ./test/edge+test"
+                    }
+                }
+                stage('Storjscan') {
+                    steps {
+                        sh "earthly -P ./test/storjscan+test"
+                    }
+                }
+            }
+        }
     }
 }
