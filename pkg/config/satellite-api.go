@@ -102,6 +102,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_PLACEMENT_PLACEMENT_RULES",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_ADMIN_ADDRESS",
 			Description: "admin peer http listening address",
 			Default:     "",
@@ -109,6 +114,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_ADMIN_STATIC_DIR",
 			Description: "an alternate directory path which contains the static assets to serve. When empty, it uses the embedded assets",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_STATIC_DIR_BACK_OFFICE",
+			Description: "an alternate directory path which contains the static assets for the currently in development back-office. When empty, it uses the embedded assets",
 			Default:     "",
 		},
 		{
@@ -257,6 +267,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_OVERLAY_AS_OF_SYSTEM_TIME",
+			Description: "default AS OF SYSTEM TIME for service",
+			Default:     "-10s",
+		},
+		{
 			Name:        "STORJ_OFFLINE_NODES_INTERVAL",
 			Description: "how often to check for offline nodes and send them emails",
 			Default:     "1h",
@@ -349,7 +364,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_MAX_ENCRYPTED_OBJECT_KEY_LENGTH",
 			Description: "maximum encrypted object key length",
-			Default:     "2000",
+			Default:     "4000",
 		},
 		{
 			Name:        "STORJ_METAINFO_MAX_SEGMENT_SIZE",
@@ -455,6 +470,21 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY_DISABLED",
 			Description: "disable already enabled server-side copy. this is because once server side copy is enabled, delete code should stay changed, even if you want to disable server side copy",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE",
+			Description: "enable new flow for upload which is using pending_objects table",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE_PROJECTS",
+			Description: "list of projects which will have UsePendingObjectsTable feature flag enabled",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE_ROLLOUT",
+			Description: "percentage (0-100) of projects which should have this feature enabled",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
@@ -642,9 +672,14 @@ func satelliteapiConfig() []Option {
 			Default:     "100",
 		},
 		{
+			Name:        "STORJ_CHECKER_REPAIR_EXCLUDED_COUNTRY_CODES",
+			Description: "list of country codes to treat node from this country as offline ",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_CHECKER_DO_DECLUMPING",
 			Description: "Treat pieces on the same network as in need of repair",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CHECKER_DO_PLACEMENT_CHECK",
@@ -707,14 +742,29 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_REPAIRER_REPAIR_EXCLUDED_COUNTRY_CODES",
+			Description: "list of country codes to treat node from this country as offline",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_REPAIRER_DO_DECLUMPING",
 			Description: "repair pieces on the same network to other nodes",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_REPAIRER_DO_PLACEMENT_CHECK",
 			Description: "repair pieces out of segment placement",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_REPAIRER_INCLUDED_PLACEMENTS_PLACEMENTS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPAIRER_EXCLUDED_PLACEMENTS_PLACEMENTS",
+			Description: "",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_AUDIT_MAX_RETRIES_STAT_DB",
@@ -784,17 +834,17 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_INTERVAL",
 			Description: "the time between each attempt to download and send garbage collection retain filters to storage nodes",
-			Default:     "",
+			Default:     "1h",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_ENABLED",
 			Description: "set if loop to send garbage collection retain filters is enabled",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_CONCURRENT_SENDS",
 			Description: "the number of nodes to concurrently send garbage collection retain filters to",
-			Default:     "",
+			Default:     "100",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_RETAIN_SEND_TIMEOUT",
@@ -1012,6 +1062,11 @@ func satelliteapiConfig() []Option {
 			Default:     "-10s",
 		},
 		{
+			Name:        "STORJ_LIVE_ACCOUNTING_BATCH_SIZE",
+			Description: "how much projects usage should be requested from redis cache at once",
+			Default:     "5000",
+		},
+		{
 			Name:        "STORJ_PROJECT_BWCLEANUP_INTERVAL",
 			Description: "how often to remove unused project bandwidth rollups",
 			Default:     "24h",
@@ -1223,7 +1278,27 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_CONSOLE_ADDRESS",
-			Description: "server address of the graphql api gateway and frontend app",
+			Description: "server address of the http api gateway and frontend app",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_FRONTEND_ADDRESS",
+			Description: "server address of the front-end app",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_EXTERNAL_ADDRESS",
+			Description: "external endpoint of the satellite if hosted",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_FRONTEND_ENABLE",
+			Description: "feature flag to toggle whether console back-end server should also serve front-end endpoints",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_BACKEND_REVERSE_PROXY",
+			Description: "the target URL of console back-end reverse proxy for local development when running a UI server",
 			Default:     "",
 		},
 		{
@@ -1237,11 +1312,6 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_EXTERNAL_ADDRESS",
-			Description: "external endpoint of the satellite if hosted",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN",
 			Description: "auth token needed for access to registration token creation endpoint",
 			Default:     "",
@@ -1249,6 +1319,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_SECRET",
 			Description: "secret used to sign auth tokens",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_AUTH_COOKIE_DOMAIN",
+			Description: "optional domain for cookies to use",
 			Default:     "",
 		},
 		{
@@ -1374,7 +1449,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_LIMITS_AREA_ENABLED",
 			Description: "indicates whether limit card section of the UI is enabled",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_GENERATED_APIENABLED",
@@ -1409,11 +1484,21 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_GALLERY_VIEW_ENABLED",
 			Description: "whether to show new gallery view",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_USE_VUETIFY_PROJECT",
 			Description: "whether to use vuetify POC project",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_VUETIFY_HOST",
+			Description: "the subdomain the vuetify POC project should be hosted on",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_PAGINATION_ENABLED",
+			Description: "whether to use object browser pagination",
 			Default:     "false",
 		},
 		{
@@ -1510,6 +1595,16 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_PROJECT_INVITATION_EXPIRATION",
 			Description: "duration that project member invitations are valid for",
 			Default:     "168h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_USER_BALANCE_FOR_UPGRADE",
+			Description: "amount of base units of US micro dollars needed to upgrade user's tier status",
+			Default:     "10000000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_EDGE_URLOVERRIDES_OVERRIDE_MAP",
+			Description: "",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
@@ -1704,7 +1799,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_EXCLUDE_STORJSCAN",
 			Description: "whether to exclude storjscan-paying users from automatic warn/freeze",
-			Default:     "true",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
@@ -1725,6 +1820,16 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_ENABLED",
 			Description: "whether or not graceful exit is enabled on the satellite side.",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_TIME_BASED",
+			Description: "whether graceful exit will be determined by a period of time, rather than by instructing nodes to transfer one piece at a time",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_NODE_MIN_AGE_IN_MONTHS",
+			Description: "minimum age for a node on the network in order to initiate graceful exit",
+			Default:     "6",
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_CHORE_BATCH_SIZE",
@@ -1772,11 +1877,6 @@ func satelliteapiConfig() []Option {
 			Default:     "10",
 		},
 		{
-			Name:        "STORJ_GRACEFUL_EXIT_NODE_MIN_AGE_IN_MONTHS",
-			Description: "minimum age for a node on the network in order to initiate graceful exit",
-			Default:     "6",
-		},
-		{
 			Name:        "STORJ_GRACEFUL_EXIT_AS_OF_SYSTEM_TIME_INTERVAL",
 			Description: "interval for AS OF SYSTEM TIME clause (crdb specific) to read from db at a specific time in the past",
 			Default:     "-10s",
@@ -1785,6 +1885,21 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_TRANSFER_QUEUE_BATCH_SIZE",
 			Description: "batch size (crdb specific) for deleting and adding items to the transfer queue",
 			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_GRACEFUL_EXIT_DURATION_IN_DAYS",
+			Description: "number of days it takes to execute a passive graceful exit",
+			Default:     "30",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_OFFLINE_CHECK_INTERVAL",
+			Description: "how frequently to check uptime ratio of gracefully-exiting nodes",
+			Default:     "30m",
+		},
+		{
+			Name:        "STORJ_GRACEFUL_EXIT_MINIMUM_ONLINE_SCORE",
+			Description: "a gracefully exiting node will fail GE if it falls below this online score (compare AuditHistoryConfig.OfflineThreshold)",
+			Default:     "0.8",
 		},
 		{
 			Name:        "STORJ_COMPENSATION_RATES_AT_REST_GBHOURS_VALUE",
@@ -1915,6 +2030,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_PIECE_TRACKER_USE_RANGED_LOOP",
 			Description: "whether to enable piece tracker observer with ranged loop",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_TAG_AUTHORITIES",
+			Description: "comma-separated paths of additional cert files, used to validate signed node tags",
+			Default:     "",
 		},
 	}
 }

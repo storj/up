@@ -3,10 +3,10 @@ module gen
 go 1.19
 
 require (
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.4
 	github.com/zeebo/errs v1.3.0
-	storj.io/gateway-mt v1.58.1
-	storj.io/storj v1.83.2
+	storj.io/gateway-mt v1.62.0
+	storj.io/storj v1.89.5
 	storj.io/storj-up v1.0.0
 	storj.io/storjscan v1.0.3
 )
@@ -62,7 +62,7 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -100,6 +100,7 @@ require (
 	github.com/jtolds/monkit-hw/v2 v2.0.0-20191108235325-141a0da276b3 // indirect
 	github.com/jtolds/tracetagger/v2 v2.0.0-rc5 // indirect
 	github.com/jtolio/eventkit v0.0.0-20230607152326-4668f79ff72d // indirect
+	github.com/jtolio/mito v0.0.0-20230523171229-d78ef06bb77b // indirect
 	github.com/jtolio/noiseconn v0.0.0-20230301220541-88105e6c8ac6 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
@@ -139,8 +140,8 @@ require (
 	github.com/ncw/directio v1.0.5 // indirect
 	github.com/nsqio/go-nsq v1.0.8 // indirect
 	github.com/olivere/elastic/v7 v7.0.22 // indirect
-	github.com/onsi/ginkgo/v2 v2.2.0 // indirect
-	github.com/oschwald/maxminddb-golang v1.8.0 // indirect
+	github.com/onsi/ginkgo/v2 v2.9.5 // indirect
+	github.com/oschwald/maxminddb-golang v1.12.0 // indirect
 	github.com/outcaste-io/badger/v3 v3.2202.1-0.20220426173331-b25bc764af0d // indirect
 	github.com/outcaste-io/ristretto v0.1.1-0.20220420003845-bd658a460d49 // indirect
 	github.com/philhofer/fwd v1.1.1 // indirect
@@ -152,10 +153,8 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/quic-go/qtls-go1-18 v0.2.0 // indirect
-	github.com/quic-go/qtls-go1-19 v0.2.0 // indirect
-	github.com/quic-go/qtls-go1-20 v0.1.0 // indirect
-	github.com/quic-go/quic-go v0.32.0 // indirect
+	github.com/quic-go/qtls-go1-20 v0.3.2 // indirect
+	github.com/quic-go/quic-go v0.38.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/redis/go-redis/v9 v9.0.3 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
@@ -167,7 +166,7 @@ require (
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
 	github.com/shirou/gopsutil/v3 v3.21.1 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
-	github.com/spacemonkeygo/monkit/v3 v3.0.20-0.20230419135619-fb89f20752cb // indirect
+	github.com/spacemonkeygo/monkit/v3 v3.0.22 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spacemonkeygo/tlshowdy v0.0.0-20160207005338-8fa2cec1d7cd // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
@@ -201,16 +200,16 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
-	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
-	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/tools v0.9.1 // indirect
 	google.golang.org/api v0.118.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
@@ -226,13 +225,13 @@ require (
 	gopkg.in/webhelp.v1 v1.0.0-20170530084242-3f30213e4c49 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	storj.io/common v0.0.0-20230719104100-cb5eec2edc30 // indirect
+	storj.io/common v0.0.0-20230920095429-0ce0a575e6f8 // indirect
 	storj.io/dotworld v0.0.0-20210324183515-0d11aeccd840 // indirect
 	storj.io/drpc v0.0.33 // indirect
-	storj.io/minio v0.0.0-20230627070725-370d887aacde // indirect
+	storj.io/minio v0.0.0-20230809050351-70d4a6c974ce // indirect
 	storj.io/monkit-jaeger v0.0.0-20220915074555-d100d7589f41 // indirect
-	storj.io/picobuf v0.0.1 // indirect
-	storj.io/private v0.0.0-20230707205547-3f3b667f6ac0 // indirect
-	storj.io/uplink v1.10.1-0.20230628184638-0e6829c81f5c // indirect
+	storj.io/picobuf v0.0.2-0.20230906122608-c4ba17033c6c // indirect
+	storj.io/private v0.0.0-20230912093002-ca2d4ab44679 // indirect
+	storj.io/uplink v1.12.1 // indirect
 	storj.io/zipper v0.0.0-20220124122551-2ac2d53a46f6 // indirect
 )

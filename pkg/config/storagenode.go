@@ -379,7 +379,7 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_PIECES_ENABLE_LAZY_FILEWALKER",
 			Description: "run garbage collection and used-space calculation filewalkers as a separate subprocess with lower IO priority",
-			Default:     "",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_RETAIN_MAX_TIME_SKEW",
