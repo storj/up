@@ -7,7 +7,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM --platform=$TARGETPLATFORM ubuntu:22.04 AS final
 RUN apt-get update
-RUN apt-get -y install iproute2 ca-certificates
+RUN apt-get -y install iproute2 ca-certificates curl jq unzip
 RUN useradd storj --uid 1000 -d /var/lib/storj && \
     mkdir -p /var/lib/storj/shared && \
     mkdir -p /var/lib/storj/go/bin && \
