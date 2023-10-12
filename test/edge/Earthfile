@@ -1,0 +1,16 @@
+VERSION 0.6
+# integration tests
+test:
+    FROM earthly/dind:ubuntu
+    WORKDIR /go/storj-up
+    COPY ../../+build-app/storj-up .
+    # setup test environment
+    RUN /go/storj-up/storj-up init minimal,edge,db,uplink && \
+        /go/storj-up/storj-up image uplink img.dev.storj.io/storjup/storj:1.89.5 && \
+        /go/storj-up/storj-up env set authservice STORJ_ENDPOINT=http://gateway-mt:9999
+    COPY . .
+    WITH DOCKER --compose docker-compose.yaml
+        RUN docker compose exec -T -u 0 uplink bash -c 'storj-up health --host cockroach -d 120' && \
+            docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -a http://authservice:8888 -e --s3 >> ~/.bashrc' && \
+            < basic_rclone.sh docker compose exec -T -u 0 uplink bash -i
+    END

@@ -22,14 +22,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-go install storj.io/storj-up
+go install storj.io/storj-up@main
 
 if [ ! "$(which storjscan )" ]; then
    go install storj.io/storjscan/cmd/storjscan@latest
 fi
 
 if [ ! "$(which cethacea)" ]; then
-   go install github.com/elek/cethacea@latest
+   go install github.com/elek/cethacea@main
 fi
 
 export STORJUP_NO_HISTORY=true

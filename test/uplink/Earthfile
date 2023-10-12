@@ -1,0 +1,14 @@
+VERSION 0.6
+# integration tests
+test:
+    FROM earthly/dind:ubuntu
+    WORKDIR /go/storj-up
+    COPY ../../+build-app/storj-up .
+    # setup test environment
+    RUN /go/storj-up/storj-up init minimal,db,uplink
+    COPY . .
+    WITH DOCKER --compose docker-compose.yaml
+        RUN docker compose exec -T -u 0 uplink bash -c 'storj-up health --host cockroach -d 120' && \
+            docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -e >> ~/.bashrc' && \
+            < basic_upload_download.sh docker compose exec -T -u 0 uplink bash -i
+    END

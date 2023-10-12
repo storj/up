@@ -1,0 +1,23 @@
+VERSION 0.6
+# integration tests
+test:
+    FROM earthly/dind:ubuntu
+    WORKDIR /go/storj-up
+    COPY ../../+build-app/storj-up .
+    # setup test environment
+    RUN /go/storj-up/storj-up init minimal,satellite-core,edge,db,billing && \
+        /go/storj-up/storj-up env setenv satellite-core STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s && \
+        /go/storj-up/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s && \
+        /go/storj-up/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12 && \
+        /go/storj-up/storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true && \
+        /go/storj-up/storj-up image storjscan img.dev.storj.io/storjup/storjscan:20231012
+    COPY . .
+    WITH DOCKER --compose docker-compose.yaml
+        RUN docker compose exec -T -u 0 storjscan bash -c 'storj-up health --host cockroach -d 120' && \
+            docker compose exec -T -u 0 storjscan bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -a http://authservice:8888 -e >> ~/.bashrc' && \
+            docker compose cp pk.json storjscan:/var/lib/storj/pk.json && \
+            docker compose cp pass storjscan:/var/lib/storj/pass && \
+            docker compose cp TestToken.abi storjscan:/var/lib/storj/TestToken.abi && \
+            docker compose cp TestToken.bin storjscan:/var/lib/storj/TestToken.bin && \
+            < basic_storjscan.sh docker compose exec -T -u 0 storjscan bash -i
+    END
