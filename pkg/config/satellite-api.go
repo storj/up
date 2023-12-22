@@ -87,9 +87,9 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_DEBUG_ADDRESS",
-			Description: "",
-			Default:     "",
+			Name:        "STORJ_DEBUG_ADDR",
+			Description: "address to listen on for debug endpoints",
+			Default:     "127.0.0.1:0",
 		},
 		{
 			Name:        "STORJ_DEBUG_CONTROL_TITLE",
@@ -98,8 +98,13 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_DEBUG_CONTROL",
-			Description: "expose control panel",
+			Description: "",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_DEBUG_CRAWLSPACE",
+			Description: "if true, enable crawlspace on debug port",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_PLACEMENT_PLACEMENT_RULES",
@@ -117,11 +122,6 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_STATIC_DIR_BACK_OFFICE",
-			Description: "an alternate directory path which contains the static assets for the currently in development back-office. When empty, it uses the embedded assets",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_ADMIN_ALLOWED_OAUTH_HOST",
 			Description: "the oauth host allowed to bypass token authentication.",
 			Default:     "",
@@ -134,6 +134,31 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_ADMIN_AUTHORIZATION_TOKEN",
 			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_STATIC_DIR",
+			Description: "an alternate directory path which contains the static assets for the satellite administration web app. When empty, it uses the embedded assets",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_ADMIN",
+			Description: "the list of groups whose users has the administration role",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_VIEWER",
+			Description: "the list of groups whose users has the viewer role",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_CUSTOMER_SUPPORT",
+			Description: "the list of groups whose users has the customer support role",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_FINANCE_MANAGER",
+			Description: "the list of groups whose users has the finance manager role",
 			Default:     "",
 		},
 		{
@@ -472,23 +497,23 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE",
-			Description: "enable new flow for upload which is using pending_objects table",
+			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING",
+			Description: "enable the use of bucket level object versioning",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE_PROJECTS",
-			Description: "list of projects which will have UsePendingObjectsTable feature flag enabled",
+			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING_PROJECTS",
+			Description: "list of projects which will have UseBucketLevelObjectVersioning feature flag enabled",
 			Default:     "",
-		},
-		{
-			Name:        "STORJ_METAINFO_USE_PENDING_OBJECTS_TABLE_ROLLOUT",
-			Description: "percentage (0-100) of projects which should have this feature enabled",
-			Default:     "0",
 		},
 		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TEST_ENABLE_BUCKET_VERSIONING",
+			Description: "if enabled all new created buckets will have versioning enabled (use only for testing)",
 			Default:     "false",
 		},
 		{
@@ -899,12 +924,17 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_ZIP_BATCH_SIZE",
 			Description: "how many bloom filters will be packed in a single zip",
-			Default:     "500",
+			Default:     "40",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXPIRE_IN",
 			Description: "how long bloom filters will remain in the bucket for gc/sender to consume before being automatically deleted",
 			Default:     "336h",
+		},
+		{
+			Name:        "STORJ_REPAIR_QUEUE_CHECK_INTERVAL",
+			Description: "how frequently core should check the size of the repair queue",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_RANGED_LOOP_PARALLELISM",
@@ -1187,6 +1217,11 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_USE_IDEMPOTENCY",
+			Description: "whether to use idempotency for create/update requests",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
 			Description: "the duration of the first retry interval",
 			Default:     "20ms",
@@ -1442,11 +1477,6 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_ALL_PROJECTS_DASHBOARD",
-			Description: "indicates if all projects dashboard should be used",
-			Default:     "true",
-		},
-		{
 			Name:        "STORJ_CONSOLE_LIMITS_AREA_ENABLED",
 			Description: "indicates whether limit card section of the UI is enabled",
 			Default:     "true",
@@ -1477,11 +1507,6 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_UPLOAD_MODAL_ENABLED",
-			Description: "whether to show new upload modal",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_GALLERY_VIEW_ENABLED",
 			Description: "whether to show new gallery view",
 			Default:     "true",
@@ -1499,6 +1524,16 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_PAGINATION_ENABLED",
 			Description: "whether to use object browser pagination",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_CARD_VIEW_ENABLED",
+			Description: "whether to use object browser card view",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_LIMIT_INCREASE_REQUEST_ENABLED",
+			Description: "whether to allow request limit increases directly from the UI",
 			Default:     "false",
 		},
 		{
@@ -1597,6 +1632,16 @@ func satelliteapiConfig() []Option {
 			Default:     "168h",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_UNREGISTERED_INVITE_EMAILS_ENABLED",
+			Description: "indicates whether invitation emails can be sent to unregistered email addresses",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_FREE_TIER_INVITES_ENABLED",
+			Description: "indicates whether free tier users can send project invitations",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_USER_BALANCE_FOR_UPGRADE",
 			Description: "amount of base units of US micro dollars needed to upgrade user's tier status",
 			Default:     "10000000",
@@ -1605,6 +1650,31 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_EDGE_URLOVERRIDES_OVERRIDE_MAP",
 			Description: "",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_BLOCK_EXPLORER_URL",
+			Description: "url of the transaction block explorer",
+			Default:     "https://etherscan.io/",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_BILLING_FEATURES_ENABLED",
+			Description: "indicates if billing features should be enabled",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_STRIPE_PAYMENT_ELEMENT_ENABLED",
+			Description: "indicates whether the stripe payment element should be used to collect card info",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SIGNUP_ACTIVATION_CODE_ENABLED",
+			Description: "indicates whether the whether account activation is done using activation code",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_NEW_SIGNUP_FLOW_ENABLED",
+			Description: "indicates whether the v2 app signup flow is enabled",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
@@ -1645,6 +1715,16 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_PAID",
 			Description: "the default paid-tier project limit",
 			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_FLAG_BOTS_ENABLED",
+			Description: "indicates if flagging bot accounts is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_SCORE_CUTOFF_THRESHOLD",
+			Description: "bad captcha score threshold which is used to prevent bot user activity",
+			Default:     "0.8",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_RECAPTCHA_ENABLED",
@@ -1727,6 +1807,16 @@ func satelliteapiConfig() []Option {
 			Default:     "168h",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_BILLING_WARN_GRACE_PERIOD",
+			Description: "How long to wait between a billing warning event and billing freezing an account.",
+			Default:     "360h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_BILLING_FREEZE_GRACE_PERIOD",
+			Description: "How long to wait between a billing freeze event and setting pending deletion account status.",
+			Default:     "1440h",
+		},
+		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
 			Description: "expiration time for account recovery and activation tokens",
 			Default:     "30m",
@@ -1787,14 +1877,9 @@ func satelliteapiConfig() []Option {
 			Default:     "24h",
 		},
 		{
-			Name:        "STORJ_ACCOUNT_FREEZE_GRACE_PERIOD",
-			Description: "How long to wait between a warning event and freezing an account.",
-			Default:     "360h",
-		},
-		{
 			Name:        "STORJ_ACCOUNT_FREEZE_PRICE_THRESHOLD",
 			Description: "The failed invoice amount (in cents) beyond which an account will not be frozen",
-			Default:     "10000",
+			Default:     "100000",
 		},
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_EXCLUDE_STORJSCAN",
@@ -2029,6 +2114,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_PIECE_TRACKER_USE_RANGED_LOOP",
 			Description: "whether to enable piece tracker observer with ranged loop",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_DURABILITY_REPORT_ENABLED",
+			Description: "whether to enable durability report (rangedloop observer)",
 			Default:     "true",
 		},
 		{

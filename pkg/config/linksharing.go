@@ -147,6 +147,11 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HANDLER_SATELLITE_CONNECTION_POOL_MAX_LIFETIME",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_HANDLER_CONNECTION_POOL_CAPACITY",
 			Description: "",
 			Default:     "",
@@ -158,6 +163,11 @@ func linksharingConfig() []Option {
 		},
 		{
 			Name:        "STORJ_HANDLER_CONNECTION_POOL_IDLE_EXPIRATION",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_CONNECTION_POOL_MAX_LIFETIME",
 			Description: "",
 			Default:     "",
 		},
@@ -178,6 +188,11 @@ func linksharingConfig() []Option {
 		},
 		{
 			Name:        "STORJ_HANDLER_STANDARD_VIEWS_HTML",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_LIST_PAGE_LIMIT",
 			Description: "",
 			Default:     "",
 		},

@@ -87,9 +87,9 @@ func storagenodeConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_DEBUG_ADDRESS",
-			Description: "",
-			Default:     "",
+			Name:        "STORJ_DEBUG_ADDR",
+			Description: "address to listen on for debug endpoints",
+			Default:     "127.0.0.1:0",
 		},
 		{
 			Name:        "STORJ_DEBUG_CONTROL_TITLE",
@@ -98,8 +98,13 @@ func storagenodeConfig() []Option {
 		},
 		{
 			Name:        "STORJ_DEBUG_CONTROL",
-			Description: "expose control panel",
+			Description: "",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_DEBUG_CRAWLSPACE",
+			Description: "if true, enable crawlspace on debug port",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_PREFLIGHT_LOCAL_TIME_CHECK",

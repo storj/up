@@ -201,5 +201,20 @@ func authserviceConfig() []Option {
 			Description: "secret key for backup bucket",
 			Default:     "",
 		},
+		{
+			Name:        "STORJ_SPANNER_DATABASE_NAME",
+			Description: "name of Cloud Spanner database in the form projects/PROJECT_ID/instances/INSTANCE_ID/databases/DATABASE_ID",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SPANNER_CREDENTIALS_FILENAME",
+			Description: "credentials file with access to Cloud Spanner database",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SPANNER_ADDRESS",
+			Description: "",
+			Default:     "",
+		},
 	}
 }

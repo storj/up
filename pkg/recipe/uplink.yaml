@@ -2,7 +2,7 @@ name: uplink
 description: uplink service
 add:
   - name: uplink
-    image: img.dev.storj.io/storjup/storj:1.89.5
+    image: img.dev.storj.io/storjup/storj:1.93.2
     command:
       - tail
       - -F

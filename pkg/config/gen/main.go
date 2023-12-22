@@ -15,8 +15,8 @@ import (
 
 	"github.com/zeebo/errs"
 
-	"storj.io/gateway-mt/pkg/auth"
-	"storj.io/gateway-mt/pkg/linksharing"
+	"storj.io/edge/pkg/auth"
+	"storj.io/edge/pkg/linksharing"
 	"storj.io/storj-up/cmd/config"
 	"storj.io/storj/satellite"
 	"storj.io/storj/storagenode"
