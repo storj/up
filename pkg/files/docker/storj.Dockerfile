@@ -41,7 +41,11 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then env env GO111MODULE=on GOOS=js GOARC
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
     go install ./cmd/... \
-    && go install -ldflags "-X storj.io/private/version.buildRelease=false -X storj.io/private/version.buildVersion=v0.0.0" ./cmd/storagenode/...
+    && go install -ldflags \
+    "-X storj.io/private/version.buildRelease=false  \
+    -X storj.io/private/version.buildVersion=v0.0.0  \
+    -X storj.io/private/version.buildTimestamp=0"  \
+    ./cmd/storagenode/...
 
 FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20231025-2 AS final
 ENV STORJ_ADMIN_STATIC_DIR=/var/lib/storj/storj/satellite/admin/ui/build
