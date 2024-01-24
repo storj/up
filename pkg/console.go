@@ -23,6 +23,8 @@ import (
 	"storj.io/storj/satellite/console/consoleauth"
 )
 
+var errDecodeResponse = errors.New("unable to decode json response")
+
 // ConsoleEndpoint represents a user session to the web console.
 type ConsoleEndpoint struct {
 	client     *http.Client
@@ -250,14 +252,14 @@ func (ce *ConsoleEndpoint) activateUser(ctx context.Context, userID string, emai
 // TODO: update this method when the old API is no longer needed.
 func (ce *ConsoleEndpoint) GetOrCreateProject(ctx context.Context) (string, string, error) {
 	projectID, token, err := ce.getGraphqlProject(ctx)
-	if errors.Is(err, io.EOF) {
+	if errors.Is(err, io.EOF) || errors.Is(err, errDecodeResponse) {
 		projectID, token, err = ce.getHttpProject(ctx)
 	}
 	if err == nil {
 		return projectID, token, nil
 	}
 	projectID, token, err = ce.createGraphqlProject(ctx)
-	if errors.Is(err, io.EOF) {
+	if errors.Is(err, io.EOF) || errors.Is(err, errDecodeResponse) {
 		projectID, token, err = ce.createHttpProject(ctx)
 	}
 	if err == nil {
@@ -337,7 +339,7 @@ func (ce *ConsoleEndpoint) createGraphqlProject(ctx context.Context) (string, st
 // TODO: update this method when the old API is no longer needed.
 func (ce *ConsoleEndpoint) CreateAPIKey(ctx context.Context, projectID string) (string, error) {
 	key, err := ce.createGraphqlAPIKey(ctx, projectID)
-	if errors.Is(err, io.EOF) {
+	if errors.Is(err, io.EOF) || errors.Is(err, errDecodeResponse) {
 		key, err = ce.createAPIKey(ctx, projectID)
 	}
 	return key, err
@@ -531,7 +533,7 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 	}
 
 	if err = json.NewDecoder(bytes.NewReader(b)).Decode(&response); err != nil {
-		return err
+		return errDecodeResponse
 	}
 
 	if response.Errors != nil {
