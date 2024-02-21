@@ -63,7 +63,7 @@ func (ce *ConsoleEndpoint) tryLogin(ctx context.Context, email string) (string, 
 		Password string `json:"password"`
 	}
 
-	authToken.Password = "123a123"
+	authToken.Password = "password"
 	authToken.Email = email
 
 	res, err := json.Marshal(authToken)
@@ -172,7 +172,7 @@ func (ce *ConsoleEndpoint) createUser(ctx context.Context, regToken string, emai
 
 	registerData.FullName = "Alice"
 	registerData.Email = email
-	registerData.Password = "123a123"
+	registerData.Password = "password"
 	registerData.ShortName = "al"
 	registerData.Secret = regToken
 
