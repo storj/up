@@ -31,7 +31,7 @@ const (
 	encKeyVersionByte = byte(77) // magic number EncryptionKey encoding
 	secKeyVersionByte = byte(78) // magic number SecretKey encoding
 
-	password = "123a123"
+	password = "password"
 	secret   = "Welcome1"
 	filename = ".creds"
 )
