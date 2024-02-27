@@ -57,14 +57,14 @@ for example
 storj-up init minimal,satellite-core,satellite-admin,edge,db,billing
 ```
 
-Will give you all the services required to test the Web UI, the Admin API, and even the billing services. Additionally, there are dedicated subcommands 
+Will give you all the services required to test the Web UI, the Admin API, and even the billing services. Additionally, there are dedicated subcommands
 to modify the services within the `docker-compose.yaml` file easily. The generic form of these commands:
 
 ```
 storj-up <subcommand> <selector> <argument>
 ```
 
-Here `selector` can be either a service (like `storagenode`) or a name of a service group. (like `edge`). To find out all the groups, please use `storj-up services` 
+Here `selector` can be either a service (like `storagenode`) or a name of a service group. (like `edge`). To find out all the groups, please use `storj-up recipes`
 
 ### Example: Building specific binaries based on a Gerrit change
 
@@ -134,7 +134,7 @@ docker compose up -d
 
 to start the containers.
 
-Or run 
+Or run
 
 ```
 docker restart up-satellite-core-1 up-satellite-api-1 up-satellite-admin-1
@@ -162,8 +162,8 @@ service using the `storj-up local-bin` command and that the location mounted is 
 go/bin directory. If you are not on a Linux OS, the command will automatically attempt to cross-compile the source.
 
 If you wish to always use a local binary across all storj-up instances, you can also set the ENV variable at the OS
-level `STORJ_UP_LOCAL_<service_name>=<path_to_build_service>` for a particular service. After setting this, anytime 
-you have a local binary mounted for this service, you can use `storj-up start` to rebuild the binary and start the 
+level `STORJ_UP_LOCAL_<service_name>=<path_to_build_service>` for a particular service. After setting this, anytime
+you have a local binary mounted for this service, you can use `storj-up start` to rebuild the binary and start the
 services.
 
 #### Remote Development Environment
@@ -175,7 +175,7 @@ or hostname you assign to the env variable will be used by the services for all 
 - **local dev remote daemon**: Set the `STORJ_DOCKER_HOST` environment variable on the local machine to the IP or hostname of the remote docker daemon
 you're using.
 
-- **remote dev and daemon**: Set the `STORJ_DOCKER_HOST` environment variable on the remote machine to the IP or hostname of that machine. 
+- **remote dev and daemon**: Set the `STORJ_DOCKER_HOST` environment variable on the remote machine to the IP or hostname of that machine.
 Do not use localhost.
 
 Without this setting, or manually adjusting the service config, localhost will be used for all external API calls, and
@@ -201,7 +201,7 @@ The exception is if you are making a frontend change in web/satellite that requi
 To run sql on this container,
 
 ```
-docker exec -it <prefix>-cockroach-1 ./cockroach sql --insecure 
+docker exec -it <prefix>-cockroach-1 ./cockroach sql --insecure
 ```
 
 `show databases;` will list all the databases you can query from. `master` will contain most satellite tables, and `metainfo` contains... metainfo tables.
