@@ -19,7 +19,7 @@ curl -X POST 'http://satellite-api:10000/api/v0/payments/wallet' --header "Cooki
 ADDRESS=$(curl -X GET -s http://satellite-api:10000/api/v0/payments/wallet --header "Cookie: _tokenKey=$_tokenKey" | jq -r '.address')
 
 #ACCOUNT is defined with environment variables above
-for i in {1..15}; do cethacea token transfer 1000 "$ADDRESS"; done
+for i in {1..15}; do cethacea token transfer 1000 "$ADDRESS"; sleep 1; done
 storj-up health --host cockroach -t billing_transactions -n 6 -d 12
 
 RESPONSE=$(curl -X GET http://satellite-api:10000/api/v0/payments/wallet/payments --header "Cookie: _tokenKey=$_tokenKey")

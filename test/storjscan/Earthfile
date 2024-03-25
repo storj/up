@@ -10,7 +10,7 @@ test:
         /go/storj-up/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s && \
         /go/storj-up/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12 && \
         /go/storj-up/storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true && \
-        /go/storj-up/storj-up image storjscan img.dev.storj.io/storjup/storjscan:20231012
+        /go/storj-up/storj-up image storjscan img.dev.storj.io/storjup/storjscan:1.0.5
     COPY . .
     WITH DOCKER --compose docker-compose.yaml
         RUN docker compose exec -T -u 0 storjscan bash -c 'storj-up health --host cockroach -d 120' && \

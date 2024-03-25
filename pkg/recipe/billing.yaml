@@ -4,13 +4,12 @@ add:
   - name: storjscan
     label:
       - storjscan
-    image: img.dev.storj.io/storjup/storjscan:20231012
+    image: img.dev.storj.io/storjup/storjscan:1.0.5
     command:
       - storjscan
       - run
       - --database=cockroach://root@cockroach:26257/storjscan?sslmode=disable
-      - --tokens.endpoint=http://geth:8545
-      - --tokens.contract=0x1E119A589270646585b044db12098B1e456a88Af
+      - --tokens.endpoints=[{"URL":"http://geth:8545","Contract":"0x1E119A589270646585b044db12098B1e456a88Af","ChainID":"1337"}]
       - --token-price.interval=1m
       - --token-price.coinmarketcap-config.base-url=https://sandbox-api.coinmarketcap.com
       - --token-price.coinmarketcap-config.api-key=b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c
