@@ -17,6 +17,8 @@ var BuildDict = map[string]string{
 	"satellite-admin": "app-storj",
 	"satellite-api":   "app-storj",
 	"satellite-core":  "app-storj",
+	"satellite-bf":    "app-storj",
+	"satellite-gc":    "app-storj",
 	"storagenode":     "app-storj",
 	"uplink":          "app-storj",
 	"versioncontrol":  "app-storj",
