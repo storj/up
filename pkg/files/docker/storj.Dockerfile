@@ -42,9 +42,9 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
     go install ./cmd/... \
     && go install -ldflags \
-    "-X storj.io/private/version.buildRelease=false  \
-    -X storj.io/private/version.buildVersion=v0.0.0  \
-    -X storj.io/private/version.buildTimestamp=0"  \
+    "-X storj.io/common/version.buildRelease=false  \
+    -X storj.io/common/version.buildVersion=v0.0.0  \
+    -X storj.io/common/version.buildTimestamp=0"  \
     ./cmd/storagenode/...
 
 FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20240228-1 AS final

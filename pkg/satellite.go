@@ -11,7 +11,6 @@ import (
 	"storj.io/common/pb"
 	"storj.io/common/peertls/tlsopts"
 	"storj.io/common/rpc"
-	"storj.io/common/socket"
 )
 
 // GetSatelliteID retrieves node identity from SSL endpoint.
@@ -23,13 +22,7 @@ func GetSatelliteID(ctx context.Context, address string) (string, error) {
 	}
 
 	dialer := rpc.NewDefaultDialer(tlsOptions)
-	dialer.Pool = rpc.NewDefaultConnectionPool()
-
 	dialer.DialTimeout = 10 * time.Second
-	dialContext := socket.BackgroundDialer().DialContext
-
-	//lint:ignore SA1019 it's safe to use TCP here instead of QUIC + TCP
-	dialer.Connector = rpc.NewDefaultTCPConnector(&rpc.ConnectorAdapter{DialContext: dialContext}) //nolint:staticcheck
 
 	conn, err := dialer.DialAddressInsecure(ctx, address)
 	if err != nil {

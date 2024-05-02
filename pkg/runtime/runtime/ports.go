@@ -20,11 +20,11 @@ var basePorts = map[string]int{
 	"gateway-mt":           20000,
 	"authservice":          21000,
 	"linksharing":          22200,
+	"versioncontrol":       23000,
 }
 
 // PortConvention defines port numbers for any services.
 func PortConvention(instance ServiceInstance, portType string) (int, error) {
-
 	port, found := basePorts[instance.Name]
 	if !found {
 		return 0, errs.New("No base port defined for " + instance.String())

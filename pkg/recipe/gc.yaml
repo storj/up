@@ -25,6 +25,8 @@ add:
       STORJ_GARBAGE_COLLECTION_INTERVAL: 1m
       STORJ_GARBAGE_COLLECTION_ACCESS_GRANT: '{{ Environment .This "accessGrant" }}'
       STORJ_GARBAGE_COLLECTION_BUCKET: bucket1
+
+      STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
   - name: satellite-bf
     label:
       - storj

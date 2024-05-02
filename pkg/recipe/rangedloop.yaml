@@ -20,6 +20,8 @@ add:
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
+
+      STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJ_WAIT_FOR_SATELLITE: 1
       STORJ_DEFAULTS: dev

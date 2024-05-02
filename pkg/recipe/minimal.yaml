@@ -1,6 +1,30 @@
 name: minimal
-description: "The absolute minimal services to persist a file: satellite-api and storagenodes"
+description: "The absolute minimal services to persist a file: satellite-api, storagenodes and versioncontrol"
 add:
+  - name: versioncontrol
+    label:
+      - storj
+      - versioncontrol
+    image: img.dev.storj.io/storjup/storj:1.100.4
+    command:
+      - versioncontrol
+      - run
+    persistence:
+      - /var/lib/storj/.local/share/storj
+    config:
+      BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+      BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+      BINARY_SATELLITE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+      BINARY_STORAGENODE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+      BINARY_STORAGENODE_UPDATER_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+      BINARY_UPLINK_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
+
+      STORJ_LOG_LEVEL: debug
+      STORJ_METRICS_APP_SUFFIX: sim
+      STORJ_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
+      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug" }}'
+    environment:
+      STORJ_DEFAULTS: dev
   - name: satellite-api
     label:
       - storj
@@ -38,6 +62,8 @@ add:
       STORJ_CONTACT_EXTERNAL_ADDRESS: '{{ Host .This "internal"}}:{{ Port .This "public"}}'
       STORJ_CONSOLE_EXTERNAL_ADDRESS: 'http://{{ Host .This "external"}}:{{ Port .This "console"}}/'
       STORJ_SERVER_PRIVATE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "private" }}'
+
+      STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJ_DEFAULTS: dev
       STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'
@@ -76,6 +102,8 @@ add:
       STORJ_CONSOLE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "console" }}'
       #TODO: this seems to be compose specific, otherwise it should be external
       STORJ_CONTACT_EXTERNAL_ADDRESS: '{{ Host .This "internal" }}:{{ Port .This "public" }}'
+
+      STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJUP_AUTHSERVICE: http://authservice:8888
       STORJUP_SATELLITE: satellite-api

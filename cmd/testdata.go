@@ -21,7 +21,7 @@ import (
 	"storj.io/storj/satellite/accounting"
 	"storj.io/storj/satellite/buckets"
 	"storj.io/storj/satellite/compensation"
-	"storj.io/storj/satellite/overlay"
+	"storj.io/storj/satellite/nodeselection"
 	"storj.io/storj/satellite/satellitedb"
 )
 
@@ -199,7 +199,7 @@ func generatePayments(database string) error {
 			Month: oneMonthBefore.Month(),
 		}
 
-		err = db.OverlayCache().IterateAllContactedNodes(ctx, func(ctx context.Context, node *overlay.SelectedNode) error {
+		err = db.OverlayCache().IterateAllContactedNodes(ctx, func(ctx context.Context, node *nodeselection.SelectedNode) error {
 			storedDataGB := rand.Intn(1000) + 400
 			getUsage := int64(storedDataGB * 10 / 7)
 			paystub := compensation.Paystub{

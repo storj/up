@@ -9,11 +9,9 @@ import (
 	"encoding/base32"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -135,8 +133,9 @@ func init() {
 }
 
 func executeWithRetry(ctx context.Context, f func(ctx context.Context) error) error {
+	var err error
 	for i := 0; i < retry; i++ {
-		err := f(ctx)
+		err = f(ctx)
 		if err == nil {
 			return nil
 		}
@@ -145,7 +144,7 @@ func executeWithRetry(ctx context.Context, f func(ctx context.Context) error) er
 		}
 		time.Sleep(1 * time.Second)
 	}
-	return errors.New("Failed after " + strconv.Itoa(retry) + " retries")
+	return errs.Errorf("Failed after %v retries. Last error: %w", retry, err)
 }
 
 func attemptUpdateDockerHost() error {

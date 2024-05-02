@@ -3,11 +3,6 @@ run:
   issues-exit-code: 1
   tests: true
 
-  skip-files:
-    - ".*\\.pb\\.go$"
-    - ".*\\.dbx\\.go$"
-
-
 linters:
   enable:
     - bidichk                 # find dangerous bidi unicode symbols
@@ -30,9 +25,7 @@ linters:
     - nakedret                # check for naked returns
     - nilerr                  # checks for misuses of `if err != nil { return nil }`
     - noctx                   # finds locations that should use context
-    - nolintlint              # checks that nolint directives are correct
     - revive                  # check standard linting rules
-    - staticcheck             # comprehensive checks
     - tenv                    # ensure we use t.SetEnv instead of os.SetEnv
     - unconvert               # remove unnecessary conversions
     - wastedassign
@@ -46,6 +39,8 @@ linters:
     #TODO#- unparam           # check for unused parameters
     #TODO#- whitespace        # checks for leading/trailing newlines
   disable:
+    - nolintlint       # checks that nolint directives are correct
+    - staticcheck      # we already use staticcheck separately
     - asciicheck       # non-ascii is allowed
     - containedctx     # gives false positives, however might be good to re-evaluate
     - contextcheck     # doesn't look like it's useful
@@ -98,7 +93,8 @@ linters:
   fast: false
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
@@ -175,13 +171,38 @@ issues:
   new: false
   exclude-use-default: false
 
+  exclude-files:
+    - ".*\\.pb\\.go$"
+    - ".*\\.dbx\\.go$"
+
   exclude-rules:
     - linters:
         - goerr113
       text: "do not define dynamic errors"
-    - linters:
+    - linters: # uninteresting, it would be nice to be consistent, but we don't want to block the build for it
         - revive
       text: "if-return"
-    - linters: # false-positives for c exports
+    - linters: # a lot of false-positives for c exports
         - revive
       text: "var-naming"
+    - linters: # uninteresting, error doesn't need to be the last type
+        - revive
+      text: "error-return"
+    - linters: # uninteresting, ideally we would have this on, but we need to fix all the packages first
+        - revive
+      text: "package-comments"
+    - linters: # uninteresting, it would be nice to be consistent, but we don't want to block the build for it
+        - revive
+      text: "superfluous-else"
+    - linters: # uninteresting, it would be nice to be consistent, but we don't want to block the build for it
+        - revive
+      text: "indent-error-flow"
+    - linters: # uninteresting, it's common to leave args unused
+        - revive
+      text: "unused-parameter"
+    - linters: # false positives, see https://github.com/mgechev/revive/issues/810
+        - revive
+      text: "empty-block"
+    - linters: # uninteresting, it's fine to redefine builtins
+        - revive
+      text: "redefines-builtin-id"
