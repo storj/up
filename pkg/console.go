@@ -284,7 +284,7 @@ func (ce *ConsoleEndpoint) getHttpProject(ctx context.Context) (string, string, 
 
 func (ce *ConsoleEndpoint) createHttpProject(ctx context.Context) (string, string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
-	body := fmt.Sprintf(`{"name":"TestProject-%d","description":""}`, rng.Int63())
+	body := fmt.Sprintf(`{"name":"P%d","description":""}`, rng.Int63())
 
 	var createdProject struct {
 		ID string `json:"id"`
@@ -316,7 +316,7 @@ func (ce *ConsoleEndpoint) getGraphqlProject(ctx context.Context) (string, strin
 func (ce *ConsoleEndpoint) createGraphqlProject(ctx context.Context) (string, string, error) {
 	rng := rand.NewSource(time.Now().UnixNano())
 	createProjectQuery := fmt.Sprintf(
-		`mutation {createProject(input:{name:"TestProject-%d",description:""}){id}}`,
+		`mutation {createProject(input:{name:"P%d",description:""}){id}}`,
 		rng.Int63())
 
 	var createProject struct {
