@@ -34,7 +34,5 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     go install ./cmd/...
 RUN go install github.com/elek/cethacea@main
 
-FROM img.dev.storj.io/storjup/base:20240228-1 AS final
+FROM img.dev.storj.io/storjup/base:20240509-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
-
-
