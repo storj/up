@@ -123,7 +123,7 @@ storj-up local-bin -s linux_amd64 satellite-core satellite-admin satellite-api
 You will also need to cross-compile to Linux when you update your local satellite, e.g.
 
 ```
-GOOS=linux GOARCH=amd64 go install ./cmd/satellite
+GOOS=linux GOARCH=amd64 go install -race ./cmd/satellite
 ```
 
 Then if you are not currently running the containers, run

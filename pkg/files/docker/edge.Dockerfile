@@ -31,7 +31,7 @@ COPY --chown=storj ${PATH} .
 FROM --platform=$TARGETPLATFORM ${TYPE} AS binaries
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
-    go install ./cmd/...
+    go install -race ./cmd/...
 
 FROM img.dev.storj.io/storjup/base:20240509-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin

@@ -40,7 +40,7 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then env env GO111MODULE=on GOOS=js GOARC
 
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
-    go install ./cmd/... \
+    go install -race ./cmd/... \
     && go install -ldflags \
     "-X storj.io/common/version.buildRelease=false  \
     -X storj.io/common/version.buildVersion=v0.0.0  \
