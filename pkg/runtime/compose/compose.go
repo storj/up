@@ -140,6 +140,10 @@ func (c *Compose) GetPort(service runtime.ServiceInstance, portType string) runt
 		if portType == "console" {
 			return runtime.PortMap{Internal: 8080, External: 9080, Protocol: "tcp"}
 		}
+	case "versioncontrol":
+		if portType == "public" {
+			return runtime.PortMap{Internal: 8080, External: 8080, Protocol: "tcp"}
+		}
 	}
 
 	return runtime.PortMap{Internal: -1, External: -1, Protocol: "tcp"}

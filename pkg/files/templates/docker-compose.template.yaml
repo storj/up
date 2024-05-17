@@ -174,6 +174,7 @@ services:
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol.invalid:8080/
       STORJUP_ROLE: satellite-admin
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
@@ -226,6 +227,7 @@ services:
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
       STORJ_SERVER_REVOCATION_DBURL: redis://redis:6379?db=1
       STORJ_SERVER_USE_PEER_CA_WHITELIST: "false"
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol.invalid:8080/
       STORJ_WAIT_FOR_DB: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
@@ -265,6 +267,7 @@ services:
       STORJ_PAYMENTS_STORJSCAN_AUTH_SECRET: us1secret
       STORJ_PAYMENTS_STORJSCAN_DISABLE_LOOP: "false"
       STORJ_PAYMENTS_STORJSCAN_ENDPOINT: http://storjscan:12000
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol.invalid:8080/
       STORJUP_ROLE: satellite-core
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
@@ -294,7 +297,7 @@ services:
       STORJ_STORAGE2_MONITOR_MINIMUM_DISK_SPACE: "0"
       STORJ_STORAGE2_TRUST_SOURCES: 12whfK1EDvHJtajBiAUeajQLYcWqxcQmdYQU5zX5cCf6bAxfgu4@satellite-api:7777
       STORJ_STORAGE_ALLOCATED_DISK_SPACE: 1G
-      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol:8080/
+      STORJ_VERSION_SERVER_ADDRESS: http://versioncontrol.invalid:8080/
       STORJ_WAIT_FOR_SATELLITE: "true"
       STORJUP_SATELLITE: satellite-api
       STORJUP_AUTHSERVICE: http://authservice:8888
@@ -331,32 +334,6 @@ services:
     image: img.dev.storj.io/storjup/storj:1.62.4
     networks:
       default: null
-  versioncontrol:
-    command:
-    - versioncontrol
-    - run
-    environment:
-      BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_SATELLITE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_STORAGENODE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_STORAGENODE_UPDATER_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_UPLINK_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      DEFAULTS: dev
-      STORJ_DEBUG_ADDR: 0.0.0.0:11111
-      STORJ_DEFAULTS: dev
-      STORJ_LOG_LEVEL: debug
-      STORJ_METRICS_APP_SUFFIX: sim
-      STORJUP_SATELLITE: satellite-api
-      STORJUP_AUTHSERVICE: http://authservice:8888
-    image: img.dev.storj.io/storjup/storj:1.62.4
-    networks:
-      default: null
-    ports:
-    - mode: ingress
-      target: 8080
-      published: 7070
-      protocol: tcp
   prometheus:
     image: prom/prometheus
     volumes:

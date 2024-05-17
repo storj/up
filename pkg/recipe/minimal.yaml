@@ -1,30 +1,6 @@
 name: minimal
-description: "The absolute minimal services to persist a file: satellite-api, storagenodes and versioncontrol"
+description: "The absolute minimal services to persist a file: satellite-api and storagenodes"
 add:
-  - name: versioncontrol
-    label:
-      - storj
-      - versioncontrol
-    image: img.dev.storj.io/storjup/storj:1.104.5
-    command:
-      - versioncontrol
-      - run
-    persistence:
-      - /var/lib/storj/.local/share/storj
-    config:
-      BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_SATELLITE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_STORAGENODE_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_STORAGENODE_UPDATER_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-      BINARY_UPLINK_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
-
-      STORJ_LOG_LEVEL: debug
-      STORJ_METRICS_APP_SUFFIX: sim
-      STORJ_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
-      STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug" }}'
-    environment:
-      STORJ_DEFAULTS: dev
   - name: satellite-api
     label:
       - storj

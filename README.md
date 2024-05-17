@@ -71,7 +71,7 @@ Here `selector` can be either a service (like `storagenode`) or a name of a serv
 After running `storj-up init`, you can use the following command to replace binaries based on a specific Gerrit changeset:
 
 ```
-storj-up build remote gerrit -f refs/changes/65/6365/1 satellite-api satellite-core satellite-admin uplink versioncontrol
+storj-up build remote gerrit -f refs/changes/65/6365/1 satellite-api satellite-core satellite-admin uplink
 ```
 
 You will need to change `refs/changes/65/6365/1` to the Gerrit patchset you want to use, and change the binaries that follow it based on what you are trying to replace.
