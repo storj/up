@@ -67,6 +67,11 @@ func authserviceConfig() []Option {
 			Default:     ":20003",
 		},
 		{
+			Name:        "STORJ_PROXY_ADDR_TLS",
+			Description: "TLS address to listen on for PROXY protocol requests",
+			Default:     ":20005",
+		},
+		{
 			Name:        "STORJ_CERT_FILE",
 			Description: "server certificate file",
 			Default:     "",

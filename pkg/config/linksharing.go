@@ -22,12 +22,22 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_SERVER_PROXY_ADDRESS_TLS",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_SERVER_TRAFFIC_LOGGING",
 			Description: "",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_SERVER_TLSCONFIG",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SERVER_DISABLE_HTTP2",
 			Description: "",
 			Default:     "",
 		},
@@ -53,16 +63,6 @@ func linksharingConfig() []Option {
 		},
 		{
 			Name:        "STORJ_HANDLER_URLBASES",
-			Description: "",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_HANDLER_TEMPLATES",
-			Description: "",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_HANDLER_STATIC_SOURCES_PATH",
 			Description: "",
 			Default:     "",
 		},

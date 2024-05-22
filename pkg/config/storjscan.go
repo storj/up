@@ -27,14 +27,9 @@ func storjscanConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_TOKENS_ENDPOINT",
-			Description: "Ethereum RPC endpoint",
+			Name:        "STORJ_TOKENS_ENDPOINTS",
+			Description: "List of RPC endpoints [{Name:<Name>,URL:<URL>,Contract:<Contract Address>,ChainID:<Chain ID>},...]",
 			Default:     "",
-		},
-		{
-			Name:        "STORJ_TOKENS_CONTRACT",
-			Description: "Address of the STORJ token to scan for transactions",
-			Default:     "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac",
 		},
 		{
 			Name:        "STORJ_TOKEN_PRICE_INTERVAL",

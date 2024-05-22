@@ -193,7 +193,7 @@ func satellitecoreConfig() []Option {
 		},
 		{
 			Name:        "STORJ_OVERLAY_NODE_NEW_NODE_FRACTION",
-			Description: "the fraction of new nodes allowed per request",
+			Description: "the fraction of new nodes allowed per request (DEPRECATED: use placement definition instead)",
 			Default:     "",
 		},
 		{
@@ -224,7 +224,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_OVERLAY_NODE_MINIMUM_DISK_SPACE",
 			Description: "how much disk space a node at minimum must have to be selected for upload",
-			Default:     "500.00MB",
+			Default:     "5.00GB",
 		},
 		{
 			Name:        "STORJ_OVERLAY_NODE_AS_OF_SYSTEM_TIME_ENABLED",
@@ -238,7 +238,7 @@ func satellitecoreConfig() []Option {
 		},
 		{
 			Name:        "STORJ_OVERLAY_NODE_UPLOAD_EXCLUDED_COUNTRY_CODES",
-			Description: "list of country codes to exclude from node selection for uploads",
+			Description: "list of country codes to exclude from node selection for uploads (DEPRECATED: use placement definition instead)",
 			Default:     "",
 		},
 		{
@@ -285,6 +285,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_OVERLAY_SEND_NODE_EMAILS",
 			Description: "whether to send emails to nodes",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_OVERLAY_NODE_TAGS_IPPORT_EMAILS",
+			Description: "comma separated list of node tags for whom to add last ip and port to emails. Currently only for offline emails.",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_OVERLAY_MINIMUM_NEW_NODE_IDDIFFICULTY",
@@ -497,6 +502,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_METAINFO_USE_LIST_OBJECTS_ITERATOR",
+			Description: "switch to iterator based implementation.",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING",
 			Description: "enable the use of bucket level object versioning",
 			Default:     "false",
@@ -509,11 +519,6 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_METAINFO_TEST_ENABLE_BUCKET_VERSIONING",
-			Description: "if enabled all new created buckets will have versioning enabled (use only for testing)",
 			Default:     "false",
 		},
 		{
@@ -560,6 +565,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_ORDERS_ORDERS_SEMAPHORE_SIZE",
 			Description: "how many concurrent orders to process at once. zero is unlimited",
 			Default:     "2",
+		},
+		{
+			Name:        "STORJ_ORDERS_DOWNLOAD_TAIL_TOLERANCE_OVERRIDES",
+			Description: "how many nodes should be used for downloads for certain k. must be >= k. if not specified, this is calculated from long tail tolerance. format is comma separated like k-d,k-d,k-d e.g. 29-35,3-5.",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_USERINFO_ENABLED",
@@ -682,7 +692,17 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_CHECKER_REPAIR_OVERRIDES_LIST",
+			Name:        "STORJ_CHECKER_REPAIR_OVERRIDES_VALUES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CHECKER_REPAIR_THRESHOLD_OVERRIDES_REPAIR_OVERRIDES_VALUES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CHECKER_REPAIR_TARGET_OVERRIDES_REPAIR_OVERRIDES_VALUES",
 			Description: "",
 			Default:     "",
 		},
@@ -757,6 +777,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_REPAIRER_IN_MEMORY_UPLOAD",
+			Description: "whether to upload pieces for repair using memory (true) or disk (false)",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_REPAIRER_REPUTATION_UPDATE_ENABLED",
 			Description: "whether the audit score of nodes should be updated as a part of repair",
 			Default:     "false",
@@ -799,12 +824,12 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_AUDIT_MIN_BYTES_PER_SECOND",
 			Description: "the minimum acceptable bytes that storage nodes can transfer per second to the satellite",
-			Default:     "128B",
+			Default:     "150kB",
 		},
 		{
 			Name:        "STORJ_AUDIT_MIN_DOWNLOAD_TIMEOUT",
 			Description: "the minimum duration for downloading a share from storage nodes before timing out",
-			Default:     "5m0s",
+			Default:     "15s",
 		},
 		{
 			Name:        "STORJ_AUDIT_MAX_REVERIFY_COUNT",
@@ -910,6 +935,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_FALSE_POSITIVE_RATE",
 			Description: "the false positive rate used for creating a garbage collection bloom filter",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_MAX_BLOOM_FILTER_SIZE",
+			Description: "maximum size of a single bloom filter",
+			Default:     "2m",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_ACCESS_GRANT",
@@ -1222,6 +1252,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_ENABLE_FREE_TRIAL_LOGIC",
+			Description: "whether to use users upgrade time and skip free tier status in billing process",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
 			Description: "the duration of the first retry interval",
 			Default:     "20ms",
@@ -1367,9 +1402,9 @@ func satellitecoreConfig() []Option {
 			Default:     "https://forum.storj.io",
 		},
 		{
-			Name:        "STORJ_CONSOLE_FRAME_ANCESTORS",
-			Description: "allow domains to embed the satellite in a frame, space separated",
-			Default:     "tardigrade.io storj.io",
+			Name:        "STORJ_CONSOLE_SCHEDULE_MEETING_URL",
+			Description: "url link to schedule a meeting with a storj representative",
+			Default:     "https://meetings.hubspot.com/tom144/free-trial",
 		},
 		{
 			Name:        "STORJ_CONSOLE_LET_US_KNOW_URL",
@@ -1457,11 +1492,6 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CSPENABLED",
-			Description: "indicates if Content Security Policy is enabled",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_CONSOLE_LINKSHARING_URL",
 			Description: "url link for linksharing requests within the application",
 			Default:     "https://link.storjsatelliteshare.io",
@@ -1512,28 +1542,53 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_USE_VUETIFY_PROJECT",
-			Description: "whether to use vuetify POC project",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_VUETIFY_HOST",
-			Description: "the subdomain the vuetify POC project should be hosted on",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_PAGINATION_ENABLED",
 			Description: "whether to use object browser pagination",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_CARD_VIEW_ENABLED",
-			Description: "whether to use object browser card view",
+			Name:        "STORJ_CONSOLE_LIMIT_INCREASE_REQUEST_ENABLED",
+			Description: "whether to allow request limit increases directly from the UI",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_LIMIT_INCREASE_REQUEST_ENABLED",
-			Description: "whether to allow request limit increases directly from the UI",
+			Name:        "STORJ_CONSOLE_ALLOWED_USAGE_REPORT_DATE_RANGE",
+			Description: "allowed usage report request date range",
+			Default:     "9360h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ONBOARDING_STEPPER_ENABLED",
+			Description: "whether the onboarding stepper should be enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ENABLE_REGION_TAG",
+			Description: "whether to show region tag in UI",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_EMISSION_IMPACT_VIEW_ENABLED",
+			Description: "whether emission impact view should be shown",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_APPLICATIONS_PAGE_ENABLED",
+			Description: "whether applications page should be shown",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DAYS_BEFORE_TRIAL_END_NOTIFICATION",
+			Description: "days left before trial end notification",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_BAD_PASSWORDS_FILE",
+			Description: "path to a local file with bad passwords list, empty path == skip check",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_NEW_APP_SETUP_FLOW_ENABLED",
+			Description: "whether new application setup flow should be used",
 			Default:     "false",
 		},
 		{
@@ -1555,6 +1610,31 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_CONSOLE_BODY_SIZE_LIMIT",
 			Description: "The maximum body size allowed to be received by the API",
 			Default:     "100.00 KB",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CSPENABLED",
+			Description: "indicates if Content Security Policy is enabled",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_FRAME_ANCESTORS",
+			Description: "allow domains to embed the satellite in a frame, space separated",
+			Default:     "tardigrade.io storj.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_IMG_SRC_SUFFIX",
+			Description: "additional values for Content Security Policy img-src, space separated",
+			Default:     "*.tardigradeshare.io *.storjshare.io *.storjsatelliteshare.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONNECT_SRC_SUFFIX",
+			Description: "additional values for Content Security Policy connect-src, space separated",
+			Default:     "*.tardigradeshare.io *.storjshare.io *.storjapi.io *.storjsatelliteshare.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_MEDIA_SRC_SUFFIX",
+			Description: "additional values for Content Security Policy media-src, space separated",
+			Default:     "*.tardigradeshare.io *.storjshare.io *.storjsatelliteshare.io",
 		},
 		{
 			Name:        "STORJ_CONSOLE_RATE_LIMIT_DURATION",
@@ -1634,7 +1714,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_UNREGISTERED_INVITE_EMAILS_ENABLED",
 			Description: "indicates whether invitation emails can be sent to unregistered email addresses",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_FREE_TIER_INVITES_ENABLED",
@@ -1657,6 +1737,11 @@ func satellitecoreConfig() []Option {
 			Default:     "https://etherscan.io/",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_ZK_SYNC_BLOCK_EXPLORER_URL",
+			Description: "url of the zkSync transaction block explorer",
+			Default:     "https://explorer.zksync.io/",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_BILLING_FEATURES_ENABLED",
 			Description: "indicates if billing features should be enabled",
 			Default:     "true",
@@ -1672,8 +1757,33 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_NEW_SIGNUP_FLOW_ENABLED",
-			Description: "indicates whether the v2 app signup flow is enabled",
+			Name:        "STORJ_CONSOLE_CONFIG_FREE_TRIAL_DURATION",
+			Description: "duration for which users can access the system free of charge, 0 = unlimited time trial",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_VAR_PARTNERS",
+			Description: "list of partners whose users will not see billing UI.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_OBJECT_BROWSER_KEY_NAME_PREFIX",
+			Description: "prefix for object browser API key names",
+			Default:     ".storj-web-file-browser-api-key-",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_OBJECT_BROWSER_KEY_LIFETIME",
+			Description: "duration for which the object browser API key remains valid",
+			Default:     "72h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_MAX_NAME_CHARACTERS",
+			Description: "defines the maximum number of characters allowed for names, e.g. user first/last names and company names",
+			Default:     "100",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_BILLING_INFORMATION_TAB_ENABLED",
+			Description: "indicates if billing information tab should be enabled",
 			Default:     "false",
 		},
 		{
@@ -1725,6 +1835,16 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_SCORE_CUTOFF_THRESHOLD",
 			Description: "bad captcha score threshold which is used to prevent bot user activity",
 			Default:     "0.8",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_MIN_FLAG_BOT_DELAY",
+			Description: "min number of days before flagging a bot account",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_MAX_FLAG_BOT_DELAY",
+			Description: "max number of days before flagging a bot account",
+			Default:     "7",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_LOGIN_RECAPTCHA_ENABLED",
@@ -1794,7 +1914,7 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SESSION_INACTIVITY_TIMER_DURATION",
 			Description: "inactivity timer delay in seconds",
-			Default:     "600",
+			Default:     "1800",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SESSION_INACTIVITY_TIMER_VIEWER_ENABLED",
@@ -1832,9 +1952,19 @@ func satellitecoreConfig() []Option {
 			Default:     "120h",
 		},
 		{
+			Name:        "STORJ_EMAIL_REMINDERS_TRIAL_EXPIRATION_REMINDER",
+			Description: "amount of time before trial expiration to send trial expiration reminder",
+			Default:     "72h",
+		},
+		{
 			Name:        "STORJ_EMAIL_REMINDERS_CHORE_INTERVAL",
 			Description: "how often to send reminders to users who need to verify their email",
 			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_EMAIL_REMINDERS_ENABLE_TRIAL_EXPIRATION_REMINDERS",
+			Description: "enable sending emails about trial expirations",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_EMAIL_REMINDERS_ENABLE",
@@ -1865,6 +1995,131 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_CONSOLE_DBCLEANUP_MAX_UNVERIFIED_USER_AGE",
 			Description: "maximum lifetime of unverified user account records",
 			Default:     "168h",
+		},
+		{
+			Name:        "STORJ_EMISSION_WRITE_ENERGY",
+			Description: "energy needed to write 1GB of data, in W-hours/GB",
+			Default:     "0.005",
+		},
+		{
+			Name:        "STORJ_EMISSION_CO2PER_ENERGY",
+			Description: "amount of carbon emission per unit of energy, in kg/kW-hours",
+			Default:     "0.2826",
+		},
+		{
+			Name:        "STORJ_EMISSION_SHORTENED_DRIVE_LIFE",
+			Description: "shortened hard drive life period, in years",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_EMISSION_STANDARD_DRIVE_LIFE",
+			Description: "standard hard drive life period, in years",
+			Default:     "4",
+		},
+		{
+			Name:        "STORJ_EMISSION_EXTENDED_DRIVE_LIFE",
+			Description: "extended hard drive life period, in years",
+			Default:     "6",
+		},
+		{
+			Name:        "STORJ_EMISSION_NEW_DRIVE_EMBODIED_CARBON",
+			Description: "carbon footprint of producing 1TB HDD, in kg/TB",
+			Default:     "20",
+		},
+		{
+			Name:        "STORJ_EMISSION_CARBON_FROM_DRIVE_POWERING",
+			Description: "carbon from power per year of operations, in kg/TB-year",
+			Default:     "15.9",
+		},
+		{
+			Name:        "STORJ_EMISSION_REPAIRED_DATA",
+			Description: "amount of repaired data, in TB",
+			Default:     "667",
+		},
+		{
+			Name:        "STORJ_EMISSION_EXPANDED_DATA",
+			Description: "amount of expanded data, in TB",
+			Default:     "48689",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_GCPCARBON",
+			Description: "amount of carbon emission from storj GCP, in kg",
+			Default:     "3600",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_CRDBCARBON",
+			Description: "amount of carbon emission from storj CRDB, in kg",
+			Default:     "2650",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_EDGE_CARBON",
+			Description: "amount of carbon emission from storj Edge, in kg",
+			Default:     "10924",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_EXPANDED_NETWORK_STORAGE",
+			Description: "amount of expanded network storage, in TB",
+			Default:     "18933",
+		},
+		{
+			Name:        "STORJ_EMISSION_HYPERSCALER_EXPANSION_FACTOR",
+			Description: "expansion factor of hyperscaler networks",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_EMISSION_CORPORATE_DCEXPANSION_FACTOR",
+			Description: "expansion factor of corporate data center networks",
+			Default:     "4",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_EXPANSION_FACTOR",
+			Description: "expansion factor of storj network",
+			Default:     "2.7",
+		},
+		{
+			Name:        "STORJ_EMISSION_HYPERSCALER_REGION_COUNT",
+			Description: "region count of hyperscaler networks",
+			Default:     "2",
+		},
+		{
+			Name:        "STORJ_EMISSION_CORPORATE_DCREGION_COUNT",
+			Description: "region count of corporate data center networks",
+			Default:     "2",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_REGION_COUNT",
+			Description: "region count of storj network",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_STANDARD_NETWORK_WEIGHTING",
+			Description: "network weighting of already provisioned, powered drives, in fraction",
+			Default:     "0.21",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_NEW_NETWORK_WEIGHTING",
+			Description: "network weighting of new nodes, in fraction",
+			Default:     "0.582",
+		},
+		{
+			Name:        "STORJ_EMISSION_HYPERSCALER_UTILIZATION_FRACTION",
+			Description: "utilization fraction of hyperscaler networks, in fraction",
+			Default:     "0.75",
+		},
+		{
+			Name:        "STORJ_EMISSION_CORPORATE_DCUTILIZATION_FRACTION",
+			Description: "utilization fraction of corporate data center networks, in fraction",
+			Default:     "0.40",
+		},
+		{
+			Name:        "STORJ_EMISSION_STORJ_UTILIZATION_FRACTION",
+			Description: "utilization fraction of storj network, in fraction",
+			Default:     "0.85",
+		},
+		{
+			Name:        "STORJ_EMISSION_AVERAGE_CO2SEQUESTERED_BY_TREE",
+			Description: "weighted average CO2 sequestered by a medium growth coniferous or deciduous tree, in kgCO2e/tree",
+			Default:     "60",
 		},
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_ENABLED",
@@ -1909,67 +2164,12 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_TIME_BASED",
 			Description: "whether graceful exit will be determined by a period of time, rather than by instructing nodes to transfer one piece at a time",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_NODE_MIN_AGE_IN_MONTHS",
 			Description: "minimum age for a node on the network in order to initiate graceful exit",
 			Default:     "6",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_CHORE_BATCH_SIZE",
-			Description: "size of the buffer used to batch inserts into the transfer queue.",
-			Default:     "500",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_CHORE_INTERVAL",
-			Description: "how often to run the transfer queue chore.",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_USE_RANGED_LOOP",
-			Description: "whether use GE observer with ranged loop.",
-			Default:     "true",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_ENDPOINT_BATCH_SIZE",
-			Description: "size of the buffer used to batch transfer queue reads and sends to the storage node.",
-			Default:     "300",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_MAX_FAILURES_PER_PIECE",
-			Description: "maximum number of transfer failures per piece.",
-			Default:     "5",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_OVERALL_MAX_FAILURES_PERCENTAGE",
-			Description: "maximum percentage of transfer failures per node.",
-			Default:     "10",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_MAX_INACTIVE_TIME_FRAME",
-			Description: "maximum inactive time frame of transfer activities per node.",
-			Default:     "168h",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_RECV_TIMEOUT",
-			Description: "the minimum duration for receiving a stream from a storage node before timing out",
-			Default:     "2h",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_MAX_ORDER_LIMIT_SEND_COUNT",
-			Description: "maximum number of order limits a satellite sends to a node before marking piece transfer failed",
-			Default:     "10",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_AS_OF_SYSTEM_TIME_INTERVAL",
-			Description: "interval for AS OF SYSTEM TIME clause (crdb specific) to read from db at a specific time in the past",
-			Default:     "-10s",
-		},
-		{
-			Name:        "STORJ_GRACEFUL_EXIT_TRANSFER_QUEUE_BATCH_SIZE",
-			Description: "batch size (crdb specific) for deleting and adding items to the transfer queue",
-			Default:     "1000",
 		},
 		{
 			Name:        "STORJ_GRACEFUL_EXIT_GRACEFUL_EXIT_DURATION_IN_DAYS",
@@ -2057,16 +2257,6 @@ func satellitecoreConfig() []Option {
 			Default:     "50",
 		},
 		{
-			Name:        "STORJ_PROJECT_LIMIT_CACHE_CAPACITY",
-			Description: "number of projects to cache.",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_PROJECT_LIMIT_CACHE_EXPIRATION",
-			Description: "how long to cache the project limits.",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_ANALYTICS_SEGMENT_WRITE_KEY",
 			Description: "segment write key",
 			Default:     "",
@@ -2112,9 +2302,29 @@ func satellitecoreConfig() []Option {
 			Default:     "10s",
 		},
 		{
+			Name:        "STORJ_ANALYTICS_PLAUSIBLE_DOMAIN",
+			Description: "the domain set up on plausible for the satellite",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_PLAUSIBLE_API_URL",
+			Description: "the url of the plausible API",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_PLAUSIBLE_DEFAULT_TIMEOUT",
+			Description: "the default timeout for the plausible http client",
+			Default:     "10s",
+		},
+		{
 			Name:        "STORJ_PIECE_TRACKER_USE_RANGED_LOOP",
 			Description: "whether to enable piece tracker observer with ranged loop",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PIECE_TRACKER_UPDATE_BATCH_SIZE",
+			Description: "batch size for updating nodes with number of pieces",
+			Default:     "1000",
 		},
 		{
 			Name:        "STORJ_DURABILITY_REPORT_ENABLED",

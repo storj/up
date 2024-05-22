@@ -239,7 +239,7 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_STORAGE2_REPORT_CAPACITY_THRESHOLD",
 			Description: "threshold below which to immediately notify satellite of capacity",
-			Default:     "500MB",
+			Default:     "5GB",
 		},
 		{
 			Name:        "STORJ_STORAGE2_MAX_USED_SERIALS_SIZE",
@@ -372,8 +372,13 @@ func storagenodeConfig() []Option {
 			Default:     "128KiB",
 		},
 		{
+			Name:        "STORJ_FILESTORE_FORCE_SYNC",
+			Description: "if true, force disk synchronization and atomic writes",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_PIECES_WRITE_PREALLOC_SIZE",
-			Description: "file preallocated for uploading",
+			Description: "deprecated",
 			Default:     "4MiB",
 		},
 		{
@@ -400,6 +405,11 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_RETAIN_CONCURRENCY",
 			Description: "how many concurrent retain requests can be processed at the same time.",
 			Default:     "5",
+		},
+		{
+			Name:        "STORJ_RETAIN_CACHE_PATH",
+			Description: "path to the cache directory for retain requests.",
+			Default:     "$CONFDIR/retain",
 		},
 		{
 			Name:        "STORJ_NODESTATS_MAX_SLEEP",
@@ -437,23 +447,28 @@ func storagenodeConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
+			Name:        "STORJ_VERSION_CONFIG_CLIENT_CONFIG_SERVER_ADDRESS",
 			Description: "server address to check its version against",
 			Default:     "https://version.storj.io",
 		},
 		{
-			Name:        "STORJ_VERSION_CLIENT_CONFIG_REQUEST_TIMEOUT",
+			Name:        "STORJ_VERSION_CONFIG_CLIENT_CONFIG_REQUEST_TIMEOUT",
 			Description: "Request timeout for version checks",
 			Default:     "0h1m0s",
 		},
 		{
-			Name:        "STORJ_VERSION_CHECK_INTERVAL",
+			Name:        "STORJ_VERSION_CONFIG_CHECK_INTERVAL",
 			Description: "Interval to check the version",
 			Default:     "0h15m0s",
 		},
 		{
+			Name:        "STORJ_VERSION_RUN_MODE",
+			Description: "Define the run mode for the version checker. Options (once,periodic,disable)",
+			Default:     "periodic",
+		},
+		{
 			Name:        "STORJ_BANDWIDTH_INTERVAL",
-			Description: "how frequently bandwidth usage rollups are calculated",
+			Description: "how frequently bandwidth usage cache should be synced with the db",
 			Default:     "1h0m0s",
 		},
 		{
@@ -480,6 +495,16 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_GRACEFUL_EXIT_MIN_DOWNLOAD_TIMEOUT",
 			Description: "the minimum duration for downloading a piece from storage nodes before timing out",
 			Default:     "2m",
+		},
+		{
+			Name:        "STORJ_FORGET_SATELLITE_CHORE_INTERVAL",
+			Description: "how often to run the chore to check for satellites for the node to forget",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_FORGET_SATELLITE_NUM_WORKERS",
+			Description: "number of workers to handle forget satellite",
+			Default:     "1",
 		},
 	}
 }

@@ -6,7 +6,7 @@ test:
     COPY ../../+build-app/storj-up .
     # setup test environment
     RUN /go/storj-up/storj-up init minimal,edge,db,uplink && \
-        /go/storj-up/storj-up image uplink img.dev.storj.io/storjup/storj:1.100.4 && \
+#        /go/storj-up/storj-up image uplink img.dev.storj.io/storjup/storj:1.104.5 && \
         /go/storj-up/storj-up env set authservice STORJ_ENDPOINT=http://gateway-mt:9999
     COPY . .
     WITH DOCKER --compose docker-compose.yaml
