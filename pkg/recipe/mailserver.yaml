@@ -1,0 +1,19 @@
+name: mailserver
+description: mock smtp server for seeing emails sent from the satellite
+add:
+  - name: mailserver
+    containername: mailserver
+    image: haravich/fake-smtp-server
+    port:
+      - name: webui
+        target: 1080
+      - name: smtp
+        target: 1025
+modify:
+  - match:
+      label:
+        - core
+    flag:
+      add:
+        - --mail.smtp-server-address=mailserver:1025
+        - --mail.auth-type=insecure

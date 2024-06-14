@@ -66,6 +66,9 @@ storj-up <subcommand> <selector> <argument>
 
 Here `selector` can be either a service (like `storagenode`) or a name of a service group. (like `edge`). To find out all the groups, please use `storj-up recipes`
 
+Other services include:
+* `mailserver`: a mock smtp server that can be used to view emails sent from the satellite at localhost:1080
+
 ### Example: Building specific binaries based on a Gerrit change
 
 After running `storj-up init`, you can use the following command to replace binaries based on a specific Gerrit changeset:

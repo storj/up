@@ -46,6 +46,9 @@ var repair []byte
 //go:embed audit.yaml
 var audit []byte
 
+//go:embed mailserver.yaml
+var mailserver []byte
+
 // Defaults is a map for recipes included in the binary.
 var Defaults = map[string][]byte{
 	"minimal":         minimal,
@@ -61,4 +64,5 @@ var Defaults = map[string][]byte{
 	"uplink":          uplink,
 	"repair":          repair,
 	"audit":           audit,
+	"mailserver":      mailserver,
 }
