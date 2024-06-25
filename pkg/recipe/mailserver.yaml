@@ -11,8 +11,7 @@ add:
         target: 1025
 modify:
   - match:
-      label:
-        - core
+      name: satellite-api,satellite-core
     flag:
       add:
         - --mail.smtp-server-address=mailserver:1025
