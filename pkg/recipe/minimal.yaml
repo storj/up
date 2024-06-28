@@ -19,6 +19,7 @@ add:
       STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
       STORJ_CONSOLE_GATEWAY_CREDENTIALS_REQUEST_URL: 'http://{{ Host "authservice" "external"}}:{{ Port "authservice" "public"}}'
       STORJ_CONSOLE_LINKSHARING_URL: 'http://{{ Host "linksharing" "external" }}:{{ Port "linksharing" "public"}}'
+      STORJ_CONSOLE_PUBLIC_LINKSHARING_URL: 'http://{{ Host "linksharing" "external" }}:{{ Port "linksharing" "public"}}'
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
       STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
       STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
