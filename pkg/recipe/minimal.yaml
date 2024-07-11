@@ -22,6 +22,7 @@ add:
       STORJ_CONSOLE_PUBLIC_LINKSHARING_URL: 'http://{{ Host "linksharing" "external" }}:{{ Port "linksharing" "public"}}'
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
       STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
+      STORJ_CONSOLE_SIGNUP_ACTIVATION_CODE_ENABLED: "false"
       STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=0'
