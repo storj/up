@@ -62,6 +62,16 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HANDLER_ASSETS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_DYNAMIC_ASSETS",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_HANDLER_URLBASES",
 			Description: "",
 			Default:     "",

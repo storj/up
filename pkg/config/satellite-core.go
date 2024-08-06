@@ -492,6 +492,21 @@ func satellitecoreConfig() []Option {
 			Default:     "100",
 		},
 		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_KIND",
+			Description: "success tracker kind, bitshift or percent",
+			Default:     "percent",
+		},
+		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_TICK_DURATION",
+			Description: "how often to bump the generation in the node success tracker",
+			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_TRUSTED_UPLINKS",
+			Description: "list of trusted uplinks for success tracker",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY",
 			Description: "enable code for server-side copy, deprecated. please leave this to true.",
 			Default:     "true",
@@ -507,6 +522,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_METAINFO_NODE_ALIAS_CACHE_FULL_REFRESH",
+			Description: "node alias cache does a full refresh when a value is missing",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING",
 			Description: "enable the use of bucket level object versioning",
 			Default:     "false",
@@ -517,9 +537,34 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK",
+			Description: "enable the use of bucket-level Object Lock",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK_PROJECTS",
+			Description: "list of project IDs for which bucket-level Object Lock functionality is enabled",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TEST_COMMIT_SEGMENT_MODE",
+			Description: "which code path use for commit segment step, empty means default. Other options: transaction, no-pending-object-check",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_TEST_OPTIMIZED_INLINE_OBJECT_UPLOAD",
+			Description: "enables optimization for uploading objects with single inline segment",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_PRECOMMIT_DELETE_MODE",
+			Description: "which code path to use for precommit delete step for unversioned objects, 1 is the default (old) code path.",
+			Default:     "1",
 		},
 		{
 			Name:        "STORJ_ORDERS_ENCRYPTION_KEYS_DEFAULT_ID",
@@ -1252,11 +1297,6 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_ENABLE_FREE_TRIAL_LOGIC",
-			Description: "whether to use users upgrade time and skip free tier status in billing process",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
 			Description: "the duration of the first retry interval",
 			Default:     "20ms",
@@ -1592,6 +1632,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_NO_LIMITS_UI_ENABLED",
+			Description: "whether to show unlimited-limits UI for pro users",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
 			Description: "how long oauth authorization codes are issued for",
 			Default:     "10m",
@@ -1717,11 +1762,6 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_FREE_TIER_INVITES_ENABLED",
-			Description: "indicates whether free tier users can send project invitations",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_USER_BALANCE_FOR_UPGRADE",
 			Description: "amount of base units of US micro dollars needed to upgrade user's tier status",
 			Default:     "10000000",
@@ -1784,6 +1824,21 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_BILLING_INFORMATION_TAB_ENABLED",
 			Description: "indicates if billing information tab should be enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SATELLITE_MANAGED_ENCRYPTION_ENABLED",
+			Description: "indicates whether satellite managed encryption projects can be created.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_EMAIL_CHANGE_FLOW_ENABLED",
+			Description: "whether change user email flow is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_ACCOUNT_DELETE_ENABLED",
+			Description: "whether self-serve account delete flow is enabled",
 			Default:     "false",
 		},
 		{
@@ -2142,6 +2197,21 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_ACCOUNT_FREEZE_EMAILS_ENABLED",
+			Description: "whether to freeze event emails from this chore",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_BILLING_WARNING_EMAIL_INTERVALS",
+			Description: "how long to wait between the billing freeze warning emails",
+			Default:     "240h,96h",
+		},
+		{
+			Name:        "STORJ_ACCOUNT_FREEZE_BILLING_FREEZE_EMAIL_INTERVALS",
+			Description: "how long to wait between the billing freeze emails",
+			Default:     "720h,480h,216h",
+		},
+		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
 			Description: "server address to check its version against",
 			Default:     "https://version.storj.io",
@@ -2302,6 +2372,21 @@ func satellitecoreConfig() []Option {
 			Default:     "10s",
 		},
 		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_EVENT_PREFIX",
+			Description: "the prefix for the event name",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_SIGNUP_FORM_ID",
+			Description: "the hubspot form ID for signup",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_LIFE_CYCLE_STAGE",
+			Description: "the hubspot lifecycle stage for new accounts",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_ANALYTICS_PLAUSIBLE_DOMAIN",
 			Description: "the domain set up on plausible for the satellite",
 			Default:     "",
@@ -2330,6 +2415,36 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_DURABILITY_REPORT_ENABLED",
 			Description: "whether to enable durability report (rangedloop observer)",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_KEY_MANAGEMENT_KEY_INFOS_VALUES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_KEY_MANAGEMENT_DEFAULT_MASTER_KEY",
+			Description: "the key ID to use for passphrase encryption.",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_KEY_MANAGEMENT_TEST_MASTER_KEY",
+			Description: "[DEPRECATED] For testing, use --kms.mock-client and --kms.key-infos. A fake master key to be used for the purpose of testing.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_KEY_MANAGEMENT_MOCK_CLIENT",
+			Description: "whether to use mock google secret manager service.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HEALTH_CHECK_ENABLED",
+			Description: "Whether the health check server is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HEALTH_CHECK_ADDRESS",
+			Description: "The address to listen on for health check server",
+			Default:     ":10500",
 		},
 		{
 			Name:        "STORJ_TAG_AUTHORITIES",

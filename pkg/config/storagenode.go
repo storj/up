@@ -367,6 +367,11 @@ func storagenodeConfig() []Option {
 			Default:     "1h0m0s",
 		},
 		{
+			Name:        "STORJ_COLLECTOR_EXPIRATION_GRACE_PERIOD",
+			Description: "how long should the collector wait before deleting expired pieces. Should not be less than 30 min since nodes are allowed to be 30 mins out of sync with the satellite.",
+			Default:     "1h0m0s",
+		},
+		{
 			Name:        "STORJ_FILESTORE_WRITE_BUFFER_SIZE",
 			Description: "in-memory buffer for uploads",
 			Default:     "128KiB",
@@ -375,6 +380,11 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_FILESTORE_FORCE_SYNC",
 			Description: "if true, force disk synchronization and atomic writes",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PIECES_FILE_STAT_CACHE",
+			Description: "optional type of file stat cache. Might be useful for slow disk and limited memory. Available options: badger (EXPERIMENTAL)",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_PIECES_WRITE_PREALLOC_SIZE",
@@ -404,7 +414,7 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_RETAIN_CONCURRENCY",
 			Description: "how many concurrent retain requests can be processed at the same time.",
-			Default:     "5",
+			Default:     "1",
 		},
 		{
 			Name:        "STORJ_RETAIN_CACHE_PATH",

@@ -87,6 +87,11 @@ func authserviceConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_RETRIEVE_PUBLIC_PROJECT_ID",
+			Description: "retrieve and store public project ID when registering access grant",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_CERT_MAGIC_ENABLED",
 			Description: "use CertMagic to handle TLS certificates",
 			Default:     "false",
