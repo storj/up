@@ -5,7 +5,7 @@ add:
     label:
       - storj
       - core
-    image: img.dev.storj.io/storjup/storj:1.104.5
+    image: img.dev.storj.io/storjup/storj:1.108.2
     command:
       - satellite
       - run
