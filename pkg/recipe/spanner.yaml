@@ -1,0 +1,22 @@
+name: spanner
+description: spanner DB.
+add:
+  - name: spanner
+    image: img.dev.storj.io/storjup/spanner:492.0.0
+    port:
+      - name: gRPC
+        description: Spanner gRPC port
+        target: 9010
+      - name: REST
+        description: Spanner REST port
+        target: 9020
+    environment:
+      PROJECT_ID: test-project
+      INSTANCE_NAME: test-instance
+      SPANNER_EMULATOR_URL: http://localhost:9020/
+modify:
+  - match:
+      name: satellite-api,satellite-core,satellite-admin
+    config:
+      SPANNER_EMULATOR_HOST: 'spanner:9010'
+      STORJ_METAINFO_DATABASE_URL: "spanner://projects/test-project/instances/test-instance/databases/metainfo"
