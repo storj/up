@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
 ARG SOURCE
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20231025-2 AS base
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20240911-1 AS base
 
 FROM base AS commit
 ARG BRANCH
