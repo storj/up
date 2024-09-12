@@ -27,6 +27,26 @@ func storjscanConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_EVENTS_ADDRESS_BATCH_SIZE",
+			Description: "number of Addresses to fetch new events for in a single request",
+			Default:     "100",
+		},
+		{
+			Name:        "STORJ_EVENTS_BLOCK_BATCH_SIZE",
+			Description: "number of blocks to fetch new events for in a single request",
+			Default:     "5000",
+		},
+		{
+			Name:        "STORJ_EVENTS_CHAIN_REORG_BUFFER",
+			Description: "minimum number of blocks to re-query for when looking for new transfer events",
+			Default:     "15",
+		},
+		{
+			Name:        "STORJ_EVENTS_MAXIMUM_QUERY_SIZE",
+			Description: "maximum number of blocks prior to the latest block that storjscan can query for",
+			Default:     "10000",
+		},
+		{
 			Name:        "STORJ_TOKENS_ENDPOINTS",
 			Description: "List of RPC endpoints [{Name:<Name>,URL:<URL>,Contract:<Contract Address>,ChainID:<Chain ID>},...]",
 			Default:     "",

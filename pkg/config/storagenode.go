@@ -372,6 +372,11 @@ func storagenodeConfig() []Option {
 			Default:     "1h0m0s",
 		},
 		{
+			Name:        "STORJ_COLLECTOR_EXPIRATION_BATCH_SIZE",
+			Description: "how many expired pieces to delete in one batch. If <= 0, all expired pieces will be deleted in one batch.",
+			Default:     "1000",
+		},
+		{
 			Name:        "STORJ_FILESTORE_WRITE_BUFFER_SIZE",
 			Description: "in-memory buffer for uploads",
 			Default:     "128KiB",

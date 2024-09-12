@@ -547,6 +547,21 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_ENABLED",
+			Description: "whether validation is enabled for user account info",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_CACHE_EXPIRATION",
+			Description: "user info cache expiration",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_CACHE_CAPACITY",
+			Description: "user info cache capacity",
+			Default:     "10000",
+		},
+		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
 			Default:     "false",
@@ -563,8 +578,8 @@ func satelliteapiConfig() []Option {
 		},
 		{
 			Name:        "STORJ_METAINFO_TESTING_PRECOMMIT_DELETE_MODE",
-			Description: "which code path to use for precommit delete step for unversioned objects, 1 is the default (old) code path.",
-			Default:     "1",
+			Description: "which code path to use for precommit delete step for unversioned objects, 0 is the default (old) code path.",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_ORDERS_ENCRYPTION_KEYS_DEFAULT_ID",
@@ -782,6 +797,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_REPAIRER_SEGMENTS_SELECT_BATCH_SIZE",
+			Description: "how many injured segments will be read from repair queue in single request",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_REPAIRER_INTERVAL",
 			Description: "how frequently repairer should try and repair more data",
 			Default:     "",
@@ -880,11 +900,6 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_AUDIT_MAX_REVERIFY_COUNT",
 			Description: "limit above which we consider an audit is failed",
 			Default:     "3",
-		},
-		{
-			Name:        "STORJ_AUDIT_CHORE_INTERVAL",
-			Description: "how often to run the reservoir chore",
-			Default:     "",
 		},
 		{
 			Name:        "STORJ_AUDIT_QUEUE_INTERVAL",
@@ -1519,7 +1534,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_COUPON_CODE_BILLING_UIENABLED",
 			Description: "indicates if user is allowed to add coupon codes to account from billing",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_COUPON_CODE_SIGNUP_UIENABLED",
@@ -1554,7 +1569,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_GENERATED_APIENABLED",
 			Description: "indicates if generated console api should be used",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_OPTIONAL_SIGNUP_SUCCESS_URL",
@@ -1574,17 +1589,12 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_PRICING_PACKAGES_ENABLED",
 			Description: "whether to allow purchasing pricing packages",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_GALLERY_VIEW_ENABLED",
 			Description: "whether to show new gallery view",
 			Default:     "true",
-		},
-		{
-			Name:        "STORJ_CONSOLE_OBJECT_BROWSER_PAGINATION_ENABLED",
-			Description: "whether to use object browser pagination",
-			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_LIMIT_INCREASE_REQUEST_ENABLED",
@@ -1597,11 +1607,6 @@ func satelliteapiConfig() []Option {
 			Default:     "9360h",
 		},
 		{
-			Name:        "STORJ_CONSOLE_ONBOARDING_STEPPER_ENABLED",
-			Description: "whether the onboarding stepper should be enabled",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_ENABLE_REGION_TAG",
 			Description: "whether to show region tag in UI",
 			Default:     "false",
@@ -1609,12 +1614,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_EMISSION_IMPACT_VIEW_ENABLED",
 			Description: "whether emission impact view should be shown",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_APPLICATIONS_PAGE_ENABLED",
-			Description: "whether applications page should be shown",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_DAYS_BEFORE_TRIAL_END_NOTIFICATION",
@@ -1627,13 +1627,28 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NEW_APP_SETUP_FLOW_ENABLED",
-			Description: "whether new application setup flow should be used",
+			Name:        "STORJ_CONSOLE_NO_LIMITS_UI_ENABLED",
+			Description: "whether to show unlimited-limits UI for pro users",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_NO_LIMITS_UI_ENABLED",
-			Description: "whether to show unlimited-limits UI for pro users",
+			Name:        "STORJ_CONSOLE_ALT_OBJ_BROWSER_PAGING_ENABLED",
+			Description: "whether simplified native s3 pagination should be enabled for the huge buckets in the object browser",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ALT_OBJ_BROWSER_PAGING_THRESHOLD",
+			Description: "number of objects triggering simplified native S3 pagination",
+			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DOMAINS_PAGE_ENABLED",
+			Description: "whether domains page should be shown",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ACTIVE_SESSIONS_VIEW_ENABLED",
+			Description: "whether active sessions table view should be shown",
 			Default:     "false",
 		},
 		{
@@ -1794,7 +1809,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SIGNUP_ACTIVATION_CODE_ENABLED",
 			Description: "indicates whether the whether account activation is done using activation code",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_FREE_TRIAL_DURATION",
@@ -1849,7 +1864,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_PAID",
 			Description: "the default paid-tier storage usage limit",
-			Default:     "25.00TB",
+			Default:     "100.00TB",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_FREE",
@@ -1859,7 +1874,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_PAID",
 			Description: "the default paid-tier bandwidth usage limit",
-			Default:     "100.00TB",
+			Default:     "150.00TB",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_FREE",
@@ -2450,6 +2465,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_TAG_AUTHORITIES",
 			Description: "comma-separated paths of additional cert files, used to validate signed node tags",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_SEPARATE_CONSOLE_API",
+			Description: "indicates whether the console API should be split out from satellite API",
+			Default:     "false",
 		},
 	}
 }

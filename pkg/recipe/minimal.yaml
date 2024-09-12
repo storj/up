@@ -5,7 +5,7 @@ add:
     label:
       - storj
       - core
-    image: img.dev.storj.io/storjup/storj:1.108.2
+    image: img.dev.storj.io/storjup/storj:1.111.4
     command:
       - satellite
       - run
@@ -55,7 +55,7 @@ add:
       - storj
       - core
     instance: 10
-    image: img.dev.storj.io/storjup/storj:1.108.2
+    image: img.dev.storj.io/storjup/storj:1.111.4
     command:
       - storagenode
       - run
