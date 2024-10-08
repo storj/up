@@ -537,12 +537,12 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK",
+			Name:        "STORJ_METAINFO_OBJECT_LOCK_ENABLED",
 			Description: "enable the use of bucket-level Object Lock",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK_PROJECTS",
+			Name:        "STORJ_METAINFO_OBJECT_LOCK_ENABLED_PROJECTS",
 			Description: "list of project IDs for which bucket-level Object Lock functionality is enabled",
 			Default:     "",
 		},
