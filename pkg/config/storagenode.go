@@ -327,6 +327,16 @@ func storagenodeConfig() []Option {
 			Default:     "10m",
 		},
 		{
+			Name:        "STORJ_STORAGE2_MONITOR_DEDICATED_DISK",
+			Description: "(EXPERIMENTAL) option to dedicate full disk to the storagenode. Allocated space won't be used, some UI / monitoring features will break.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_STORAGE2_MONITOR_RESERVED_BYTES",
+			Description: "(EXPERIMENTAL) Number bytes to reserve on the disk in case of dedicated disk",
+			Default:     "300GB",
+		},
+		{
 			Name:        "STORJ_STORAGE2_ORDERS_MAX_SLEEP",
 			Description: "maximum duration to wait before trying to send orders",
 			Default:     "",
@@ -404,6 +414,31 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_PIECES_ENABLE_LAZY_FILEWALKER",
 			Description: "run garbage collection and used-space calculation filewalkers as a separate subprocess with lower IO priority",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PIECES_ENABLE_FLAT_EXPIRATION_STORE",
+			Description: "use flat files for the piece expiration store instead of a sqlite database",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PIECES_FLAT_EXPIRATION_STORE_FILE_HANDLES",
+			Description: "number of concurrent file handles to use for the flat expiration store",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_PIECES_FLAT_EXPIRATION_STORE_PATH",
+			Description: "where to store flat piece expiration files, relative to the data directory",
+			Default:     "piece_expirations",
+		},
+		{
+			Name:        "STORJ_PIECES_FLAT_EXPIRATION_STORE_MAX_BUFFER_TIME",
+			Description: "maximum time to buffer writes to the flat expiration store before flushing",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_PIECES_FLAT_EXPIRATION_INCLUDE_SQLITE",
+			Description: "use and remove piece expirations from the sqlite database _also_ when the flat expiration store is enabled",
 			Default:     "true",
 		},
 		{

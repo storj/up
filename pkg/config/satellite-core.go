@@ -537,14 +537,9 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK",
+			Name:        "STORJ_METAINFO_OBJECT_LOCK_ENABLED",
 			Description: "enable the use of bucket-level Object Lock",
 			Default:     "false",
-		},
-		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_LOCK_PROJECTS",
-			Description: "list of project IDs for which bucket-level Object Lock functionality is enabled",
-			Default:     "",
 		},
 		{
 			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_ENABLED",
@@ -567,11 +562,6 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_TEST_COMMIT_SEGMENT_MODE",
-			Description: "which code path use for commit segment step, empty means default. Other options: transaction, no-pending-object-check",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_METAINFO_TEST_OPTIMIZED_INLINE_OBJECT_UPLOAD",
 			Description: "enables optimization for uploading objects with single inline segment",
 			Default:     "false",
@@ -580,6 +570,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_METAINFO_TESTING_PRECOMMIT_DELETE_MODE",
 			Description: "which code path to use for precommit delete step for unversioned objects, 0 is the default (old) code path.",
 			Default:     "0",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_SPANNER_PROJECTS",
+			Description: "list of project IDs for which Spanner metabase DB is enabled",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_ORDERS_ENCRYPTION_KEYS_DEFAULT_ID",
@@ -1002,6 +997,11 @@ func satellitecoreConfig() []Option {
 			Default:     "2m",
 		},
 		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXCLUDE_EXPIRED_PIECES",
+			Description: "do not include expired pieces into bloom filter",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_ACCESS_GRANT",
 			Description: "Access Grant which will be used to upload bloom filters to the bucket",
 			Default:     "",
@@ -1047,6 +1047,11 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_RANGED_LOOP_SPANNER_STALE_INTERVAL",
+			Description: "sets spanner stale read timestamp as now()-interval",
+			Default:     "0",
+		},
+		{
 			Name:        "STORJ_RANGED_LOOP_SUSPICIOUS_PROCESSED_RATIO",
 			Description: "ratio where to consider processed count as supicious",
 			Default:     "0.03",
@@ -1065,6 +1070,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_EXPIRED_DELETION_LIST_LIMIT",
 			Description: "how many expired objects to query in a batch",
 			Default:     "100",
+		},
+		{
+			Name:        "STORJ_EXPIRED_DELETION_DELETE_CONCURRENCY",
+			Description: "how many delete queries are sent in parallel",
+			Default:     "1",
 		},
 		{
 			Name:        "STORJ_EXPIRED_DELETION_AS_OF_SYSTEM_INTERVAL",
@@ -1652,6 +1662,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_OBJECT_LOCK_UIENABLED",
+			Description: "whether object lock UI should be shown, regardless of whether the feature is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
 			Description: "how long oauth authorization codes are issued for",
 			Default:     "10m",
@@ -1852,6 +1867,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_DELETE_PROJECT_ENABLED",
+			Description: "whether project deletion from satellite UI is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_ACCOUNT_DELETE_ENABLED",
 			Description: "whether self-serve account delete flow is enabled",
 			Default:     "false",
@@ -2005,6 +2025,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_BILLING_FREEZE_GRACE_PERIOD",
 			Description: "How long to wait between a billing freeze event and setting pending deletion account status.",
 			Default:     "1440h",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_TRIAL_EXPIRATION_FREEZE_GRACE_PERIOD",
+			Description: "How long to wait between a trail expiration freeze event and setting pending deletion account status. 0 disables escalation.",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
@@ -2467,8 +2492,13 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_SEPARATE_CONSOLE_API",
-			Description: "indicates whether the console API should be split out from satellite API",
+			Name:        "STORJ_DISABLE_CONSOLE_FROM_SATELLITE_API",
+			Description: "indicates whether the console API should not be served along with satellite API",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_STANDALONE_CONSOLE_APIENABLED",
+			Description: "indicates whether the console API should be served as a standalone service",
 			Default:     "false",
 		},
 	}
