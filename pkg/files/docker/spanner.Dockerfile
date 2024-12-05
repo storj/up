@@ -1,6 +1,6 @@
 FROM img.dev.storj.io/storjup/base:20240509-1 AS binaries
 
-FROM google/cloud-sdk:492.0.0-slim AS final
+FROM google/cloud-sdk:502.0.0-slim AS final
 RUN apt-get install -y google-cloud-cli-spanner-emulator
 
 ADD pkg/recipe/startspanner.sh /var/lib/storj/startspanner.sh

@@ -2,7 +2,7 @@ name: spanner
 description: spanner DB.
 add:
   - name: spanner
-    image: img.dev.storj.io/storjup/spanner:492.0.0
+    image: img.dev.storj.io/storjup/spanner:502.0.0
     port:
       - name: gRPC
         description: Spanner gRPC port
