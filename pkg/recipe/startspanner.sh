@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -xem
 echo "Starting Spanner dev container"
-
 gcloud emulators spanner start --host-port=0.0.0.0:9010&
 gcloud config set disable_prompts true
 gcloud config configurations create emulator
@@ -13,5 +12,6 @@ gcloud spanner instances create "${INSTANCE_NAME}" --config=emulator-config --de
 #TODO: find a more flexible way to create the databases
 gcloud spanner databases create master --instance="${INSTANCE_NAME}"
 gcloud spanner databases create metainfo --instance="${INSTANCE_NAME}"
+gcloud spanner databases create satellite --instance="${INSTANCE_NAME}"
 
 fg %1
