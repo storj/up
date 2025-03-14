@@ -108,7 +108,7 @@ func getToken(resp *http.Response) (string, error) {
 	err = json.Unmarshal(responseBody, &tokenInfo)
 	if err != nil {
 		// nolint
-		// before https://review.dev.storj.io/c/storj/storj/+/8033
+		// before https://review.dev.storj.tools/c/storj/storj/+/8033
 		return strings.Trim(string(responseBody), "\n\""), nil
 	}
 	return tokenInfo.Token, nil

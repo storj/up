@@ -23,7 +23,7 @@ FROM base AS gerrit
 ARG REF
 RUN git clone https://github.com/storj/storj.git
 WORKDIR storj
-RUN git fetch https://review.dev.storj.io/storj/storj ${REF} && git checkout FETCH_HEAD
+RUN git fetch https://review.dev.storj.tools/storj/storj ${REF} && git checkout FETCH_HEAD
 
 FROM base AS local
 ARG PATH
