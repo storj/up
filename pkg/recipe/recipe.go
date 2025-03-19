@@ -12,8 +12,10 @@ import (
 type Recipe struct {
 	Name        string
 	Description string
-	Add         []*Service
-	Modify      []*Modification
+	// Higher priority recipes will be applied first, default is 0
+	Priority int
+	Add      []*Service
+	Modify   []*Modification
 }
 
 // Service contains all the parameters to run one service.

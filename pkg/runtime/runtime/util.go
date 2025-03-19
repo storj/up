@@ -101,43 +101,96 @@ func Match(service Service, matcher recipe.Matcher) bool {
 
 // ApplyRecipes can apply full recipes and other services (partial recipes) based on the selectors.
 func ApplyRecipes(st recipe.Stack, rt Runtime, selector []string, instanceOverride int) error {
+	// First, collect all recipes to apply
+	type recipeToApply struct {
+		name     string
+		recipe   recipe.Recipe
+		priority int
+		isRecipe bool
+	}
+
+	// Collect all recipes to apply, including their priorities
+	toApply := []recipeToApply{}
+
 	for _, name := range selector {
 		rcp, err := st.Get(name)
 		if err == nil {
-			// it's a recipe, apply it fully
-			err = ApplyRecipeToRuntime(rt, rcp)
-			if err != nil {
-				return err
-			}
+			// It's a recipe, store it
+			toApply = append(toApply, recipeToApply{
+				name:     name,
+				recipe:   rcp,
+				priority: rcp.Priority,
+				isRecipe: true,
+			})
 			continue
 		}
 
-		added := 0
+		// Check if it's an individual service
+		found := false
 		for _, r := range st {
 			for _, s := range r.Add {
 				if s.Name == name {
-					if instanceOverride != 0 {
-						s.Instance = instanceOverride
-					}
-
-					err = AddServiceToRuntime(rt, *s)
-					if err != nil {
-						return errs.Wrap(err)
-					}
-
-					added++
+					found = true
+					toApply = append(toApply, recipeToApply{
+						name:     name,
+						priority: 0, // Individual services default to priority 0
+						isRecipe: false,
+					})
+					break
 				}
-
 			}
-
+			if found {
+				break
+			}
 		}
-		if added > 0 {
-			continue
+
+		if !found {
+			return errs.Errorf("Couldn't find recipe or service in any recipe with the name %s. Please execute `storj-up services` to list available recipes/services", name)
 		}
-
-		return errs.Errorf("Couldn't find recipe or service in any recipe with the name %s. Please execute `storj-up services` to list available recipes/services", name)
-
 	}
+
+	// Sort by priority (higher priority first)
+	// Stable sort preserves original order within same priority
+	for i := 0; i < len(toApply); i++ {
+		for j := i + 1; j < len(toApply); j++ {
+			if toApply[i].priority < toApply[j].priority {
+				toApply[i], toApply[j] = toApply[j], toApply[i]
+			}
+		}
+	}
+
+	// Apply recipes in priority order
+	for _, item := range toApply {
+		if item.isRecipe {
+			err := ApplyRecipeToRuntime(rt, item.recipe)
+			if err != nil {
+				return err
+			}
+		} else {
+			// It's an individual service
+			added := 0
+			for _, r := range st {
+				for _, s := range r.Add {
+					if s.Name == item.name {
+						if instanceOverride != 0 {
+							s.Instance = instanceOverride
+						}
+
+						err := AddServiceToRuntime(rt, *s)
+						if err != nil {
+							return errs.Wrap(err)
+						}
+
+						added++
+					}
+				}
+			}
+			if added == 0 {
+				return errs.Errorf("Couldn't find service with name %s", item.name)
+			}
+		}
+	}
+
 	return nil
 }
 

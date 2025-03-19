@@ -1,5 +1,6 @@
 name: minimal
 description: "The absolute minimal services to persist a file: satellite-api and storagenodes"
+priority: 100 # High priority to ensure it's applied before other recipes
 add:
   - name: satellite-api
     label:
