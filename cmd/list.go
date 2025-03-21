@@ -16,8 +16,9 @@ import (
 func listCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
+		Args:  cobra.NoArgs,
 		Short: "print all the configured services with user versions",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return errs.Wrap(err)

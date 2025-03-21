@@ -17,7 +17,8 @@ func serviceCmd() *cobra.Command {
 		Use:     "recipes",
 		Aliases: []string{"recipe", "services"},
 		Short:   "Return available recipes and included service names",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			fmt.Println("The following predefined recipes are available:")
 			fmt.Println()
 			stack, err := recipe.GetStack()

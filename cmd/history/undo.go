@@ -17,7 +17,8 @@ func undoCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "undo",
 		Short: "revert to a previous version of the generated docker compose file",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			newTemplateBytes, err := common.Store.RestoreLatestVersion()
 			if err != nil {
 				return err

@@ -20,18 +20,20 @@ import (
 
 func initCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "init [selector] OR init <compose|nomad|shell> [selector]",
+		Use:  "init [<selector>...] OR init <compose|nomad|shell> [<selector>...]",
+		Args: cobra.MinimumNArgs(1),
 		Short: "Initialize new storj-up stack with the chosen container orchestrator. " + SelectorHelp + ". Without argument it generates " +
 			"full Storj cluster with databases (db,minimal,edge)",
 	}
 
 	{
 		nomadCmd := &cobra.Command{
-			Use: "nomad [selector]",
+			Use:  "nomad [<selector>...]",
+			Args: cobra.MinimumNArgs(0),
 		}
 		ip := nomadCmd.Flags().StringP("ip", "", "localhost", "IP address (or host name) to host the deployment")
 		name := nomadCmd.Flags().StringP("name", "n", "storj", "Name of the used job/group section.")
-		nomadCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		nomadCmd.RunE = func(cmd *cobra.Command, selector []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return err
@@ -48,7 +50,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(selector), 0)
 			if err != nil {
 				return err
 			}
@@ -60,9 +62,10 @@ func initCmd() *cobra.Command {
 
 	{
 		composeCmd := &cobra.Command{
-			Use: "compose",
+			Use:  "compose [<selector>...]",
+			Args: cobra.MinimumNArgs(0),
 		}
-		composeCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		composeCmd.RunE = func(cmd *cobra.Command, selector []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return err
@@ -75,7 +78,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(selector), 0)
 			if err != nil {
 				return err
 			}
@@ -88,12 +91,13 @@ func initCmd() *cobra.Command {
 
 	{
 		shellCmd := &cobra.Command{
-			Use:     "shell",
+			Use:     "shell [<selector>...]",
+			Args:    cobra.MinimumNArgs(0),
 			Aliases: []string{"standalone"},
 		}
 		storjProjDir := shellCmd.Flags().StringP("storjdir", "s", "", "Directory of the storj code.")
 		gatewayProjDir := shellCmd.Flags().StringP("gatewaydir", "g", "", "Directory of the gateway code.")
-		shellCmd.RunE = func(cmd *cobra.Command, args []string) error {
+		shellCmd.RunE = func(cmd *cobra.Command, selector []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return err
@@ -126,7 +130,7 @@ func initCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(args), 0)
+			err = runtime.ApplyRecipes(st, n, normalizedArgs(selector), 0)
 			if err != nil {
 				return err
 			}
@@ -153,7 +157,6 @@ func normalizedArgs(args []string) []string {
 		return []string{"db", "minimal", "edge"}
 	}
 	return res
-
 }
 
 func init() {

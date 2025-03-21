@@ -15,9 +15,11 @@ import (
 
 func entryPointCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "local-entrypoint <selector> local**remote",
+		Use:   "local-entrypoint <selector>... local**remote",
 		Short: "bind mount entrypoint.sh to use local modifications",
+		Args:  cobra.MinimumNArgs(2),
 		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
+			// TODO: doesn't look right args is unused
 			return cmd.ChangeCompose(st, rt, []string{"satellite-api"}, updateEntryPoint)
 		}),
 	}

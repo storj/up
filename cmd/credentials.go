@@ -74,8 +74,9 @@ type Credentials struct {
 func credentialsCmd() *cobra.Command {
 	credentialsCmd := &cobra.Command{
 		Use:   "credentials",
+		Args:  cobra.NoArgs,
 		Short: "generate test user with credentials",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			_, err := os.Stat(filename)
 			if err != nil || persist {
 				err = executeWithRetry(context.Background(), generateCredentials)

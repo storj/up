@@ -24,8 +24,9 @@ import (
 func startCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "start",
+		Args:  cobra.NoArgs,
 		Short: "build and start all services",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			pwd, err := os.Getwd()
 			if err != nil {
 				return errs.Wrap(err)

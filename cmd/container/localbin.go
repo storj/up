@@ -63,11 +63,12 @@ var BinaryDict = map[string]string{
 
 func localBinCmd() *cobra.Command {
 	mountCmd := &cobra.Command{
-		Use:     "local-bin <selector>",
+		Use:     "local-bin <selector>...",
 		Aliases: []string{"local", "localbin"},
 		Short:   "Use local compiled binares, bind-mounted to the containers.",
-		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
-			return cmd.ChangeCompose(st, rt, args, mountBinaries)
+		Args:    cobra.MinimumNArgs(1),
+		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, selector []string) error {
+			return cmd.ChangeCompose(st, rt, selector, mountBinaries)
 		}),
 	}
 	mountCmd.PersistentFlags().StringVarP(&dir, "dir", "d", filepath.Join(os.Getenv("GOPATH"), "bin"), "path where binaries are located")
@@ -81,15 +82,16 @@ func localWebCmd() *cobra.Command {
 		Use:     "local-websource -s /path/to/web/directory <optional selector>",
 		Aliases: []string{"local-ws"},
 		Short:   "Use local web/* npm app for the service container.",
-		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
+		Args:    cobra.MinimumNArgs(0),
+		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, selector []string) error {
 			if mountTarget == "" {
 				err := resolveTarget()
 				if err != nil {
 					return err
 				}
 			}
-			if len(args) != 0 {
-				mountService = args
+			if len(selector) != 0 {
+				mountService = selector
 			}
 			if len(mountService) == 0 {
 				return errors.New("unable to determine service for mount. please provide the service as an argument")

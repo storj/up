@@ -4,18 +4,20 @@
 package modify
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
 func setEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "set <selector> KEY=VALUE",
+		Use:     "set <selector>... <KEY>=<VALUE>",
 		Aliases: []string{"setenv"},
 		Short:   "Set environment variable / parameter in a container",
 		Long:    cmd.SelectorHelp,
@@ -26,7 +28,7 @@ func setEnvCmd() *cobra.Command {
 
 func unsetEnvCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "unset <selector> KEY",
+		Use:     "unset <selector>... <KEY>",
 		Aliases: []string{"unsetenv", "rm", "delete"},
 		Short:   "remove environment variable / parameter in a container",
 		Long:    "Remove environment variable from selected containers. " + cmd.SelectorHelp,
@@ -46,14 +48,19 @@ func init() {
 }
 
 func setEnv(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		parts := strings.SplitN(args[len(args)-1], "=", 2)
-		return s.AddEnvironment(parts[0], parts[1])
+	selector, keyvalue := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
+		key, value, ok := strings.Cut(keyvalue, "=")
+		if !ok {
+			return errors.New("expected key=value")
+		}
+		return s.AddEnvironment(key, value)
 	})
 }
 
 func removeEnv(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		return s.AddEnvironment(args[len(args)-1], "")
+	selector, key := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
+		return s.AddEnvironment(key, "")
 	})
 }

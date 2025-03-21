@@ -24,7 +24,7 @@ func init() {
 
 	{
 		nodeIDCmd := &cobra.Command{
-			Use:   "node-id",
+			Use:   "node-id <identity_file>",
 			Short: "Generated node id string from identity file",
 			Args:  cobra.MinimumNArgs(1),
 			RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,7 +40,7 @@ func init() {
 	}
 	{
 		waitForSatelliteCmd := &cobra.Command{
-			Use:   "wait-for-satellite",
+			Use:   "wait-for-satellite <satellite_id>",
 			Short: "Wait until satellite can be called and return with the full NodeURL",
 			Args:  cobra.MinimumNArgs(1),
 			RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,7 +62,7 @@ func init() {
 	}
 	{
 		waitForPortCmd := &cobra.Command{
-			Use:   "wait-for-port",
+			Use:   "wait-for-port <port>",
 			Short: "Wait until ports is opened",
 			Args:  cobra.MinimumNArgs(1),
 			RunE: func(cmd *cobra.Command, args []string) error {

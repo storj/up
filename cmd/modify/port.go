@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
@@ -17,7 +18,7 @@ var overrideExternalPort int
 
 func addPortCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "add <selector> port",
+		Use:     "add <selector>... <port>",
 		Aliases: []string{"addport"},
 		Short:   "Add port forward to a container",
 		Long:    cmd.SelectorHelp,
@@ -30,7 +31,7 @@ func addPortCmd() *cobra.Command {
 
 func removePortCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "remove <selector> port",
+		Use:     "remove <selector>... <port>",
 		Aliases: []string{"removeport", "rm", "delete"},
 		Short:   "remove port forward from a container",
 		Long:    "Remove port forward with the given target port from selected containers. " + cmd.SelectorHelp,
@@ -50,8 +51,9 @@ func init() {
 }
 
 func addPort(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		internal, err := strconv.Atoi(args[len(args)-1])
+	selector, port := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
+		internal, err := strconv.Atoi(port)
 		if err != nil {
 			return err
 		}
@@ -67,8 +69,9 @@ func addPort(st recipe.Stack, rt runtime.Runtime, args []string) error {
 }
 
 func removePort(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
-		port, err := strconv.Atoi(args[len(args)-1])
+	selector, port := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
+		port, err := strconv.Atoi(port)
 		if err != nil {
 			return err
 		}

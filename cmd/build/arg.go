@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
@@ -26,11 +27,13 @@ func init() {
 
 func setArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "set <selector> KEY=VALUE",
+		Use:   "set <selector>... <KEY>=<VALUE>",
 		Short: "Set build arguments on service. Build arguments should be supported by referenced Dockerfile " + cmd.SelectorHelp,
+		Args:  cobra.MinimumNArgs(2),
 		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
-			return cmd.ChangeCompose(st, rt, args[:len(args)-1], func(composeService *types.ServiceConfig) error {
-				return setArg(composeService, args[len(args)-1])
+			selector, keyvalue := common.SplitArgsSelector1(args)
+			return cmd.ChangeCompose(st, rt, selector, func(composeService *types.ServiceConfig) error {
+				return setArg(composeService, keyvalue)
 			})
 		}),
 	}
@@ -38,11 +41,13 @@ func setArgCmd() *cobra.Command {
 
 func unsetArgCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "remove <selector> KEY",
+		Use:   "remove <selector>... <KEY>",
 		Short: "remove container arg",
+		Args:  cobra.MinimumNArgs(2),
 		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
-			return cmd.ChangeCompose(st, rt, args[:len(args)-1], func(composeService *types.ServiceConfig) error {
-				return unsetArg(composeService, args[len(args)-1])
+			selector, key := common.SplitArgsSelector1(args)
+			return cmd.ChangeCompose(st, rt, selector, func(composeService *types.ServiceConfig) error {
+				return unsetArg(composeService, key)
 			})
 		}),
 	}

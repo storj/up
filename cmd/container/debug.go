@@ -9,6 +9,7 @@ import (
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/compose"
 	"storj.io/storj-up/pkg/runtime/runtime"
@@ -16,17 +17,19 @@ import (
 
 func enableDebugCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "enable <selector>",
+		Use:   "enable <selector>...",
 		Short: "turn on local debugging with Delve (go debugger)",
 		Long:  "Add environment variable which will activate the DLV debug. Container won't start until the agent is connected. " + cmd.SelectorHelp,
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  cmd.ExecuteStorjUP(enableDebug),
 	}
 }
 
 func disableDebugCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "disable [service ...]",
+		Use:   "disable <selector>...",
 		Short: "turn off local debugging with DLV",
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  cmd.ExecuteStorjUP(disableDebug),
 	}
 }
@@ -42,8 +45,8 @@ func init() {
 	cmd.RootCmd.AddCommand(&debugCmd)
 }
 
-func enableDebug(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args, func(s runtime.Service) error {
+func enableDebug(st recipe.Stack, rt runtime.Runtime, selector []string) error {
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
 		composeService, ok := s.(*compose.Service)
 		if !ok {
 			return errs.Errorf("this subcommand is supported only for compose based environments")
@@ -71,7 +74,8 @@ func enableDebug(st recipe.Stack, rt runtime.Runtime, args []string) error {
 }
 
 func disableDebug(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
+	selector, _ := common.SplitArgsSelector1(args) // TODO: doesn't look right
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
 		composeService, ok := s.(*compose.Service)
 		if !ok {
 			return errs.Errorf("this subcommand is supported only for compose based environments")

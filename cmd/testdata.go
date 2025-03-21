@@ -37,7 +37,7 @@ var (
 var testdataCmd = &cobra.Command{
 	Use:   "testdata",
 	Short: "Generate testdata to the database",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		return cmd.Help()
 	},
 }
@@ -46,8 +46,8 @@ func paymentCmd() *cobra.Command {
 	paymentCmd := &cobra.Command{
 		Use:   "payment",
 		Short: "Generate payment and paystub entries for each node",
-		Args:  cobra.MinimumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			return generatePayments(database)
 		},
 	}
@@ -59,7 +59,8 @@ func projectUsageCmd() *cobra.Command {
 	projectUsageCmd := &cobra.Command{
 		Use:   "project-usage",
 		Short: "Generated bandwidth rollups for buckets and projects",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			if period == "" {
 				period = time.Date(time.Now().Year(), time.Now().Month(), 1, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1).Format("2006-01")
 			}

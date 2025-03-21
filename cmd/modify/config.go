@@ -17,11 +17,12 @@ import (
 
 func configCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "configs <service>",
+		Use:     "configs <selector>...",
 		Aliases: []string{"config"},
 		Short:   "Print out available configuration for specific service",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			selector, _, err := common.ParseArgumentsWithSelector(args, 0)
+		Args:    cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, selector []string) error {
+			selector, _, err := common.ParseArgumentsWithSelector(selector, 0)
 			if err != nil {
 				return err
 			}

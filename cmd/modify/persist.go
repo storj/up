@@ -13,7 +13,7 @@ import (
 
 func init() {
 	cmd.RootCmd.AddCommand(&cobra.Command{
-		Use:   "persist <selector>",
+		Use:   "persist <selector>...",
 		Short: "Make internal state (database files, storagenode files) persisted between restarts. ",
 		Long:  "This is done usually with mounting the directory to the houst. ." + cmd.SelectorHelp,
 		Args:  cobra.MinimumNArgs(1),

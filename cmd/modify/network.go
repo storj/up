@@ -8,13 +8,14 @@ import (
 	"github.com/zeebo/errs"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
 func setNetworkCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "set <selector> NETWORK",
+		Use:     "set <selector>... <NETWORK>",
 		Aliases: []string{"setnetwork"},
 		Short:   "Set network for a service or services to use",
 		Long:    cmd.SelectorHelp,
@@ -25,7 +26,7 @@ func setNetworkCmd() *cobra.Command {
 
 func unsetNetworkCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:     "unset <selector> NETWORK",
+		Use:     "unset <selector>... <NETWORK>",
 		Aliases: []string{"unsetnetwork", "rm", "delete"},
 		Short:   "remove network for a specific service or services",
 		Long:    cmd.SelectorHelp,
@@ -45,18 +46,20 @@ func init() {
 }
 
 func setNetwork(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
+	selector, network := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
 		if t, ok := s.(runtime.ManageableNetwork); ok {
-			return t.AddNetwork(args[len(args)-1])
+			return t.AddNetwork(network)
 		}
 		return errs.New("runtime does not support network management")
 	})
 }
 
 func removeNetwork(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
+	selector, network := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
 		if t, ok := s.(runtime.ManageableNetwork); ok {
-			return t.RemoveNetwork(args[len(args)-1])
+			return t.RemoveNetwork(network)
 		}
 		return errs.New("runtime does not support network management")
 	})

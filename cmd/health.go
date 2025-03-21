@@ -22,8 +22,9 @@ var number, timeout, port int
 func healthCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "health",
+		Args:  cobra.NoArgs,
 		Short: "wait until cluster is healthy (10 storagenodes are registered in the db)",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			return checkHealthWithTimeout(table, number, timeout)
 		},
 	}

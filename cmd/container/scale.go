@@ -11,20 +11,23 @@ import (
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
 func scaleCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "scale <selector> <number>",
+		Use:   "scale <selector>... <number>",
 		Short: "static scale of services",
 		Args:  cobra.MinimumNArgs(2),
 		Long: "This command creates multiple instances of the service or services. After this scale services couldn't be scaled up with `docker compose scale` any more. " +
 			"But also not required to scale up and down and it's possible to do per instance local bindmount",
 		RunE: cmd.ExecuteStorjUP(func(st recipe.Stack, rt runtime.Runtime, args []string) error {
-			return cmd.ChangeCompose(st, rt, args[:len(args)-1], func(composeService *types.ServiceConfig) error {
-				return scale(composeService, args[0])
+			selector, number := common.SplitArgsSelector1(args)
+			_ = number
+			return cmd.ChangeCompose(st, rt, selector, func(composeService *types.ServiceConfig) error {
+				return scale(composeService, args[0]) // TODO: doesn't look right
 			})
 		}),
 	}

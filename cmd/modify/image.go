@@ -7,13 +7,14 @@ import (
 	"github.com/spf13/cobra"
 
 	"storj.io/storj-up/cmd"
+	"storj.io/storj-up/pkg/common"
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
 func imageCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "image <selector> <image>",
+		Use:   "image <selector>... <image>",
 		Short: "Change container image for one more more services",
 		Long:  "Change image of specified services." + cmd.SelectorHelp,
 		Args:  cobra.MinimumNArgs(2),
@@ -26,9 +27,10 @@ func init() {
 }
 
 func setImage(st recipe.Stack, rt runtime.Runtime, args []string) error {
-	return runtime.ModifyService(st, rt, args[:len(args)-1], func(s runtime.Service) error {
+	selector, image := common.SplitArgsSelector1(args)
+	return runtime.ModifyService(st, rt, selector, func(s runtime.Service) error {
 		return s.ChangeImage(func(s string) string {
-			return args[len(args)-1]
+			return image
 		})
 	})
 }
