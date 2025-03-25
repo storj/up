@@ -20,6 +20,7 @@ var skipFrontend bool
 
 var buildCmd = &cobra.Command{
 	Use:   "build",
+	Args:  cobra.NoArgs,
 	Short: "Build image on-the-fly instead of using pre-baked image",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()

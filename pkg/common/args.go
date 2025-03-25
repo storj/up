@@ -25,6 +25,6 @@ func ParseArgumentsWithSelector(args []string, argNo int) ([]string, []string, e
 
 // SplitArgsSelector1 splits selector from arguments leaving one extra separate argument.
 // This is useful for splitting "[<selector>...] arg" or "<selector>... arg".
-func SplitArgsSelector1(args []string) ([]string, string) {
+func SplitArgsSelector1(args []string) (selector []string, arg string) {
 	return args[:len(args)-1], args[len(args)-1]
 }

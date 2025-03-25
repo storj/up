@@ -37,6 +37,7 @@ func disableDebugCmd() *cobra.Command {
 func init() {
 	debugCmd := cobra.Command{
 		Use:   "debug",
+		Args:  cobra.NoArgs,
 		Short: "enable/disable local DLV based go debug",
 	}
 

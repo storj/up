@@ -24,6 +24,7 @@ var rootDir string
 // RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:   "storj-up",
+	Args:  cobra.NoArgs,
 	Short: "A golang wrapper for creating customized Storj environment with many components",
 	Long: `storj-up can be used to create containerized or standalone runtime environment,
 leverages existing binaries, or even references code to be built in docker and create images.

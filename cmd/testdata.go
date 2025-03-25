@@ -36,6 +36,7 @@ var (
 
 var testdataCmd = &cobra.Command{
 	Use:   "testdata",
+	Args:  cobra.NoArgs,
 	Short: "Generate testdata to the database",
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		return cmd.Help()

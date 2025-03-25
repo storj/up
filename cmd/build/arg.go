@@ -18,6 +18,7 @@ import (
 func init() {
 	argCmd := cobra.Command{
 		Use:   "args",
+		Args:  cobra.NoArgs,
 		Short: "set/unset build arguments on specified services",
 	}
 	cmd.RootCmd.AddCommand(&argCmd)

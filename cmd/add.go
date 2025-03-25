@@ -14,8 +14,8 @@ func init() {
 	var instance int
 	cmd := &cobra.Command{
 		Use:   "add <selector>...",
-		Short: "add more services to existing stack. " + SelectorHelp,
 		Args:  cobra.MinimumNArgs(1),
+		Short: "add more services to existing stack. " + SelectorHelp,
 		RunE: ExecuteStorjUP(func(stack recipe.Stack, rt runtime.Runtime, selector []string) error {
 			return runtime.ApplyRecipes(stack, rt, selector, instance)
 		}),

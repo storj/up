@@ -16,6 +16,7 @@ const (
 
 var remoteCmd = &cobra.Command{
 	Use:   "remote",
+	Args:  cobra.NoArgs,
 	Short: "build from a remote src repo for use inside the container",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()
