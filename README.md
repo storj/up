@@ -96,7 +96,7 @@ storj-up configs storagenode
 
 STORJ_IDENTITY_CERT_PATH                                               path to the certificate chain for this identity (default: $IDENTITYDIR/identity.cert)
 STORJ_IDENTITY_KEY_PATH                                                path to the private key for this identity (default: $IDENTITYDIR/identity.key)
-STORJ_SERVER_CONFIG_REVOCATION_DBURL                                   url for revocation database (e.g. bolt://some.db OR redis://127.0.0.1:6378?db=2&password=abc123) *(default: bolt://$CONFDIR/revocations.db)
+STORJ_SERVER_CONFIG_REVOCATION_DBURL                                   url for revocation db (e.g. bolt://some.db OR redis://127.0.0.1:6378?db=2&password=abc123) *(default: bolt://$CONFDIR/revocations.db)
 STORJ_SERVER_CONFIG_PEER_CAWHITELIST_PATH                              path to the CA cert whitelist (peer identities must be signed by one these to be verified). this will override the default peer whitelist
 ...
 ```
@@ -197,7 +197,7 @@ When you run `npm run build` from your local web/satellite directory, the webapp
 
 The exception is if you are making a frontend change in web/satellite that requires a corresponding backend change. In this case, you will need to also run `go install ./cmd/satellite` followed by a restart of the relevant containers (see command at the end of the "Backend" section above).
 
-### Interacting with and resetting your Satellite database
+### Interacting with and resetting your Satellite db
 
 `docker compose ps` will list your running containers. Find the one that looks like `<prefix>-cockroach-1`
 
@@ -209,21 +209,21 @@ docker exec -it <prefix>-cockroach-1 ./cockroach sql --insecure
 
 `show databases;` will list all the databases you can query from. `master` will contain most satellite tables, and `metainfo` contains... metainfo tables.
 
-`use <database>;` will switch to one of those.
+`use <db>;` will switch to one of those.
 
-`show tables;` will give a list of tables accessible from the selected database.
+`show tables;` will give a list of tables accessible from the selected db.
 
 Then you can run queries like `update users set project_limit=3 where ...;`
 
 #### Resetting
 
-There is a chance that due to going back and forth between database versions will result in errors that look like this in your logs:
+There is a chance that due to going back and forth between db versions will result in errors that look like this in your logs:
 
 ```
 up-satellite-api-1    | 2022-05-16T17:34:53.916Z        DEBUG   process/exec_conf.go:403        Unrecoverable error     {"error": "Error checking version for satellitedb: validate db version mismatch: expected 196 != 195\n\tstorj.io/storj/private/migrate.(*Migration).ValidateVersions:138\n\tstorj.io/storj/satellite/satellitedb.(*satelliteDB).CheckVersion:138
 ```
 
-If you are okay with starting with a fresh satellite database, this can be accomplished by running
+If you are okay with starting with a fresh satellite db, this can be accomplished by running
 
 ```
 docker compose down -v

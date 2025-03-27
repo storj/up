@@ -3,6 +3,7 @@ module storj.io/storj-up
 go 1.22.2
 
 require (
+	cloud.google.com/go/spanner v1.67.0
 	github.com/compose-spec/compose-go v1.0.3
 	github.com/goccy/go-yaml v1.9.3
 	github.com/hashicorp/hcl/v2 v2.9.2-0.20210407182552-eb14f8319bdc
@@ -18,6 +19,7 @@ require (
 	github.com/zeebo/errs/v2 v2.0.5
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	google.golang.org/api v0.195.0
 	gopkg.in/yaml.v3 v3.0.1
 	storj.io/common v0.0.0-20240913104706-8fd6fa0286a3
 	storj.io/storj v1.114.6
@@ -32,7 +34,6 @@ require (
 	cloud.google.com/go/iam v1.2.0 // indirect
 	cloud.google.com/go/longrunning v0.6.0 // indirect
 	cloud.google.com/go/secretmanager v1.14.0 // indirect
-	cloud.google.com/go/spanner v1.67.0 // indirect
 	github.com/GoogleCloudPlatform/grpc-gcp-go/grpcgcp v1.5.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apache/thrift v0.17.0 // indirect
@@ -156,7 +157,6 @@ require (
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
-	google.golang.org/api v0.195.0 // indirect
 	google.golang.org/genproto v0.0.0-20240827150818-7e3bb234dfed // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240823204242-4ba0660f739c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240827150818-7e3bb234dfed // indirect

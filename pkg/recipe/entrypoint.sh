@@ -20,8 +20,9 @@ if [ "$STORJ_IDENTITY_DIR" ]; then
 fi
 
 if [ "$STORJ_WAIT_FOR_DB" ]; then
-  # parse host and port from database connection string
-  storj-up util wait-for-port $(sed -E 's;.*@([^:]+):.*;\1;' <<< "$STORJ_DATABASE"):$(sed -E 's;.*:([^:]+)/.*;\1;' <<< "$STORJ_DATABASE")
+  # Use the new specialized database connection utility
+  storj-up util wait-for-db "$STORJ_DATABASE"
+  storj-up util wait-for-db "$STORJ_METAINFO_DATABASE_URL"
   storj-up util wait-for-port redis:6379
 fi
 
