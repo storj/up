@@ -42,6 +42,7 @@ add:
       STORJ_CONTACT_EXTERNAL_ADDRESS: '{{ Host .This "internal"}}:{{ Port .This "public"}}'
       STORJ_CONSOLE_EXTERNAL_ADDRESS: 'http://{{ Host .This "external"}}:{{ Port .This "console"}}/'
       STORJ_SERVER_PRIVATE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "private" }}'
+      STORJ_VERSION_RUN_MODE: disable
 
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
