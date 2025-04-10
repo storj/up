@@ -12,7 +12,6 @@ import (
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/pkg/runtime/compose"
-	"storj.io/storj-up/pkg/runtime/nomad"
 	"storj.io/storj-up/pkg/runtime/runtime"
 	"storj.io/storj-up/pkg/runtime/standalone"
 )
@@ -22,11 +21,6 @@ func FromDir(dir string) (runtime.Runtime, error) {
 	_, err := os.Stat(filepath.Join(dir, "docker-compose.yaml"))
 	if err == nil {
 		return compose.NewCompose(dir)
-	}
-
-	_, err = os.Stat(filepath.Join(dir, "storj.hcl"))
-	if err == nil {
-		return nomad.NewNomad(dir, "storj")
 	}
 
 	_, err = os.Stat(filepath.Join(dir, "supervisord.conf"))

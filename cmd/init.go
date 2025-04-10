@@ -13,51 +13,16 @@ import (
 
 	"storj.io/storj-up/pkg/recipe"
 	"storj.io/storj-up/pkg/runtime/compose"
-	"storj.io/storj-up/pkg/runtime/nomad"
 	"storj.io/storj-up/pkg/runtime/runtime"
 	"storj.io/storj-up/pkg/runtime/standalone"
 )
 
 func initCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "init [<selector>...] OR init <compose|nomad|shell> [<selector>...]",
+		Use:  "init [<selector>...] OR init <compose|shell> [<selector>...]",
 		Args: cobra.MinimumNArgs(1),
 		Short: "Initialize new storj-up stack with the chosen container orchestrator. " + SelectorHelp + ". Without argument it generates " +
 			"full Storj cluster with databases (db,minimal,edge)",
-	}
-
-	{
-		nomadCmd := &cobra.Command{
-			Use:  "nomad [<selector>...]",
-			Args: cobra.MinimumNArgs(0),
-		}
-		ip := nomadCmd.Flags().StringP("ip", "", "localhost", "IP address (or host name) to host the deployment")
-		name := nomadCmd.Flags().StringP("name", "n", "storj", "Name of the used job/group section.")
-		nomadCmd.RunE = func(cmd *cobra.Command, selector []string) error {
-			pwd, err := os.Getwd()
-			if err != nil {
-				return err
-			}
-			n, err := nomad.NewNomad(pwd, *name)
-			if err != nil {
-				return err
-			}
-			if *ip != "" {
-				n.External = *ip
-			}
-
-			st, err := recipe.GetStack()
-			if err != nil {
-				return err
-			}
-			err = runtime.ApplyRecipes(st, n, normalizedArgs(selector), 0)
-			if err != nil {
-				return err
-			}
-
-			return n.Write()
-		}
-		cmd.AddCommand(nomadCmd)
 	}
 
 	{

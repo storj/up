@@ -1,6 +1,6 @@
 pipeline {
     agent {
-       label('nomad || ondemand')
+       label('ondemand')
     }
 
     options {

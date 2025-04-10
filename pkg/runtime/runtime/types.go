@@ -27,7 +27,7 @@ type VariableGetter interface {
 	Get(serviceInstance ServiceInstance, name string) string
 }
 
-// Runtime provides methods to read/write/modify any existing runtime definition (like compose/nomad/...)
+// Runtime provides methods to read/write/modify any existing runtime definition (like compose/...)
 type Runtime interface {
 	HostResolver
 	PortResolver
