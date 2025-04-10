@@ -8,11 +8,7 @@ export INSTANCE_NAME="${INSTANCE_NAME:-test-instance}"
 export SPANNER_EMULATOR_URL="${SPANNER_EMULATOR_URL:-http://localhost:9010}"
 
 # Start Spanner emulator with public access flags
-gcloud emulators spanner start --host-port=0.0.0.0:9010 &
-
-# Wait for emulator to be ready - need longer wait time
-echo "Waiting for emulator to start..."
-sleep 10
+gcloud emulators spanner start --host-port=0.0.0.0:9010&
 
 # Configure gcloud
 gcloud config set disable_prompts true

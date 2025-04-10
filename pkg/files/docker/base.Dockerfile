@@ -1,11 +1,11 @@
-FROM --platform=$TARGETPLATFORM golang:1.22 AS storjup
+FROM golang:1.22 AS storjup
 COPY . /go/storj-up
 WORKDIR /go/storj-up
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod  \
     go install
 
-FROM --platform=$TARGETPLATFORM ubuntu:22.04 AS final
+FROM ubuntu:22.04 AS final
 RUN apt-get update
 RUN apt-get -y install iproute2 ca-certificates curl jq unzip
 RUN useradd storj --uid 1000 -d /var/lib/storj && \
