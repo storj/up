@@ -57,7 +57,7 @@ test:
 
 integration-all:
    BUILD ./test/uplink+test
-   # BUILD ./test/spanner/uplink+test
+   BUILD ./test/spanner/uplink+test
    BUILD ./test/edge+test
    BUILD ./test/storjscan+test
 
