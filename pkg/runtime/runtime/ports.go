@@ -27,7 +27,7 @@ var basePorts = map[string]int{
 func PortConvention(instance ServiceInstance, portType string) (int, error) {
 	port, found := basePorts[instance.Name]
 	if !found {
-		return 0, errs.New("No base port defined for " + instance.String())
+		return 0, errs.New("No base port defined for %s", instance.String())
 	}
 	port += instance.Instance * 10
 	switch portType {

@@ -269,7 +269,7 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_OVERLAY_NODE_CHECK_IN_WAIT_PERIOD",
 			Description: "the amount of time to wait before accepting a redundant check-in from a node (unmodified info since last check-in)",
-			Default:     "2h",
+			Default:     "1h10m",
 		},
 		{
 			Name:        "STORJ_OVERLAY_NODE_SOFTWARE_UPDATE_EMAIL_COOLDOWN",
@@ -487,6 +487,31 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_DOWNLOAD_LIMITER_ENABLED",
+			Description: "whether rate limiting is enabled.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_DOWNLOAD_LIMITER_SINGLE_OBJECT_LIMIT",
+			Description: "how often we can upload to the single object (the same location) per API instance",
+			Default:     "1ms",
+		},
+		{
+			Name:        "STORJ_METAINFO_DOWNLOAD_LIMITER_BURST_LIMIT",
+			Description: "the number of requests to allow bursts beyond the rate limit",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_METAINFO_DOWNLOAD_LIMITER_HASH_COUNT",
+			Description: "the number of hash indexes to make into the rate limit map",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_METAINFO_DOWNLOAD_LIMITER_SIZE_EXPONENT",
+			Description: "two to this power is the amount of rate limits to store in ram. higher has less collisions.",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_METAINFO_PROJECT_LIMITS_MAX_BUCKETS",
 			Description: "max bucket count for a project.",
 			Default:     "100",
@@ -502,8 +527,28 @@ func satelliteadminConfig() []Option {
 			Default:     "10m",
 		},
 		{
+			Name:        "STORJ_METAINFO_FAILURE_TRACKER_TICK_DURATION",
+			Description: "how often to bump the generation in the node failure tracker",
+			Default:     "5s",
+		},
+		{
 			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_TRUSTED_UPLINKS",
-			Description: "list of trusted uplinks for success tracker",
+			Description: "list of trusted uplinks for success tracker, deprecated. please use success-tracker-uplinks for uplinks that should get their own success tracker profiles and trusted-uplinks for uplinks that are trusted individually.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_UPLINKS",
+			Description: "list of uplinks for success tracker",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_FAILURE_TRACKER_CHANCE_TO_SKIP",
+			Description: "the chance to skip a failure tracker generation bump",
+			Default:     ".6",
+		},
+		{
+			Name:        "STORJ_METAINFO_TRUSTED_UPLINKS",
+			Description: "list of trusted uplinks",
 			Default:     "",
 		},
 		{
@@ -517,11 +562,6 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_LIST_OBJECTS_ITERATOR",
-			Description: "switch to iterator based implementation.",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_METAINFO_NODE_ALIAS_CACHE_FULL_REFRESH",
 			Description: "node alias cache does a full refresh when a value is missing",
 			Default:     "false",
@@ -529,17 +569,37 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING",
 			Description: "enable the use of bucket level object versioning",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_METAINFO_USE_LIST_OBJECTS_FOR_LISTING",
+			Description: "switch to new ListObjects implementation",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING_PROJECTS",
-			Description: "list of projects which will have UseBucketLevelObjectVersioning feature flag enabled",
-			Default:     "",
+			Name:        "STORJ_METAINFO_LIST_OBJECTS_VERSION_SKIP_REQUERY",
+			Description: "versions to skip before requerying",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_METAINFO_LIST_OBJECTS_PREFIX_SKIP_REQUERY",
+			Description: "prefixes to skip before requerying",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_METAINFO_LIST_OBJECTS_QUERY_EXTRA_FOR_NON_RECURSIVE",
+			Description: "extra items to list for non-recursive queries",
+			Default:     "10",
+		},
+		{
+			Name:        "STORJ_METAINFO_LIST_OBJECTS_MIN_BATCH_SIZE",
+			Description: "minimum number of items to query at a time",
+			Default:     "100",
 		},
 		{
 			Name:        "STORJ_METAINFO_OBJECT_LOCK_ENABLED",
 			Description: "enable the use of bucket-level Object Lock",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_ENABLED",
@@ -557,6 +617,21 @@ func satelliteadminConfig() []Option {
 			Default:     "10000",
 		},
 		{
+			Name:        "STORJ_METAINFO_SELF_SERVE_PLACEMENT_SELECT_ENABLED",
+			Description: "whether self-serve placement selection feature is enabled. Provided by console config.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_SEND_EDGE_URL_OVERRIDES",
+			Description: "send edge URL overrides through the GetProjectInfo endpoint",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_DELETE_OBJECTS_ENABLED",
+			Description: "enable the use of the DeleteObjects endpoint",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
 			Default:     "false",
@@ -567,13 +642,18 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_TESTING_PRECOMMIT_DELETE_MODE",
-			Description: "which code path to use for precommit delete step for unversioned objects, 0 is the default (old) code path.",
-			Default:     "0",
-		},
-		{
 			Name:        "STORJ_METAINFO_TESTING_SPANNER_PROJECTS",
 			Description: "list of project IDs for which Spanner metabase DB is enabled",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_MIGRATION_MODE",
+			Description: "sets metainfo API into migration mode, only read actions are allowed",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_METABASE_COMPRESSION",
+			Description: "Compression type to be used in spanner client for gRPC calls, disabled by default (gzip)",
 			Default:     "",
 		},
 		{
@@ -617,14 +697,19 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_ORDERS_ORDERS_SEMAPHORE_SIZE",
-			Description: "how many concurrent orders to process at once. zero is unlimited",
-			Default:     "2",
-		},
-		{
 			Name:        "STORJ_ORDERS_DOWNLOAD_TAIL_TOLERANCE_OVERRIDES",
 			Description: "how many nodes should be used for downloads for certain k. must be >= k. if not specified, this is calculated from long tail tolerance. format is comma separated like k-d,k-d,k-d e.g. 29-35,3-5.",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_ORDERS_ACCEPT_ORDERS",
+			Description: "determine if orders from storage nodes should be accepted",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_ORDERS_TRUSTED_ORDERS",
+			Description: "stops validating orders received from trusted nodes",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_USERINFO_ENABLED",
@@ -982,6 +1067,11 @@ func satelliteadminConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_USE_SYNC_OBSERVER_V2",
+			Description: "whether to use SyncObserverV2 for GC",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_INITIAL_PIECES",
 			Description: "the initial number of pieces expected for a storage node to have, used for creating a filter",
 			Default:     "",
@@ -999,7 +1089,7 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_EXCLUDE_EXPIRED_PIECES",
 			Description: "do not include expired pieces into bloom filter",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_GARBAGE_COLLECTION_BF_ACCESS_GRANT",
@@ -1052,9 +1142,19 @@ func satelliteadminConfig() []Option {
 			Default:     "0",
 		},
 		{
+			Name:        "STORJ_RANGED_LOOP_TESTING_SPANNER_QUERY_TYPE",
+			Description: "use to select query type which will be used to execute ranged loop (sql|read)",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_RANGED_LOOP_SUSPICIOUS_PROCESSED_RATIO",
 			Description: "ratio where to consider processed count as supicious",
 			Default:     "0.03",
+		},
+		{
+			Name:        "STORJ_DURABILITY_CLASSES",
+			Description: "Node attributes used by the durability segment loop to classify risks",
+			Default:     "last_net,last_ip,wallet,email",
 		},
 		{
 			Name:        "STORJ_EXPIRED_DELETION_INTERVAL",
@@ -1132,6 +1232,11 @@ func satelliteadminConfig() []Option {
 			Default:     "10000",
 		},
 		{
+			Name:        "STORJ_TALLY_RETENTION_DAYS",
+			Description: "how many days to retain tallies or zero to retain indefinitely",
+			Default:     "365",
+		},
+		{
 			Name:        "STORJ_TALLY_LIST_LIMIT",
 			Description: "how many buckets to query in a batch",
 			Default:     "2500",
@@ -1140,6 +1245,11 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_TALLY_AS_OF_SYSTEM_INTERVAL",
 			Description: "as of system interval",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_NODE_TALLY_BATCH_SIZE",
+			Description: "batch size for saving tallies into DB",
+			Default:     "1000",
 		},
 		{
 			Name:        "STORJ_ROLLUP_INTERVAL",
@@ -1292,6 +1402,11 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_WEBHOOK_SECRET",
+			Description: "stripe webhookEvents secret token",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_AUTO_ADVANCE",
 			Description: "toggle autoadvance feature for invoice creation",
 			Default:     "false",
@@ -1319,7 +1434,7 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_USE_IDEMPOTENCY",
 			Description: "whether to use idempotency for create/update requests",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
@@ -1388,6 +1503,21 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_PAYMENTS_USAGE_PRICE_EGRESS_DISCOUNT_RATIO",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_PRODUCTS_OVERRIDE_MAP",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_PLACEMENT_PRICE_OVERRIDES_PLACEMENT_PRODUCT_MAP",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_PARTNERS_PLACEMENT_PRICE_OVERRIDES_PARTNER_PLACEMENT_PRODUCT_MAP",
 			Description: "",
 			Default:     "",
 		},
@@ -1582,6 +1712,11 @@ func satelliteadminConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_CONSOLE_REST_APIKEYS_UIENABLED",
+			Description: "whether the rest API keys UI is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_OPTIONAL_SIGNUP_SUCCESS_URL",
 			Description: "optional url to external registration success page",
 			Default:     "",
@@ -1590,6 +1725,16 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_HOMEPAGE_URL",
 			Description: "url link to storj.io homepage",
 			Default:     "https://www.storj.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_VALDI_SIGN_UP_URL",
+			Description: "url link to Valdi sign up page",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CLOUD_GPUS_ENABLED",
+			Description: "whether to enable cloud GPU functionality",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_NATIVE_TOKEN_PAYMENTS_ENABLED",
@@ -1664,7 +1809,32 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_OBJECT_LOCK_UIENABLED",
 			Description: "whether object lock UI should be shown, regardless of whether the feature is enabled",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CUNO_FSBETA_ENABLED",
+			Description: "whether prompt to join cunoFS beta is visible",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CSRFPROTECTION_ENABLED",
+			Description: "whether CSRF protection is enabled for some of the endpoints",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_BILLING_ADD_FUNDS_ENABLED",
+			Description: "whether billing add funds feature is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_DOWNLOAD_PREFIX_ENABLED",
+			Description: "whether prefix (bucket/folder) download is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ZIP_DOWNLOAD_LIMIT",
+			Description: "maximum number of objects allowed for a zip format download",
+			Default:     "1000",
 		},
 		{
 			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
@@ -1752,6 +1922,11 @@ func satelliteadminConfig() []Option {
 			Default:     "https://ariane.abtasty.com",
 		},
 		{
+			Name:        "STORJ_CONSOLE_SSO_ENABLED",
+			Description: "whether SSO is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_PASSWORD_COST",
 			Description: "password hashing cost (0=automatic)",
 			Default:     "0",
@@ -1802,6 +1977,11 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_PLACEMENT_DETAILS_DETAIL_MAP",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_BLOCK_EXPLORER_URL",
 			Description: "url of the transaction block explorer",
 			Default:     "https://etherscan.io/",
@@ -1820,6 +2000,16 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_STRIPE_PAYMENT_ELEMENT_ENABLED",
 			Description: "indicates whether the stripe payment element should be used to collect card info",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_MAX_ADD_FUNDS_AMOUNT",
+			Description: "maximum amount (in cents) allowed to be added to an account balance.",
+			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_MIN_ADD_FUNDS_AMOUNT",
+			Description: "minimum amount (in cents) allowed to be added to an account balance.",
+			Default:     "100",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SIGNUP_ACTIVATION_CODE_ENABLED",
@@ -1852,6 +2042,11 @@ func satelliteadminConfig() []Option {
 			Default:     "100",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_MAX_LONG_FORM_FIELD_CHARACTERS",
+			Description: "defines the maximum number of characters allowed for long form fields, e.g. comment type fields",
+			Default:     "500",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_BILLING_INFORMATION_TAB_ENABLED",
 			Description: "indicates if billing information tab should be enabled",
 			Default:     "false",
@@ -1875,6 +2070,16 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_ACCOUNT_DELETE_ENABLED",
 			Description: "whether self-serve account delete flow is enabled",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_ENABLED",
+			Description: "whether self-serve placement selection feature is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_NAMES",
+			Description: "list of placements names allowed for self-serve selection",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
@@ -2030,6 +2235,31 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_TRIAL_EXPIRATION_FREEZE_GRACE_PERIOD",
 			Description: "How long to wait between a trail expiration freeze event and setting pending deletion account status. 0 disables escalation.",
 			Default:     "0",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_TRIAL_EXPIRATION_RATE_LIMITS",
+			Description: "Specifies the rate and burst limit for 'head', list' and 'delete' operations when a trial account has expired.",
+			Default:     "20",
+		},
+		{
+			Name:        "STORJ_VALDI_SATELLITE_EMAIL",
+			Description: "the base email address for valdi satellite project email addresses. Important: once this has been used to create users, it should not be changed",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_VALDI_CONFIG_APIBASE_URL",
+			Description: "base url of valdi external API",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_VALDI_CONFIG_RSAKEY_PATH",
+			Description: "path to RSA private key for signing valdi requests",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_VALDI_CONFIG_SIGN_REQUESTS",
+			Description: "whether to sign valdi requests with valdi RSA key",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
@@ -2412,19 +2642,39 @@ func satelliteadminConfig() []Option {
 			Default:     "10s",
 		},
 		{
-			Name:        "STORJ_ANALYTICS_HUB_SPOT_EVENT_PREFIX",
-			Description: "the prefix for the event name",
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_SIGNUP_EVENT_NAME",
+			Description: "the event name for signup action",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ANALYTICS_HUB_SPOT_SIGNUP_FORM_ID",
-			Description: "the hubspot form ID for signup",
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_SIGNUP_FORM_URL",
+			Description: "the hubspot form URL for signup",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_CUNO_FSBETA_FORM_URL",
+			Description: "the hubspot form URL for cunoFS beta",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_ANALYTICS_HUB_SPOT_LIFE_CYCLE_STAGE",
 			Description: "the hubspot lifecycle stage for new accounts",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_ACCOUNT_OBJECT_CREATED_WEBHOOK_ENABLED",
+			Description: "whether account object created webhook is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_ACCOUNT_OBJECT_CREATED_WEBHOOK_ENDPOINT",
+			Description: "the endpoint for account object created webhook",
+			Default:     "/api/v0/analytics/hubspot/account-object-created",
+		},
+		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_WEBHOOK_REQUEST_LIFETIME",
+			Description: "the lifetime of the webhook request",
+			Default:     "5m",
 		},
 		{
 			Name:        "STORJ_ANALYTICS_PLAUSIBLE_DOMAIN",
@@ -2457,6 +2707,11 @@ func satelliteadminConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_KEY_MANAGEMENT_PROVIDER",
+			Description: "the provider of the passphrase encryption keys: 'gsm' for google, 'local' for a local file",
+			Default:     "gsm",
+		},
+		{
 			Name:        "STORJ_KEY_MANAGEMENT_KEY_INFOS_VALUES",
 			Description: "",
 			Default:     "",
@@ -2477,6 +2732,31 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_SSO_ENABLED",
+			Description: "whether SSO is enabled.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_SSO_OIDC_PROVIDER_INFOS_VALUES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SSO_EMAIL_PROVIDER_MAPPINGS_VALUES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_SSO_MOCK_SSO",
+			Description: "whether to mock SSO for testing purposes. This should never be true in production.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_SSO_MOCK_EMAIL",
+			Description: "mock email for successful SSO auth for testing purposes.",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_HEALTH_CHECK_ENABLED",
 			Description: "Whether the health check server is enabled",
 			Default:     "false",
@@ -2484,7 +2764,7 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_HEALTH_CHECK_ADDRESS",
 			Description: "The address to listen on for health check server",
-			Default:     ":10500",
+			Default:     "localhost:10500",
 		},
 		{
 			Name:        "STORJ_TAG_AUTHORITIES",

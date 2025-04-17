@@ -319,7 +319,7 @@ func (c *Compose) serviceCount(name string) int {
 	i := 0
 
 	for _, ds := range c.project.Services {
-		if m, err := regexp.Match(name+"\\d*", []byte(ds.Name)); m && err == nil {
+		if m, err := regexp.MatchString(name+"\\d*", ds.Name); m && err == nil {
 			i++
 		}
 	}

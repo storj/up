@@ -1,11 +1,11 @@
 VERSION 0.8
-FROM golang:1.22.2
+FROM golang:1.23.8
 WORKDIR /go/storj-up
 
 lint-deps:
-    RUN go install github.com/storj/ci/...@250909cd2ce8b5da02058386cc3d9eeac4dd67e7
-    RUN go install honnef.co/go/tools/cmd/staticcheck@2023.1.7
-    RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+    RUN go install github.com/storj/ci/...@045049f47d789130b7688358238c60ff11b31038
+    RUN go install honnef.co/go/tools/cmd/staticcheck@2025.1
+    RUN go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.1
 
 lint:
     FROM +lint-deps
@@ -42,12 +42,12 @@ build-app:
 test:
    RUN go install github.com/mfridman/tparse@36f80740879e24ba6695649290a240c5908ffcbb
    RUN apt-get update && apt-get install -y jq
-   RUN go install -race storj.io/storj/cmd/storagenode@v1.102.4
-   RUN go install -race storj.io/storj/cmd/satellite@v1.102.4
-   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.102.4
-   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.77.0
-   RUN go install -race storj.io/edge/cmd/linksharing@v1.77.0
-   RUN go install -race storj.io/edge/cmd/authservice@v1.77.0
+   RUN go install -race storj.io/storj/cmd/storagenode@v1.125.2
+   RUN go install -race storj.io/storj/cmd/satellite@v1.125.2
+   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.125.2
+   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.97.0
+   RUN go install -race storj.io/edge/cmd/linksharing@v1.97.0
+   RUN go install -race storj.io/edge/cmd/authservice@v1.97.0
    RUN mkdir build
    COPY . .
    RUN --mount=type=cache,target=/root/.cache/go-build \

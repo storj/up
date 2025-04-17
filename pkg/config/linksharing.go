@@ -47,6 +47,11 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_SERVER_IDLE_TIMEOUT",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_SERVER_STARTUP_CHECK_CONFIG_ENABLED",
 			Description: "",
 			Default:     "",
@@ -207,12 +212,32 @@ func linksharingConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HANDLER_DOWNLOAD_PREFIX_ENABLED",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_DOWNLOAD_ZIP_LIMIT",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HANDLER_BLOCKED_PATHS",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_SHUTDOWN_DELAY",
 			Description: "",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_GEO_LOCATION_DB",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONCURRENT_REQUEST_LIMIT",
 			Description: "",
 			Default:     "",
 		},

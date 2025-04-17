@@ -127,6 +127,11 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_CONTACT_CHECK_IN_TIMEOUT",
+			Description: "timeout for the check-in request",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_CONTACT_TAGS_TAGS",
 			Description: "",
 			Default:     "",
@@ -139,6 +144,11 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_CONTACT_TAGS_XXX_SIZECACHE",
 			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONTACT_SELF_SIGNED_TAGS",
+			Description: "coma separated key=value pairs, which will be self signed and used as tags",
 			Default:     "",
 		},
 		{
@@ -157,19 +167,29 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HASHSTORE_LOGS_PATH",
+			Description: "path to store log files in (by default, it's relative to the storage directory)'",
+			Default:     "hashstore",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_TABLE_PATH",
+			Description: "path to store tables in. Can be same as LogsPath, as subdirectories are used (by default, it's relative to the storage directory)",
+			Default:     "hashstore",
+		},
+		{
 			Name:        "STORJ_STORAGE_PATH",
 			Description: "path to store data in",
 			Default:     "$CONFDIR/storage",
 		},
 		{
-			Name:        "STORJ_STORAGE_WHITELISTED_SATELLITES",
-			Description: "a comma-separated list of approved satellite node urls (unused)",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_STORAGE_ALLOCATED_DISK_SPACE",
 			Description: "total allocated disk space in bytes",
 			Default:     "1TB",
+		},
+		{
+			Name:        "STORJ_STORAGE_WHITELISTED_SATELLITES",
+			Description: "a comma-separated list of approved satellite node urls (unused)",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_STORAGE_ALLOCATED_BANDWIDTH",
@@ -178,7 +198,7 @@ func storagenodeConfig() []Option {
 		},
 		{
 			Name:        "STORJ_STORAGE_KBUCKET_REFRESH_INTERVAL",
-			Description: "how frequently Kademlia bucket should be refreshed with node stats",
+			Description: "how frequently Kademlia bucket should be refreshed with node stats (deprecated)",
 			Default:     "1h0m0s",
 		},
 		{
@@ -195,21 +215,6 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_STORAGE2_MAX_CONCURRENT_REQUESTS",
 			Description: "how many concurrent requests are allowed, before uploads are rejected. 0 represents unlimited.",
 			Default:     "0",
-		},
-		{
-			Name:        "STORJ_STORAGE2_DELETE_WORKERS",
-			Description: "how many piece delete workers",
-			Default:     "1",
-		},
-		{
-			Name:        "STORJ_STORAGE2_DELETE_QUEUE_SIZE",
-			Description: "size of the piece delete queue",
-			Default:     "10000",
-		},
-		{
-			Name:        "STORJ_STORAGE2_EXISTS_CHECK_WORKERS",
-			Description: "how many workers to use to check if satellite pieces exists",
-			Default:     "5",
 		},
 		{
 			Name:        "STORJ_STORAGE2_ORDER_LIMIT_GRACE_PERIOD",
@@ -230,11 +235,6 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_STORAGE2_STREAM_OPERATION_TIMEOUT",
 			Description: "how long to spend waiting for a stream operation before canceling",
 			Default:     "30m",
-		},
-		{
-			Name:        "STORJ_STORAGE2_RETAIN_TIME_BUFFER",
-			Description: "allows for small differences in the satellite and storagenode clocks",
-			Default:     "48h0m0s",
 		},
 		{
 			Name:        "STORJ_STORAGE2_REPORT_CAPACITY_THRESHOLD",
@@ -283,7 +283,7 @@ func storagenodeConfig() []Option {
 		},
 		{
 			Name:        "STORJ_STORAGE2_MONITOR_INTERVAL",
-			Description: "how frequently Kademlia bucket should be refreshed with node stats",
+			Description: "how frequently to report storage stats to the satellite",
 			Default:     "1h0m0s",
 		},
 		{
@@ -372,6 +372,61 @@ func storagenodeConfig() []Option {
 			Default:     "$CONFDIR/orders",
 		},
 		{
+			Name:        "STORJ_STORAGE2_DELETE_WORKERS",
+			Description: "how many piece delete workers (unused)",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_STORAGE2_DELETE_QUEUE_SIZE",
+			Description: "size of the piece delete queue (unused)",
+			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_STORAGE2_EXISTS_CHECK_WORKERS",
+			Description: "how many workers to use to check if satellite pieces exists (unused)",
+			Default:     "5",
+		},
+		{
+			Name:        "STORJ_STORAGE2_RETAIN_TIME_BUFFER",
+			Description: "allows for small differences in the satellite and storagenode clocks",
+			Default:     "48h0m0s",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_BUFFER_SIZE",
+			Description: "how many pieces to buffer",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_DELAY",
+			Description: "constant delay between migration of two pieces. 0 means no delay",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_JITTER",
+			Description: "whether to add jitter to the delay; has no effect if delay is 0",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_INTERVAL",
+			Description: "how long to wait between pooling satellites for active migration",
+			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_MIGRATE_REGARDLESS",
+			Description: "whether to also migrate pieces for satellites outside currently set",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_MIGRATE_EXPIRED",
+			Description: "whether to also migrate expired pieces",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_STORAGE2MIGRATION_DELETE_EXPIRED",
+			Description: "whether to also delete expired pieces; has no effect if expired are migrated",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_COLLECTOR_INTERVAL",
 			Description: "how frequently expired pieces are collected",
 			Default:     "1h0m0s",
@@ -383,8 +438,18 @@ func storagenodeConfig() []Option {
 		},
 		{
 			Name:        "STORJ_COLLECTOR_EXPIRATION_BATCH_SIZE",
-			Description: "how many expired pieces to delete in one batch. If <= 0, all expired pieces will be deleted in one batch.",
+			Description: "how many expired pieces to delete in one batch. If <= 0, all expired pieces will be deleted in one batch. (ignored by flat file store)",
 			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_COLLECTOR_FLAT_FILE_BATCH_LIMIT",
+			Description: "how many per hour flat files can be deleted in one batch.",
+			Default:     "5",
+		},
+		{
+			Name:        "STORJ_COLLECTOR_REVERSE_ORDER",
+			Description: "delete expired pieces in reverse order (recently expired first)",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_FILESTORE_WRITE_BUFFER_SIZE",
@@ -442,6 +507,11 @@ func storagenodeConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_PIECES_TRASH_CHORE_INTERVAL",
+			Description: "how often to empty check the trash, and delete old files",
+			Default:     "24h",
+		},
+		{
 			Name:        "STORJ_RETAIN_MAX_TIME_SKEW",
 			Description: "allows for small differences in the satellite and storagenode clocks",
 			Default:     "72h0m0s",
@@ -474,6 +544,21 @@ func storagenodeConfig() []Option {
 		{
 			Name:        "STORJ_NODESTATS_STORAGE_SYNC",
 			Description: "how often to sync storage",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_MAX_SLEEP",
+			Description: "maximum duration to wait before requesting data",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_INTERVAL",
+			Description: "how often to sync reputation",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_CACHE",
+			Description: "store reputation stats in cache",
 			Default:     "",
 		},
 		{

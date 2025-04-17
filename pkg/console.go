@@ -537,7 +537,7 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 	}
 
 	if response.Errors != nil {
-		return errs.New("inner graphql error: %v", response.Errors)
+		return errs.New("inner graphql error: %v", response.Errors...)
 	}
 
 	if jsonResponse == nil {

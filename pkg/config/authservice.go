@@ -37,6 +37,11 @@ func authserviceConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_IDLE_TIMEOUT",
+			Description: "timeout for idle connections",
+			Default:     "60s",
+		},
+		{
 			Name:        "STORJ_KVBACKEND",
 			Description: "key/value store backend url",
 			Default:     "",
@@ -117,11 +122,6 @@ func authserviceConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_NODE_ID",
-			Description: "unique identifier for the node",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_NODE_FIRST_START",
 			Description: "allow start with empty storage",
 			Default:     "",
@@ -130,31 +130,6 @@ func authserviceConfig() []Option {
 			Name:        "STORJ_NODE_PATH",
 			Description: "path where to store data",
 			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_ADDRESS",
-			Description: "address that the node listens on",
-			Default:     ":20004",
-		},
-		{
-			Name:        "STORJ_NODE_JOIN",
-			Description: "comma delimited list of cluster peers",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_CERTS_DIR",
-			Description: "directory for certificates for mutual authentication",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_REPLICATION_INTERVAL",
-			Description: "how often to replicate",
-			Default:     "30s",
-		},
-		{
-			Name:        "STORJ_NODE_REPLICATION_LIMIT",
-			Description: "maximum entries returned in replication response",
-			Default:     "1000",
 		},
 		{
 			Name:        "STORJ_NODE_CONFLICT_BACKOFF_DELAY",
@@ -170,46 +145,6 @@ func authserviceConfig() []Option {
 			Name:        "STORJ_NODE_CONFLICT_BACKOFF_MIN",
 			Description: "The minimum time between retries",
 			Default:     "100ms",
-		},
-		{
-			Name:        "STORJ_NODE_INSECURE_DISABLE_TLS",
-			Description: "",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_ENABLED",
-			Description: "enable backups",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_ENDPOINT",
-			Description: "backup bucket endpoint hostname, e.g. s3.amazonaws.com",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_BUCKET",
-			Description: "bucket name where database backups are stored",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_PREFIX",
-			Description: "database backup object path prefix",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_INTERVAL",
-			Description: "how often full backups are run",
-			Default:     "1h",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_ACCESS_KEY_ID",
-			Description: "access key for backup bucket",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_NODE_BACKUP_SECRET_ACCESS_KEY",
-			Description: "secret key for backup bucket",
-			Default:     "",
 		},
 		{
 			Name:        "STORJ_SPANNER_DATABASE_NAME",
