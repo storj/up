@@ -11,17 +11,20 @@ import (
 
 // BuildDict stores the name of the container to build for Storj services.
 var BuildDict = map[string]string{
-	"authservice":     "app-edge",
-	"gateway-mt":      "app-edge",
-	"linksharing":     "app-edge",
-	"satellite-admin": "app-storj",
-	"satellite-api":   "app-storj",
-	"satellite-core":  "app-storj",
-	"satellite-bf":    "app-storj",
-	"satellite-gc":    "app-storj",
-	"storagenode":     "app-storj",
-	"uplink":          "app-storj",
-	"versioncontrol":  "app-storj",
+	"authservice":          "app-edge",
+	"gateway-mt":           "app-edge",
+	"linksharing":          "app-edge",
+	"satellite-admin":      "app-storj",
+	"satellite-api":        "app-storj",
+	"satellite-core":       "app-storj",
+	"satellite-bf":         "app-storj",
+	"satellite-gc":         "app-storj",
+	"satellite-audit":      "app-storj",
+	"satellite-rangedloop": "app-storj",
+	"satellite-repair":     "app-storj",
+	"storagenode":          "app-storj",
+	"uplink":               "app-storj",
+	"versioncontrol":       "app-storj",
 }
 
 // ResolveBuilds returns with the required docker images to build (as keys in the maps).
