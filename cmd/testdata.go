@@ -72,7 +72,7 @@ func projectUsageCmd() *cobra.Command {
 			return generateProjectUsage(database, email, bucket, useragent, usagePeriod)
 		},
 	}
-	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "cockroach://root@localhost:26257/master?sslmode=disable", "Database connection string to generate data")
+	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "spanner://projects/test-project/instances/test-instance/databases/master", "Database connection string to generate data")
 	projectUsageCmd.PersistentFlags().StringVarP(&email, "email", "e", "test@storj.io", "the email address of the user to add data for")
 	projectUsageCmd.PersistentFlags().StringVarP(&bucket, "bucket", "b", "storage-bucket", "the bucket to add the usage for")
 	projectUsageCmd.PersistentFlags().StringVarP(&useragent, "useragent", "u", "", "useragent for value attribution")
@@ -300,28 +300,48 @@ func crateTally(bucketName string, projectID uuid.UUID, intervalStart time.Time,
 }
 
 func updateUsage(ctx context.Context, db satellite.DB, tally accounting.BucketStorageTally) error {
-	_, err := db.Testing().RawDB().Exec(ctx,
-		`INSERT INTO bucket_storage_tallies (
-		interval_start,
-        bucket_name, project_id,
-		total_bytes, inline, remote,
-		total_segments_count, remote_segments_count, inline_segments_count,
-		object_count, metadata_size)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-		ON CONFLICT(bucket_name, project_id, interval_start)
-		DO UPDATE SET
-		total_bytes = bucket_storage_tallies.total_bytes + $4,
-		inline = bucket_storage_tallies.inline + $5,
-		remote = bucket_storage_tallies.remote + $6,
-		total_segments_count = bucket_storage_tallies.total_segments_count + $7,
-		remote_segments_count = bucket_storage_tallies.remote_segments_count + $8,
-		inline_segments_count = bucket_storage_tallies.inline_segments_count + $9,
-		object_count = bucket_storage_tallies.object_count + $10,
-		metadata_size = bucket_storage_tallies.metadata_size + $11;`,
-		tally.IntervalStart,
-		[]byte(tally.BucketName), tally.ProjectID,
+	query := `UPDATE bucket_storage_tallies SET
+		total_bytes = bucket_storage_tallies.total_bytes + ?,
+		inline = bucket_storage_tallies.inline + ?,
+		remote = bucket_storage_tallies.remote + ?,
+		total_segments_count = bucket_storage_tallies.total_segments_count + ?,
+		remote_segments_count = bucket_storage_tallies.remote_segments_count + ?,
+		inline_segments_count = bucket_storage_tallies.inline_segments_count + ?,
+		object_count = bucket_storage_tallies.object_count + ?,
+		metadata_size = bucket_storage_tallies.metadata_size + ?
+		WHERE interval_start=?
+		AND bucket_name=?
+		AND project_id=?;`
+	result, err := db.Testing().RawDB().Exec(ctx,
+		query,
 		tally.TotalBytes, 0, 0,
 		tally.TotalSegmentCount, 0, 0,
-		tally.ObjectCount, tally.MetadataSize)
+		tally.ObjectCount, tally.MetadataSize,
+		tally.IntervalStart,
+		[]byte(tally.BucketName), tally.ProjectID)
+
+	if err != nil {
+		return errs.Wrap(err)
+	}
+
+	numRows, _ := result.RowsAffected()
+	if numRows < 1 {
+		query := `INSERT INTO bucket_storage_tallies (
+			interval_start,
+			bucket_name, project_id,
+			total_bytes, inline, remote,
+			total_segments_count, remote_segments_count, inline_segments_count,
+			object_count, metadata_size)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
+		_, err := db.Testing().RawDB().Exec(ctx,
+			query,
+			tally.IntervalStart,
+			[]byte(tally.BucketName), tally.ProjectID,
+			tally.TotalBytes, 0, 0,
+			tally.TotalSegmentCount, 0, 0,
+			tally.ObjectCount, tally.MetadataSize)
+		return errs.Wrap(err)
+	}
 	return errs.Wrap(err)
 }
