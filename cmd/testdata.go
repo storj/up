@@ -171,7 +171,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		}
 
 		createdAt := time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
-		_, err = db.Testing().RawDB().Exec(ctx, "UPDATE stripe_customers SET created_at = $1 WHERE true", createdAt)
+		_, err = db.Testing().RawDB().Exec(ctx, "UPDATE stripe_customers SET created_at = ? WHERE true", createdAt)
 		if err != nil {
 			return errs.Wrap(err)
 		}
