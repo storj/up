@@ -205,7 +205,7 @@ func generateCredentials(ctx context.Context) error {
 		return errs.Wrap(err)
 	}
 
-	credentials.Grant, err = consolewasm.GenAccessGrant(satelliteNodeURL+"@"+satelliteHost, credentials.ApiKey, secret, base64.StdEncoding.EncodeToString(projectUUID.Bytes()))
+	credentials.Grant, err = consolewasm.GenAccessGrant(satelliteNodeURL+"@"+satelliteHost, credentials.ApiKey, secret, base64.StdEncoding.EncodeToString(projectUUID.Bytes()), true)
 	if err != nil {
 		return errs.Wrap(err)
 	}

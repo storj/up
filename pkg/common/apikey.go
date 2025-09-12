@@ -36,7 +36,7 @@ func GetTestAPIKey(satelliteID string) (string, error) {
 	idHash := sha256.Sum256([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1})
 	base64Salt := base64.StdEncoding.EncodeToString(idHash[:])
 
-	accessGrant, err := consolewasm.GenAccessGrant(satelliteID, key.Serialize(), "password", base64Salt)
+	accessGrant, err := consolewasm.GenAccessGrant(satelliteID, key.Serialize(), "password", base64Salt, true)
 	if err != nil {
 		return "", errs.Wrap(err)
 	}

@@ -427,6 +427,11 @@ func storagenodeConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_STORAGE2MIGRATION_SUPPRESS_CENTRAL_MIGRATION",
+			Description: "if true, whether to suppress central control of migration initiation",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_COLLECTOR_INTERVAL",
 			Description: "how frequently expired pieces are collected",
 			Default:     "1h0m0s",

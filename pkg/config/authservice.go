@@ -97,6 +97,31 @@ func authserviceConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_FREE_TIER_ACCESS_LIMIT_MAX_DURATION",
+			Description: "maximum amount of time that free tier users' access grants are allowed to be active for. 0 means no limit",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_FREE_TIER_ACCESS_LIMIT_TIER_QUERY_IDENTITY_CERT_PATH",
+			Description: "path to the certificate chain for this identity",
+			Default:     "$IDENTITYDIR/identity.cert",
+		},
+		{
+			Name:        "STORJ_FREE_TIER_ACCESS_LIMIT_TIER_QUERY_IDENTITY_KEY_PATH",
+			Description: "path to the private key for this identity",
+			Default:     "$IDENTITYDIR/identity.key",
+		},
+		{
+			Name:        "STORJ_FREE_TIER_ACCESS_LIMIT_TIER_QUERY_CACHE_EXPIRATION",
+			Description: "expiration time for entries in the tier-querying service cache",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_FREE_TIER_ACCESS_LIMIT_TIER_QUERY_CACHE_CAPACITY",
+			Description: "capacity of the tier-querying service cache",
+			Default:     "10000",
+		},
+		{
 			Name:        "STORJ_CERT_MAGIC_ENABLED",
 			Description: "use CertMagic to handle TLS certificates",
 			Default:     "false",

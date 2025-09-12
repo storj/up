@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"storj.io/common/pb"
-	"storj.io/common/storj"
 	"storj.io/common/uuid"
 	"storj.io/storj/private/currency"
 	"storj.io/storj/satellite"
@@ -118,15 +117,12 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 				}
 				// try to create it instead
 				bucket, err = db.Buckets().CreateBucket(ctx, buckets.Bucket{
-					ID:                          bucketID,
-					Name:                        bucketname,
-					ProjectID:                   p.ID,
-					UserAgent:                   []byte(useragent),
-					Created:                     firstDayOfMonth,
-					PathCipher:                  0,
-					DefaultRedundancyScheme:     storj.RedundancyScheme{},
-					DefaultEncryptionParameters: storj.EncryptionParameters{},
-					Placement:                   0,
+					ID:        bucketID,
+					Name:      bucketname,
+					ProjectID: p.ID,
+					UserAgent: []byte(useragent),
+					Created:   firstDayOfMonth,
+					Placement: 0,
 				})
 			}
 			if err != nil {
@@ -171,7 +167,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 		}
 
 		createdAt := time.Date(period.Year(), period.Month()-1, 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
-		_, err = db.Testing().RawDB().Exec(ctx, "UPDATE stripe_customers SET created_at = ? WHERE true", createdAt)
+		_, err = db.Testing().RawDB().ExecContext(ctx, "UPDATE stripe_customers SET created_at = ? WHERE true", createdAt)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -312,7 +308,7 @@ func updateUsage(ctx context.Context, db satellite.DB, tally accounting.BucketSt
 		WHERE interval_start=?
 		AND bucket_name=?
 		AND project_id=?;`
-	result, err := db.Testing().RawDB().Exec(ctx,
+	result, err := db.Testing().RawDB().ExecContext(ctx,
 		query,
 		tally.TotalBytes, 0, 0,
 		tally.TotalSegmentCount, 0, 0,
@@ -334,7 +330,7 @@ func updateUsage(ctx context.Context, db satellite.DB, tally accounting.BucketSt
 			object_count, metadata_size)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-		_, err := db.Testing().RawDB().Exec(ctx,
+		_, err := db.Testing().RawDB().ExecContext(ctx,
 			query,
 			tally.IntervalStart,
 			[]byte(tally.BucketName), tally.ProjectID,

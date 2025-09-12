@@ -192,6 +192,66 @@ func satelliteadminConfig() []Option {
 			Default:     "1000",
 		},
 		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_SEED",
+			Description: "the hashstore rollout seed",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURSOR",
+			Description: "the hashstore rollout cursor (between 0 and 1)",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURRENT_ACTIVE_MIGRATE",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURRENT_PASSIVE_MIGRATE",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURRENT_WRITE_TO_NEW",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURRENT_READ_NEW_FIRST",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_CURRENT_TTLTO_NEW",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_NEXT_ACTIVE_MIGRATE",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_NEXT_PASSIVE_MIGRATE",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_NEXT_WRITE_TO_NEW",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_NEXT_READ_NEW_FIRST",
+			Description: "",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONTACT_HASHSTORE_ROLLOUT_NEXT_TTLTO_NEW",
+			Description: "",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_OVERLAY_NODE_NEW_NODE_FRACTION",
 			Description: "the fraction of new nodes allowed per request (DEPRECATED: use placement definition instead)",
 			Default:     "",
@@ -483,7 +543,22 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_CACHE_CAPACITY",
-			Description: "number of object locations to cache.",
+			Description: "DEPRECATED. number of object locations to cache.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_BURST_LIMIT",
+			Description: "the number of requests to allow bursts beyond the rate limit",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_HASH_COUNT",
+			Description: "the number of hash indexes to make into the rate limit map",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_METAINFO_UPLOAD_LIMITER_SIZE_EXPONENT",
+			Description: "two to this power is the amount of rate limits to store in ram. higher has less collisions.",
 			Default:     "",
 		},
 		{
@@ -542,6 +617,16 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_MONITOR_ENABLED",
+			Description: "enable monkit monitoring of success tracker",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_SUCCESS_TRACKER_MONITOR_FILTER",
+			Description: "filter for nodes that should be monitored by success tracker monitor",
+			Default:     "none()",
+		},
+		{
 			Name:        "STORJ_METAINFO_FAILURE_TRACKER_CHANCE_TO_SKIP",
 			Description: "the chance to skip a failure tracker generation bump",
 			Default:     ".6",
@@ -550,6 +635,11 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_METAINFO_TRUSTED_UPLINKS",
 			Description: "list of trusted uplinks",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_ALWAYS_UPDATE_GLOBAL_TRACKER",
+			Description: "if true, always update the global tracker with info, even if the uplink is registered",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_METAINFO_SERVER_SIDE_COPY",
@@ -632,6 +722,11 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_METAINFO_BUCKET_TAGGING_ENABLED",
+			Description: "enable the use of the bucket tagging endpoints",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
 			Default:     "false",
@@ -650,6 +745,36 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_METAINFO_TESTING_MIGRATION_MODE",
 			Description: "sets metainfo API into migration mode, only read actions are allowed",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_PROJECTS_WITH_COMMIT_DELAY",
+			Description: "list of project IDs for which commit delay is enabled",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_MAX_COMMIT_DELAY",
+			Description: "max commit delay that will be used when commit delay is enabled for project",
+			Default:     "20ms",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_COMMIT_SEGMENT_USE_MUTATIONS",
+			Description: "enable using Spanner mutations while committing segment",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_DELETE_BUCKET_BATCH_SIZE",
+			Description: "how many objects to delete in a single batch during a bucket deletion",
+			Default:     "15",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_ALTERNATIVE_BEGIN_OBJECT",
+			Description: "enable alternative (negative version) begin object implementation globally",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_ALTERNATIVE_BEGIN_OBJECT_PROJECTS",
+			Description: "list of project IDs for which will use alternative (negative version) begin object implementation",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_METAINFO_METABASE_COMPRESSION",
@@ -872,6 +997,11 @@ func satelliteadminConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_CHECKER_HEALTH_SCORE",
+			Description: "Health score to use for segment health calculation. Options: 'probability', 'normalized'. 'probability' uses the original SegmentHealth logic with node count estimation, while 'normalized' uses a normalized health calculation (healthy -k).",
+			Default:     "probability",
+		},
+		{
 			Name:        "STORJ_REPAIRER_MAX_REPAIR",
 			Description: "maximum segments that can be repaired concurrently",
 			Default:     "",
@@ -905,11 +1035,6 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_REPAIRER_TOTAL_TIMEOUT",
 			Description: "time limit for an entire repair job, from queue pop to upload completion",
 			Default:     "45m",
-		},
-		{
-			Name:        "STORJ_REPAIRER_MAX_BUFFER_MEM",
-			Description: "maximum buffer memory (in bytes) to be allocated for read buffers",
-			Default:     "4.0 MiB",
 		},
 		{
 			Name:        "STORJ_REPAIRER_MAX_EXCESS_RATE_OPTIMAL_THRESHOLD",
@@ -952,6 +1077,36 @@ func satelliteadminConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_REPAIRER_PARTICIPATING_NODE_CACHE_ENABLED",
+			Description: "enable cache for participating nodes",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_REPAIRER_PARTICIPATING_NODE_CACHE_INTERVAL",
+			Description: "how often participating nodes cache should be refreshed",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_REPAIRER_PARTICIPATING_NODE_CACHE_STALE",
+			Description: "when does participating nodes cache start blocking",
+			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_REPAIRER_NODES_FOR_REPAIR_CACHE_ENABLED",
+			Description: "enable cache for nodes to upload repaired pieces",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_REPAIRER_NODES_FOR_REPAIR_CACHE_INTERVAL",
+			Description: "how often nodes for repaired pieces cache should be refreshed",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_REPAIRER_NODES_FOR_REPAIR_CACHE_STALE",
+			Description: "when does nodes for repaired pieces cache start blocking",
+			Default:     "10m",
+		},
+		{
 			Name:        "STORJ_REPAIRER_INCLUDED_PLACEMENTS_PLACEMENTS",
 			Description: "",
 			Default:     "",
@@ -959,6 +1114,11 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_REPAIRER_EXCLUDED_PLACEMENTS_PLACEMENTS",
 			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_AUDIT_NODE_FILTER",
+			Description: "restrict audit only to the filtered nodes",
 			Default:     "",
 		},
 		{
@@ -1112,9 +1272,79 @@ func satelliteadminConfig() []Option {
 			Default:     "336h",
 		},
 		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_COLLECT_NODES_PIECE_IDS",
+			Description: "list of node IDs for which we will collect raw list of piece IDs",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_NODES_PIECE_IDS_BUFFER_SIZE",
+			Description: "buffer size of piece IDs before will be uploaded",
+			Default:     "1000000",
+		},
+		{
 			Name:        "STORJ_REPAIR_QUEUE_CHECK_INTERVAL",
 			Description: "how frequently core should check the size of the repair queue",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_ID",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_ADDRESS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_NOISE_INFO_PROTO",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_NOISE_INFO_PUBLIC_KEY",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_DEBOUNCE_LIMIT",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_SERVER_NODE_URL_FEATURES",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_REVOCATION_DBURL",
+			Description: "url for revocation database (e.g. bolt://some.db OR redis://127.0.0.1:6378?db=2&password=abc123)",
+			Default:     "bolt://$CONFDIR/revocations.db",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_PEER_CAWHITELIST_PATH",
+			Description: "path to the CA cert whitelist (peer identities must be signed by one these to be verified). this will override the default peer whitelist",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_USE_PEER_CAWHITELIST",
+			Description: "if true, uses peer ca whitelist checking",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_PEER_IDVERSIONS",
+			Description: "identity version(s) the server will be allowed to talk to",
+			Default:     "latest",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_EXTENSIONS_REVOCATION",
+			Description: "if true, client leaves may contain the most recent certificate revocation for the current certificate",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_JOB_QUEUE_TLS_EXTENSIONS_WHITELIST_SIGNED_LEAF",
+			Description: "if true, client leaves must contain a valid \"signed certificate extension\" (NB: verified against certs in the peer ca whitelist; i.e. if true, a whitelist must be provided)",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_RANGED_LOOP_PARALLELISM",
@@ -1247,6 +1477,16 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_TALLY_FIXED_READ_TIMESTAMP",
+			Description: "whether to use fixed (start of process) timestamp for DB reads from objects table",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_TALLY_USE_PARTITION_QUERY",
+			Description: "whether to use partition query for DB reads from objects table",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_NODE_TALLY_BATCH_SIZE",
 			Description: "batch size for saving tallies into DB",
 			Default:     "1000",
@@ -1267,6 +1507,11 @@ func satelliteadminConfig() []Option {
 			Default:     "10000",
 		},
 		{
+			Name:        "STORJ_ROLLUP_ARCHIVE_ENABLED",
+			Description: "whether or not the rollup archive is enabled.",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_ROLLUP_ARCHIVE_INTERVAL",
 			Description: "how frequently rollup archiver should run",
 			Default:     "",
@@ -1278,13 +1523,8 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_ROLLUP_ARCHIVE_BATCH_SIZE",
-			Description: "number of records to delete per delete execution. Used only for crdb which is slow without limit.",
-			Default:     "500",
-		},
-		{
-			Name:        "STORJ_ROLLUP_ARCHIVE_ENABLED",
-			Description: "whether or not the rollup archive is enabled.",
-			Default:     "true",
+			Description: "number of records to delete per delete execution.",
+			Default:     "100",
 		},
 		{
 			Name:        "STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND",
@@ -1367,6 +1607,26 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HUBSPOT_MAILS_ENABLED",
+			Description: "indicates whether the hubspot email service is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HUBSPOT_MAILS_DEFAULT_TIMEOUT",
+			Description: "the default timeout for the hubspot http client",
+			Default:     "10s",
+		},
+		{
+			Name:        "STORJ_HUBSPOT_MAILS_SEND_EMAIL_API",
+			Description: "hubspot send email API endpoint",
+			Default:     "https://api.hubapi.com/marketing/v3/transactional/single-email/send",
+		},
+		{
+			Name:        "STORJ_HUBSPOT_MAILS_EMAIL_KIND_IDMAP_KIND_IDMAP",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_PROVIDER",
 			Description: "payments provider to use",
 			Default:     "",
@@ -1435,6 +1695,31 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_USE_IDEMPOTENCY",
 			Description: "whether to use idempotency for create/update requests",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_PRODUCT_BASED_INVOICING",
+			Description: "whether to use product-based invoicing",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_SKU_ENABLED",
+			Description: "whether we should use SKUs for product usages",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_SKIP_NO_CUSTOMER",
+			Description: "whether to skip the invoicing for users without a Stripe customer. DO NOT SET IN PRODUCTION!",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_INV_ITEM_SKUIN_DESCRIPTION",
+			Description: "whether to include SKU in the invoice item description",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_MAX_CREDIT_CARD_COUNT",
+			Description: "maximum number of credit cards per customer",
+			Default:     "8",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
@@ -1507,8 +1792,23 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_PRODUCTS_OVERRIDE_MAP",
-			Description: "",
+			Name:        "STORJ_PAYMENTS_MINIMUM_CHARGE_AMOUNT",
+			Description: "minimum amount in cents to charge customers per invoice period (0 to disable)",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_MINIMUM_CHARGE_EFFECTIVE_DATE",
+			Description: "date after which all users will have minimum charges applied (YYYY-MM-DD), empty to apply immediately",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_DELETE_PROJECT_COST_THRESHOLD",
+			Description: "the amount of usage in cents above which a project's usage should be paid before allowing deletion. Set to 0 to disable the threshold.",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_PRODUCTS",
+			Description: "a YAML list of products with their price structures. See satellite/payments/paymentsconfig/README.md for more details.",
 			Default:     "",
 		},
 		{
@@ -1535,11 +1835,6 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_PAYMENTS_PACKAGE_PLANS_PACKAGES",
 			Description: "",
 			Default:     "",
-		},
-		{
-			Name:        "STORJ_RESTKEYS_DEFAULT_EXPIRATION",
-			Description: "expiration to use if user does not specify an rest key expiration",
-			Default:     "720h",
 		},
 		{
 			Name:        "STORJ_CONSOLE_ADDRESS",
@@ -1658,12 +1953,12 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_CONSOLE_BETA_SATELLITE_FEEDBACK_URL",
-			Description: "url link for for beta satellite feedback",
+			Description: "url link for beta satellite feedback",
 			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_BETA_SATELLITE_SUPPORT_URL",
-			Description: "url link for for beta satellite support",
+			Description: "url link for beta satellite support",
 			Default:     "",
 		},
 		{
@@ -1742,11 +2037,6 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_PRICING_PACKAGES_ENABLED",
-			Description: "whether to allow purchasing pricing packages",
-			Default:     "true",
-		},
-		{
 			Name:        "STORJ_CONSOLE_GALLERY_VIEW_ENABLED",
 			Description: "whether to show new gallery view",
 			Default:     "true",
@@ -1817,6 +2107,11 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_OBJECT_MOUNT_CONSULTATION_ENABLED",
+			Description: "whether object mount consultation request form is visible",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CSRFPROTECTION_ENABLED",
 			Description: "whether CSRF protection is enabled for some of the endpoints",
 			Default:     "false",
@@ -1824,6 +2119,16 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_BILLING_ADD_FUNDS_ENABLED",
 			Description: "whether billing add funds feature is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_BILLING_STRIPE_CHECKOUT_ENABLED",
+			Description: "whether billing stripe checkout feature is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ADD_CARD_AUTHORIZATION_ENABLED",
+			Description: "whether card authorization is enabled when adding a card",
 			Default:     "false",
 		},
 		{
@@ -1835,6 +2140,16 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_ZIP_DOWNLOAD_LIMIT",
 			Description: "maximum number of objects allowed for a zip format download",
 			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_LIVE_CHECK_BAD_PASSWORDS",
+			Description: "whether to check if provided password is in bad passwords list",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_USE_GENERATED_PRIVATE_API",
+			Description: "whether to use generated private API",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
@@ -1893,6 +2208,21 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_CONSOLE_RATE_LIMIT_NUM_LIMITS",
+			Description: "number of clients whose rate limits we store",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ADD_CARD_RATE_LIMITER_DURATION",
+			Description: "the rate at which add card requests are refilled",
+			Default:     "144m",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ADD_CARD_RATE_LIMITER_BURST",
+			Description: "number of add card events before the limit kicks in",
+			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_ADD_CARD_RATE_LIMITER_NUM_LIMITS",
 			Description: "number of clients whose rate limits we store",
 			Default:     "1000",
 		},
@@ -1977,11 +2307,6 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_PLACEMENT_DETAILS_DETAIL_MAP",
-			Description: "",
-			Default:     "",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_BLOCK_EXPLORER_URL",
 			Description: "url of the transaction block explorer",
 			Default:     "https://etherscan.io/",
@@ -1992,13 +2317,13 @@ func satelliteadminConfig() []Option {
 			Default:     "https://explorer.zksync.io/",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_BILLING_FEATURES_ENABLED",
-			Description: "indicates if billing features should be enabled",
-			Default:     "true",
+			Name:        "STORJ_CONSOLE_CONFIG_ZK_SYNC_CONTRACT_ADDRESS",
+			Description: "the STORJ zkSync Era contract address",
+			Default:     "0xA0806DA7835a4E63dB2CE44A2b622eF8b73B5DB5",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_STRIPE_PAYMENT_ELEMENT_ENABLED",
-			Description: "indicates whether the stripe payment element should be used to collect card info",
+			Name:        "STORJ_CONSOLE_CONFIG_BILLING_FEATURES_ENABLED",
+			Description: "indicates if billing features should be enabled",
 			Default:     "true",
 		},
 		{
@@ -2009,7 +2334,12 @@ func satelliteadminConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_MIN_ADD_FUNDS_AMOUNT",
 			Description: "minimum amount (in cents) allowed to be added to an account balance.",
-			Default:     "100",
+			Default:     "1000",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_UPGRADE_PAY_UPFRONT_AMOUNT",
+			Description: "amount (in cents) required to upgrade to a paid tier, use 0 to disable",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SIGNUP_ACTIVATION_CODE_ENABLED",
@@ -2072,13 +2402,68 @@ func satelliteadminConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_USE_NEW_REST_KEYS_TABLE",
+			Description: "whether to use the new rest keys table",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_NEW_DETAILED_USAGE_REPORT_ENABLED",
+			Description: "whether to use the new detailed usage report",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_NEW_ACCOUNT_SETUP_ENABLED",
+			Description: "whether to use new account setup flow",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PRODUCT_BASED_INVOICING",
+			Description: "whether to use product-based invoicing",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PRICING_PACKAGES_ENABLED",
+			Description: "whether to allow purchasing pricing packages",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SKU_ENABLED",
+			Description: "whether we should use SKUs for product usages",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_USER_FEEDBACK_ENABLED",
+			Description: "whether user feedback is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_AUDITABLE_APIKEY_PROJECTS",
+			Description: "list of public project IDs for which auditable API keys are enabled",
+			Default:     "[]",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_VALID_ANNOUNCEMENT_NAMES",
+			Description: "list of valid announcement names that can be used in the UI",
+			Default:     "[]",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_MANAGED_ENCRYPTION_PATH_ENCRYPTION_ENABLED",
+			Description: "indicates whether projects with managed encryption should have path encryption enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_REST_APIKEYS_DEFAULT_EXPIRATION",
+			Description: "expiration to use if user does not specify an rest key expiration",
+			Default:     "720h",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_ENABLED",
 			Description: "whether self-serve placement selection feature is enabled",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_NAMES",
-			Description: "list of placements names allowed for self-serve selection",
+			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_DETAILS",
+			Description: "human-readable details for placements allowed for self serve placement. See satellite/console/README.md for more details.",
 			Default:     "",
 		},
 		{
@@ -2092,6 +2477,11 @@ func satelliteadminConfig() []Option {
 			Default:     "100.00TB",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_NFR",
+			Description: "the default NFR storage usage limit",
+			Default:     "10.00TB",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_FREE",
 			Description: "the default free-tier bandwidth usage limit",
 			Default:     "25.00GB",
@@ -2100,6 +2490,11 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_PAID",
 			Description: "the default paid-tier bandwidth usage limit",
 			Default:     "150.00TB",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_BANDWIDTH_NFR",
+			Description: "the default NFR bandwidth usage limit",
+			Default:     "15.00TB",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_FREE",
@@ -2112,6 +2507,11 @@ func satelliteadminConfig() []Option {
 			Default:     "100000000",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_SEGMENT_NFR",
+			Description: "the default NFR segment usage limit",
+			Default:     "10000000",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_FREE",
 			Description: "the default free-tier project limit",
 			Default:     "1",
@@ -2120,6 +2520,11 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_PAID",
 			Description: "the default paid-tier project limit",
 			Default:     "3",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_PROJECT_NFR",
+			Description: "the default NFR project limit",
+			Default:     "1",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_CAPTCHA_FLAG_BOTS_ENABLED",
@@ -2240,6 +2645,36 @@ func satelliteadminConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_ACCOUNT_FREEZE_TRIAL_EXPIRATION_RATE_LIMITS",
 			Description: "Specifies the rate and burst limit for 'head', list' and 'delete' operations when a trial account has expired.",
 			Default:     "20",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ANNOUNCEMENT_ENABLED",
+			Description: "indicates whether announcement should be shown in the UI",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ANNOUNCEMENT_NAME",
+			Description: "name of the announcement",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ANNOUNCEMENT_TITLE",
+			Description: "title of the announcement",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ANNOUNCEMENT_BODY",
+			Description: "body of the announcement",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SUPPORT_URL",
+			Description: "url link to general request page",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_LOGIN_URL",
+			Description: "url link to the satellite UI login",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_VALDI_SATELLITE_EMAIL",
@@ -2473,13 +2908,13 @@ func satelliteadminConfig() []Option {
 		},
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_BILLING_WARNING_EMAIL_INTERVALS",
-			Description: "how long to wait between the billing freeze warning emails",
-			Default:     "240h,96h",
+			Description: "how long to wait after a warning event to send reminder emails. E.g.: 1h,2h,3h will mean an email is sent 1h after the event, 2h after the event and 3h after the event",
+			Default:     "240h,336h",
 		},
 		{
 			Name:        "STORJ_ACCOUNT_FREEZE_BILLING_FREEZE_EMAIL_INTERVALS",
-			Description: "how long to wait between the billing freeze emails",
-			Default:     "720h,480h,216h",
+			Description: "how long to wait after a freeze event to send reminder emails. E.g.: 1h,2h,3h will mean an email is sent 1h after the event, 2h after the event and 3h after the event",
+			Default:     "720h,1200h,1416h",
 		},
 		{
 			Name:        "STORJ_VERSION_CLIENT_CONFIG_SERVER_ADDRESS",
@@ -2657,6 +3092,11 @@ func satelliteadminConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_ANALYTICS_HUB_SPOT_OBJECT_MOUNT_CONSULTATION_FORM_URL",
+			Description: "the hubspot form URL for requesting object mount consultation",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_ANALYTICS_HUB_SPOT_LIFE_CYCLE_STAGE",
 			Description: "the hubspot lifecycle stage for new accounts",
 			Default:     "",
@@ -2767,8 +3207,53 @@ func satelliteadminConfig() []Option {
 			Default:     "localhost:10500",
 		},
 		{
+			Name:        "STORJ_FLIGHT_RECORDER_ENABLED",
+			Description: "enable flight recorder",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_FLIGHT_RECORDER_DBSTACK_FRAME_CAPACITY",
+			Description: "capacity of the circular buffer for database stack frame events.",
+			Default:     "1000",
+		},
+		{
 			Name:        "STORJ_TAG_AUTHORITIES",
 			Description: "comma-separated paths of additional cert files, used to validate signed node tags",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_URL",
+			Description: "URL of the Prometheus server",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_CA_CERT_PATH",
+			Description: "Path to the CA certificate of the Prometheus server",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_USERNAME",
+			Description: "Username for the basic auth of the Prometheus server",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_PASSWORD",
+			Description: "Password for the basic auth of the Prometheus server",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_QUERY",
+			Description: "Prometheus query to get the scores",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_ATTRIBUTES",
+			Description: "Node attributes to use for matching nodes with metrics",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_PROMETHEUS_TRACKER_LABELS",
+			Description: "Labels to use for matching nodes with metrics",
 			Default:     "",
 		},
 		{
