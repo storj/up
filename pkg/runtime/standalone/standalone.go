@@ -299,6 +299,11 @@ func NewStandalone(paths Paths) (*Standalone, error) {
 				"metainfo": "cockroach://root@localhost:26257/metainfo?sslmode=disable",
 				"dir":      filepath.Join(paths.ScriptDir, "cockroach", "0", "data"),
 			},
+			"spanner": {
+				"main":         "spanner://projects/test-project/instances/test-instance/databases/master",
+				"metainfo":     "spanner://projects/test-project/instances/test-instance/databases/metainfo",
+				"emulatorHost": "spanner:9010",
+			},
 			"storagenode": {
 				"staticDir": filepath.Join(paths.StorjDir, "web/storagenode"),
 			},

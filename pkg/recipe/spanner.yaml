@@ -24,6 +24,6 @@ modify:
         satellite-rangedloop,
         satellite-repair
     config:
-      SPANNER_EMULATOR_HOST: 'spanner:9010'
-      STORJ_METAINFO_DATABASE_URL: "spanner://projects/test-project/instances/test-instance/databases/metainfo"
-      STORJ_DATABASE: "spanner://projects/test-project/instances/test-instance/databases/master"
+      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
+      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'

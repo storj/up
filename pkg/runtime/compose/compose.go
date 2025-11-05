@@ -162,6 +162,11 @@ func NewCompose(dir string) (*Compose, error) {
 				"metainfo": "cockroach://root@cockroach:26257/metainfo?sslmode=disable",
 				"dir":      "/tmp/cockroach",
 			},
+			"spanner": {
+				"main":         "spanner://projects/test-project/instances/test-instance/databases/master",
+				"metainfo":     "spanner://projects/test-project/instances/test-instance/databases/metainfo",
+				"emulatorHost": "spanner:9010",
+			},
 			"storagenode": {
 				"identityDir": "/var/lib/storj/.local/share/storj/identity/storagenode/",
 			},
