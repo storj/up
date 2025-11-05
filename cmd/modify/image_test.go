@@ -19,7 +19,7 @@ func TestSetImage(t *testing.T) {
 	st, rt, err := testdata.InitCompose(dir)
 	require.NoError(t, err)
 
-	err = setImage(st, rt, []string{"cockroach", "xxx"})
+	err = setImage(st, rt, []string{"spanner", "xxx"})
 	require.NoError(t, err)
 
 	require.NoError(t, rt.Write())

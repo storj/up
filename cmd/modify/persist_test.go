@@ -11,12 +11,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"storj.io/storj-up/cmd/testdata"
+	"storj.io/storj-up/pkg/runtime/runtime"
 )
 
-func TestPersist(t *testing.T) {
+func TestPersistCockroach(t *testing.T) {
 	dir := t.TempDir()
 
 	st, rt, err := testdata.InitCompose(dir)
+	require.NoError(t, err)
+
+	err = runtime.ApplyRecipes(st, rt, []string{"cockroach"}, 0)
 	require.NoError(t, err)
 
 	err = persist(st, rt, []string{"cockroach"})

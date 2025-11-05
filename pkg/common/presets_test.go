@@ -12,5 +12,5 @@ import (
 func TestResolveServices(t *testing.T) {
 	res, err := ResolveServices([]string{"db", "satellite-api"})
 	require.NoError(t, err)
-	require.Equal(t, []string{"cockroach", "redis", "satellite-api"}, res)
+	require.Equal(t, []string{"spanner", "redis", "satellite-api"}, res)
 }

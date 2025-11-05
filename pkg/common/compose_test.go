@@ -12,7 +12,7 @@ import (
 func Test_ResolveService(t *testing.T) {
 	services, err := ResolveServices([]string{"minimal", "db"})
 	require.NoError(t, err)
-	expected := []string{"cockroach", "redis", "satellite-api", "storagenode"}
+	expected := []string{"spanner", "redis", "satellite-api", "storagenode"}
 	require.ElementsMatch(t,
 		expected,
 		services)

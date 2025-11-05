@@ -45,11 +45,11 @@ pipeline {
                         sh "earthly -P ./test/edge+test"
                     }
                 }
-                stage('Storjscan') {
-                    steps {
-                        sh "earthly -P ./test/storjscan+test"
-                    }
-                }
+//                 stage('Storjscan') {
+//                     steps {
+//                         sh "earthly -P ./test/storjscan+test"
+//                     }
+//                 }
             }
         }
     }

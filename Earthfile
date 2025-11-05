@@ -1,5 +1,5 @@
 VERSION 0.8
-FROM golang:1.24.3
+FROM golang:1.25.1
 WORKDIR /go/storj-up
 
 lint-deps:

@@ -8,7 +8,7 @@ test:
     RUN /go/storj-up/storj-up init minimal,db,uplink
     COPY . .
     WITH DOCKER --compose docker-compose.yaml
-        RUN docker compose exec -T -u 0 uplink bash -c 'storj-up health --host cockroach -d 120' && \
+        RUN ./storj-up health && \
             docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -e >> ~/.bashrc' && \
             < basic_upload_download.sh docker compose exec -T -u 0 uplink bash -i
     END

@@ -14,16 +14,16 @@ add:
     persistence:
       - /var/lib/storj/.local/share/storj
     config:
-      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=1'
       STORJ_LOG_LEVEL: debug
       STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
-      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
-
+      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJUP_AUTHSERVICE: http://authservice:8888

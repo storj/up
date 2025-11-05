@@ -24,13 +24,13 @@ add:
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
       STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
       STORJ_CONSOLE_SIGNUP_ACTIVATION_CODE_ENABLED: "false"
-      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
+      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=0'
       STORJ_LOG_LEVEL: debug
       STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
-      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
       STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
@@ -43,7 +43,7 @@ add:
       STORJ_CONSOLE_EXTERNAL_ADDRESS: 'http://{{ Host .This "external"}}:{{ Port .This "console"}}/'
       STORJ_SERVER_PRIVATE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "private" }}'
       STORJ_VERSION_RUN_MODE: disable
-
+      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJ_DEFAULTS: dev

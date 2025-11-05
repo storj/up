@@ -34,11 +34,11 @@ func healthCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&table, "table", "t", "nodes", "table to use for health check")
 	cmd.PersistentFlags().IntVarP(&number, "number", "n", 10, "number of entries to expect in the table")
 	cmd.PersistentFlags().IntVarP(&timeout, "duration", "d", 0, "time to wait (in seconds) for health check")
-	cmd.PersistentFlags().StringVarP(&host, "host", "", "127.0.0.1", "host/ip address to use for health check. Defaults to 127.0.0.1 or STORJ_DOCKER_HOST if set.")
-	cmd.PersistentFlags().IntVarP(&port, "port", "p", 26257, "port to use for health check")
+	cmd.PersistentFlags().StringVarP(&host, "host", "", "localhost", "host/ip address to use for health check. Defaults to localhost or STORJ_DOCKER_HOST if set.")
+	cmd.PersistentFlags().IntVarP(&port, "port", "p", 9010, "port to use for health check")
 	cmd.Flags().StringVarP(&user, "user", "u", "root", "user to connect to the DB as")
 	cmd.Flags().StringVarP(&dbname, "dbname", "", "master", "DB name to connect to")
-	cmd.Flags().StringVarP(&dbtype, "dbtype", "", "cockroach", "database type (cockroach, postgres, or spanner)")
+	cmd.Flags().StringVarP(&dbtype, "dbtype", "", "spanner", "database type (spanner, postgres, or cockroach)")
 	cmd.Flags().StringVarP(&spannerURL, "spanner-url", "", "", "URL for Spanner connection in format spanner://projects/PROJECT/instances/INSTANCE/databases/DATABASE")
 	return cmd
 }

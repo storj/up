@@ -1,20 +1,19 @@
 name: db
 description: Cockroach and redis required by other services.
 add:
-  - name: cockroach
-    image: cockroachdb/cockroach:v24.2.1
+  - name: spanner
+    image: img.dev.storj.io/storjup/spanner-emulator:1.5.31
     port:
-      - name: cockroach
-        description: Cockroach Postgres-compatible SQL port
-        target: 26257
-    command:
-      - cockroach
-      - start-single-node
-      - --insecure
-      - --http-addr=localhost:8086
-      - --store="{{ Environment .This "dir" }}"
-    persistence:
-      - /cockroach/cockroach-data
+      - name: gRPC
+        description: Spanner gRPC port
+        target: 9010
+      - name: REST
+        description: Spanner REST port
+        target: 9020
+    environment:
+      PROJECT_ID: test-project
+      INSTANCE_NAME: test-instance
+      SPANNER_EMULATOR_URL: http://localhost:9020/
   - name: redis
     image: redis:6.0.9
     command:
