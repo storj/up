@@ -13,6 +13,9 @@ var minimal []byte
 //go:embed db.yaml
 var db []byte
 
+//go:embed cockroach.yaml
+var cockroach []byte
+
 //go:embed postgres.yaml
 var postgres []byte
 
@@ -57,6 +60,7 @@ var Defaults = map[string][]byte{
 	"minimal":         minimal,
 	"satellite-core":  satelliteCore,
 	"satellite-admin": satelliteAdmin,
+	"cockroach":       cockroach,
 	"db":              db,
 	"postgres":        postgres,
 	"spanner":         spanner,

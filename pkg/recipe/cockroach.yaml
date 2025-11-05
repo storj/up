@@ -1,0 +1,29 @@
+name: cockroach
+description: cockroach DB.
+add:
+  - name: cockroach
+    image: cockroachdb/cockroach:v24.2.1
+    port:
+      - name: cockroach
+        description: Cockroach Postgres-compatible SQL port
+        target: 26257
+    command:
+      - cockroach
+      - start-single-node
+      - --insecure
+      - --http-addr=localhost:8086
+      - --store="{{ Environment .This "dir" }}"
+    persistence:
+      - /cockroach/cockroach-data
+modify:
+  - match:
+      name:
+        satellite-api,
+        satellite-core,
+        satellite-admin,
+        satellite-audit,
+        satellite-rangedloop,
+        satellite-repair
+    config:
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
