@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
 ARG SOURCE
-FROM img.dev.storj.io/storjup/build:20240911-1  AS base
+FROM img.dev.storj.io/storjup/build:20251110-1  AS base
 
 ARG SKIP_FRONTEND_BUILD
 
@@ -47,7 +47,7 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     -X storj.io/common/version.buildTimestamp=0"  \
     ./cmd/storagenode/...
 
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20250408-1 AS final
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:20251110-1 AS final
 ENV STORJ_ADMIN_STATIC_DIR=/var/lib/storj/storj/satellite/admin/ui/build
 ENV STORJ_CONSOLE_STATIC_DIR=/var/lib/storj/storj/web/satellite/
 ENV STORJ_MAIL_TEMPLATE_PATH=/var/lib/storj/storj/web/satellite/static/emails

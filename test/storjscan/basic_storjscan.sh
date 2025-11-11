@@ -20,7 +20,7 @@ ADDRESS=$(curl -X GET -s http://satellite-api:10000/api/v0/payments/wallet --hea
 
 #ACCOUNT is defined with environment variables above
 for i in {1..15}; do cethacea token transfer 1000 "$ADDRESS"; sleep 1; done
-storj-up health -t billing_transactions -n 6 -d 12
+storj-up health --host default-spanner-1 -t billing_transactions -n 6 -d 12
 
 RESPONSE=$(curl -X GET http://satellite-api:10000/api/v0/payments/wallet/payments --header "Cookie: _tokenKey=$_tokenKey")
 STATUS=$(echo "$RESPONSE" | jq -r '.payments[-4].Status')

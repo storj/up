@@ -1,4 +1,4 @@
-FROM img.dev.storj.io/storjup/base:20250408-1 AS binaries
+FROM img.dev.storj.io/storjup/base:20251110-1 AS binaries
 
 FROM gcr.io/cloud-spanner-emulator/emulator:1.5.31 AS emulator
 

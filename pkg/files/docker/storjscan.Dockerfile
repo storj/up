@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
 ARG SOURCE
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20240911-1 AS base
+FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20251110-1 AS base
 
 FROM base AS commit
 ARG BRANCH
@@ -34,5 +34,5 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     go install -race ./cmd/...
 RUN go install -race github.com/elek/cethacea@main
 
-FROM img.dev.storj.io/storjup/base:20250408-1 AS final
+FROM img.dev.storj.io/storjup/base:20251110-1 AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin

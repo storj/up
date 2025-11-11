@@ -4,11 +4,11 @@ add:
   - name: storjscan
     label:
       - storjscan
-    image: img.dev.storj.io/storjup/storjscan:1.0.9
+    image: img.dev.storj.io/storjup/storjscan:20251110-1
     command:
       - storjscan
       - run
-      - --database=cockroach://root@cockroach:26257/storjscan?sslmode=disable
+      - --database=postgres://postgres@postgres:5432/master?sslmode=disable
       - --tokens.endpoints=[{"URL":"http://geth:8545","Contract":"0x1E119A589270646585b044db12098B1e456a88Af","ChainID":"1337"}]
       - --token-price.interval=1m
       - --token-price.coinmarketcap-config.base-url=https://sandbox-api.coinmarketcap.com
@@ -54,6 +54,17 @@ add:
         target: 8545
       - name: rpc2
         target: 8546
+  - name: postgres
+    image: postgres:latest
+    port:
+      - name: postgres
+        description: Postgres SQL port
+        target: 5432
+    command:
+      - postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: master
 modify:
   - match:
       name: satellite-core,satellite-api

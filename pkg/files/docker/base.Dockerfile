@@ -1,4 +1,4 @@
-FROM golang:1.22 AS storjup
+FROM golang:1.25 AS storjup
 COPY . /go/storj-up
 WORKDIR /go/storj-up
 RUN --mount=type=cache,target=/root/.cache/go-build \
