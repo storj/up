@@ -1,4 +1,3 @@
-
 # docker compose based Storj environment
 
 `storj-up` is a swiss-army tool to create / customize Storj clusters with the help of `docker compose` (not just storagenode but all satellite and edge services).
@@ -228,3 +227,28 @@ If you are okay with starting with a fresh satellite db, this can be accomplishe
 ```
 docker compose down -v
 ```
+
+## How to update it to the last Storj/Edge version
+
+Versions are specified in these instructions as `vX.XXX.X`. It should be replaced with the specific
+Storj/Edge version to update this tool; for example `v1.143.2`.
+
+Paths to files are represented from the root of this repository, that's where this README.md file
+sits.
+
+Check if the Go and the Go toolchain version targets the same version as the
+[storj.io/storj module](https://github.com/storj/storj/blob/main/go.mod) for the targeted version.
+If they are not, update them in _go.mod_.
+
+Update the Storj dependency of _go.mod_ with `go get storj.io/storj@vX.XXX.X` and `go mod tidy`.
+
+Update the Storj and Edge dependency of _pkg/config/gen/go.mod_ with
+- `go get -modfile=pkg/config/gen/go.mod  storj.io/storj@vX.XXX.X`
+- `go get -modfile=pkg/config/gen/go.mod  storj.io/edge@vX.XXX.X`
+- `cd pkg/config/gen; go mod tidy`
+
+Update the sources to match the configuration parameters of the version with
+`go generate ./pkg/config`
+
+Verifies that the tool compiles with `go run . -h`, otherwise make the required changes to fix the
+compilation.
