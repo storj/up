@@ -5,7 +5,7 @@ package config
 
 func storjscanConfig() []Option {
 	return []Option{
-
+		
 		{
 			Name:        "STORJ_DEBUG_ADDR",
 			Description: "address to listen on for debug endpoints",
@@ -111,5 +111,5 @@ func storjscanConfig() []Option {
 			Description: "List of user:secret pairs to connect to service endpoints.",
 			Default:     "",
 		},
-	}
+   }
 }

@@ -5,7 +5,7 @@ package config
 
 func satelliteapiConfig() []Option {
 	return []Option{
-
+		
 		{
 			Name:        "STORJ_IDENTITY_CERT_PATH",
 			Description: "path to the certificate chain for this identity",
@@ -102,6 +102,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_DEBUG_PROMETHEUS_SANITIZE",
+			Description: "if true, sanitize prometheus metric names and labels",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_DEBUG_CRAWLSPACE",
 			Description: "if true, enable crawlspace on debug port",
 			Default:     "false",
@@ -142,6 +147,21 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_BYPASS_AUTH",
+			Description: "ignore authentication for local development",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_ALLOWED_OAUTH_HOST",
+			Description: "the oauth host allowed to host the backoffice.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_PENDING_DELETE_USER_CLEANUP_ENABLED",
+			Description: "whether the pending delete data deletion chore is enabled.",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_ADMIN",
 			Description: "the list of groups whose users has the administration role",
 			Default:     "",
@@ -160,6 +180,41 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_FINANCE_MANAGER",
 			Description: "the list of groups whose users has the finance manager role",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_ENABLED",
+			Description: "enable audit logging for admin operations",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_CHANGES",
+			Description: "max changed fields recorded per event (0 = no limit)",
+			Default:     "300",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_DEPTH",
+			Description: "max struct depth to recurse when comparing (0 = no limit)",
+			Default:     "6",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_SLICE_ELEMENTS",
+			Description: "max slice/array elements compared (0 = no limit)",
+			Default:     "50",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_MAP_ENTRIES",
+			Description: "max map entries compared (0 = no limit)",
+			Default:     "200",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_STRING_LEN",
+			Description: "max string length recorded (0 = no limit)",
+			Default:     "512",
+		},
+		{
+			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_BYTES",
+			Description: "max total JSON bytes recorded (0 = no limit)",
+			Default:     "28672",
 		},
 		{
 			Name:        "STORJ_CONTACT_EXTERNAL_ADDRESS",
@@ -434,6 +489,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_STRAY_NODES_LIMIT",
 			Description: "Max number of nodes to return in a single query. Chore will iterate until rows returned is less than limit",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_BUCKET_EVENTING_BUCKETS",
+			Description: "defines which buckets are monitored for events (comma separated list of \"project_id:bucket_name:topic_id\")",
 			Default:     "",
 		},
 		{
@@ -727,6 +787,31 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_METAINFO_APIKEY_TAILS_CONFIG_COMBINER_QUEUE_ENABLED",
+			Description: "whether combiner queue is enabled for processing API key tails",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_APIKEY_TAILS_CONFIG_QUEUE_SIZE",
+			Description: "size of API key tails combiner queue",
+			Default:     "100",
+		},
+		{
+			Name:        "STORJ_METAINFO_APIKEY_TAILS_CONFIG_CACHE_EXPIRATION",
+			Description: "API key tails cache expiration",
+			Default:     "5m",
+		},
+		{
+			Name:        "STORJ_METAINFO_APIKEY_TAILS_CONFIG_CACHE_CAPACITY",
+			Description: "API key tails cache capacity",
+			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_METAINFO_COPY_MOVE_SEGMENT_LIMIT",
+			Description: "the maximum number of segments that can be copied or moved in a single operation",
+			Default:     "10000",
+		},
+		{
 			Name:        "STORJ_METAINFO_TEST_LISTING_QUERY",
 			Description: "test the new query for non-recursive listing",
 			Default:     "false",
@@ -744,6 +829,16 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_TESTING_MIGRATION_MODE",
 			Description: "sets metainfo API into migration mode, only read actions are allowed",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_TIMESTAMP_VERSIONING",
+			Description: "use timestamps for assigning version numbers",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_TWO_ROUNDTRIP_COMMIT",
+			Description: "Use a new two roundtrip commit object.",
 			Default:     "false",
 		},
 		{
@@ -769,11 +864,21 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_TESTING_ALTERNATIVE_BEGIN_OBJECT",
 			Description: "enable alternative (negative version) begin object implementation globally",
-			Default:     "false",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_METAINFO_TESTING_ALTERNATIVE_BEGIN_OBJECT_PROJECTS",
 			Description: "list of project IDs for which will use alternative (negative version) begin object implementation",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_NO_PENDING_OBJECT_UPLOAD",
+			Description: "enable alternative upload flow where pending object is not created",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_TESTING_NO_PENDING_OBJECT_UPLOAD_PROJECTS",
+			Description: "list of project IDs for which will use alternative upload flow where pending object is not created",
 			Default:     "",
 		},
 		{
@@ -837,6 +942,11 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_ORDERS_MAX_COMMIT_DELAY",
+			Description: "maximum commit delay to use for spanner (currently only used for updating bandwidth rollups). Disable it with 0 or negative",
+			Default:     "100ms",
+		},
+		{
 			Name:        "STORJ_USERINFO_ENABLED",
 			Description: "Whether the private Userinfo rpc endpoint is enabled",
 			Default:     "false",
@@ -894,6 +1004,11 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_REPUTATION_AUDIT_COUNT",
 			Description: "the number of times a node has been audited to not be considered a New Node",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPUTATION_MINIMUM_NODE_AGE",
+			Description: "the minimum age a node must have since creation before being vetted",
 			Default:     "",
 		},
 		{
@@ -1002,6 +1117,11 @@ func satelliteapiConfig() []Option {
 			Default:     "probability",
 		},
 		{
+			Name:        "STORJ_CHECKER_ONLINE_WINDOW",
+			Description: "the amount of time without seeing a node before its considered offline",
+			Default:     "4h",
+		},
+		{
 			Name:        "STORJ_REPAIRER_MAX_REPAIR",
 			Description: "maximum segments that can be repaired concurrently",
 			Default:     "",
@@ -1030,6 +1150,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_REPAIRER_DOWNLOAD_TIMEOUT",
 			Description: "time limit for downloading pieces from a node for repair",
 			Default:     "5m0s",
+		},
+		{
+			Name:        "STORJ_REPAIRER_DOWNLOAD_LONG_TAIL",
+			Description: "number of extra concurrent downloads beyond required count for faster repairs",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_REPAIRER_TOTAL_TIMEOUT",
@@ -1075,6 +1200,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_REPAIRER_DO_PLACEMENT_CHECK",
 			Description: "repair pieces out of segment placement",
 			Default:     "true",
+		},
+		{
+			Name:        "STORJ_REPAIRER_ONLINE_WINDOW",
+			Description: "the amount of time without seeing a node before its considered offline",
+			Default:     "4h",
 		},
 		{
 			Name:        "STORJ_REPAIRER_PARTICIPATING_NODE_CACHE_ENABLED",
@@ -1282,6 +1412,11 @@ func satelliteapiConfig() []Option {
 			Default:     "1000000",
 		},
 		{
+			Name:        "STORJ_GARBAGE_COLLECTION_BF_UPLOAD_PACK_CONCURRENCY",
+			Description: "number of concurrent zip compression and uploads of bloom filters",
+			Default:     "4",
+		},
+		{
 			Name:        "STORJ_REPAIR_QUEUE_CHECK_INTERVAL",
 			Description: "how frequently core should check the size of the repair queue",
 			Default:     "",
@@ -1487,6 +1622,11 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_TALLY_SMALL_OBJECT_REMAINDER",
+			Description: "whether to enable small object remainder accounting",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_NODE_TALLY_BATCH_SIZE",
 			Description: "batch size for saving tallies into DB",
 			Default:     "1000",
@@ -1554,7 +1694,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_PROJECT_BWCLEANUP_RETAIN_MONTHS",
 			Description: "number of months of project bandwidth rollups to retain, not including the current month",
-			Default:     "2",
+			Default:     "11",
 		},
 		{
 			Name:        "STORJ_MAIL_SMTPSERVER_ADDRESS",
@@ -1697,11 +1837,6 @@ func satelliteapiConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_PRODUCT_BASED_INVOICING",
-			Description: "whether to use product-based invoicing",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_SKU_ENABLED",
 			Description: "whether we should use SKUs for product usages",
 			Default:     "false",
@@ -1720,6 +1855,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_MAX_CREDIT_CARD_COUNT",
 			Description: "maximum number of credit cards per customer",
 			Default:     "8",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_ROUND_UP_INVOICE_USAGE",
+			Description: "whether to round up usage quantities on invoices",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
@@ -1894,7 +2034,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_SCHEDULE_MEETING_URL",
 			Description: "url link to schedule a meeting with a storj representative",
-			Default:     "https://meetings.hubspot.com/tom144/free-trial",
+			Default:     "https://www.storj.io/landing/get-in-touch",
 		},
 		{
 			Name:        "STORJ_CONSOLE_LET_US_KNOW_URL",
@@ -1990,6 +2130,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_PUBLIC_LINKSHARING_URL",
 			Description: "url link for linksharing requests for external sharing",
 			Default:     "https://link.storjshare.io",
+		},
+		{
+			Name:        "STORJ_CONSOLE_COMPUTE_GATEWAY_URL",
+			Description: "url link for compute gateway requests",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_PATHWAY_OVERVIEW_ENABLED",
@@ -2117,18 +2262,8 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_BILLING_ADD_FUNDS_ENABLED",
-			Description: "whether billing add funds feature is enabled",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_BILLING_STRIPE_CHECKOUT_ENABLED",
 			Description: "whether billing stripe checkout feature is enabled",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_ADD_CARD_AUTHORIZATION_ENABLED",
-			Description: "whether card authorization is enabled when adding a card",
 			Default:     "false",
 		},
 		{
@@ -2150,6 +2285,16 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_USE_GENERATED_PRIVATE_API",
 			Description: "whether to use generated private API",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_GHOST_SESSION_CHECK_ENABLED",
+			Description: "whether to enable ghost session detection and notification",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_GHOST_SESSION_CACHE_LIMIT",
+			Description: "maximum number of ghost session email timestamps to keep in memory",
+			Default:     "10000",
 		},
 		{
 			Name:        "STORJ_CONSOLE_OAUTH_CODE_EXPIRY",
@@ -2329,7 +2474,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_MAX_ADD_FUNDS_AMOUNT",
 			Description: "maximum amount (in cents) allowed to be added to an account balance.",
-			Default:     "10000",
+			Default:     "250000",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_MIN_ADD_FUNDS_AMOUNT",
@@ -2339,7 +2484,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_UPGRADE_PAY_UPFRONT_AMOUNT",
 			Description: "amount (in cents) required to upgrade to a paid tier, use 0 to disable",
-			Default:     "0",
+			Default:     "500",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_SIGNUP_ACTIVATION_CODE_ENABLED",
@@ -2397,8 +2542,18 @@ func satelliteapiConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_ABBREVIATED_DELETE_PROJECT_ENABLED",
+			Description: "whether the abbreviated delete project flow is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_SELF_SERVE_ACCOUNT_DELETE_ENABLED",
 			Description: "whether self-serve account delete flow is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ABBREVIATED_DELETE_ACCOUNT_ENABLED",
+			Description: "whether the abbreviated self-serve delete account flow is enabled",
 			Default:     "false",
 		},
 		{
@@ -2409,16 +2564,6 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_NEW_DETAILED_USAGE_REPORT_ENABLED",
 			Description: "whether to use the new detailed usage report",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_CONFIG_NEW_ACCOUNT_SETUP_ENABLED",
-			Description: "whether to use new account setup flow",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_CONSOLE_CONFIG_PRODUCT_BASED_INVOICING",
-			Description: "whether to use product-based invoicing",
 			Default:     "false",
 		},
 		{
@@ -2447,6 +2592,66 @@ func satelliteapiConfig() []Option {
 			Default:     "[]",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_COMPUTE_UI_ENABLED",
+			Description: "whether the compute UI is enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SHOW_NEW_PRICING_TIERS",
+			Description: "whether to show new pricing tiers in the UI",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_ENTITLEMENTS_ENABLED",
+			Description: "whether entitlements are enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_NEW_PRICING_START_DATE",
+			Description: "the date (YYYY-MM-DD) when new pricing tiers will be enabled",
+			Default:     "2025-11-01",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PRODUCT_PRICE_SUMMARIES",
+			Description: "the pricing summaries gotten from configured products",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_MEMBER_ACCOUNTS_ENABLED",
+			Description: "whether member accounts are enabled",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_COLLECT_BILLING_INFO_ON_ONBOARDING",
+			Description: "whether to collect billing information during onboarding",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_LEGACY_PLACEMENTS",
+			Description: "list of placement IDs that are considered legacy placements",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_LEGACY_PLACEMENT_PRODUCT_MAPPING_FOR_MIGRATION_MAPPINGS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PARTNER_UI_VALUE",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_WHITE_LABEL_VALUE",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_WHITE_LABEL_HOST_NAME_IDLOOKUP",
+			Description: "",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_MANAGED_ENCRYPTION_PATH_ENCRYPTION_ENABLED",
 			Description: "indicates whether projects with managed encryption should have path encryption enabled",
 			Default:     "false",
@@ -2465,6 +2670,11 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_SELF_SERVE_DETAILS",
 			Description: "human-readable details for placements allowed for self serve placement. See satellite/console/README.md for more details.",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_PLACEMENT_ALLOWED_PLACEMENT_IDS_FOR_NEW_PROJECTS",
+			Description: "list of placement IDs that are allowed for new projects, e.g.[0, 10]",
+			Default:     "[]",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_USAGE_LIMITS_STORAGE_FREE",
@@ -2677,6 +2887,11 @@ func satelliteapiConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_ENTITLEMENTS_ENABLED",
+			Description: "indicates whether the entitlements service is enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_VALDI_SATELLITE_EMAIL",
 			Description: "the base email address for valdi satellite project email addresses. Important: once this has been used to create users, it should not be changed",
 			Default:     "",
@@ -2699,7 +2914,7 @@ func satelliteapiConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_AUTH_TOKEN_EXPIRATION_TIME",
 			Description: "expiration time for account recovery and activation tokens",
-			Default:     "30m",
+			Default:     "10m",
 		},
 		{
 			Name:        "STORJ_EMAIL_REMINDERS_FIRST_VERIFICATION_REMINDER",
@@ -2755,6 +2970,76 @@ func satelliteapiConfig() []Option {
 			Name:        "STORJ_CONSOLE_DBCLEANUP_MAX_UNVERIFIED_USER_AGE",
 			Description: "maximum lifetime of unverified user account records",
 			Default:     "168h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_ENABLED",
+			Description: "whether (pending deletion) user/project data should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_INTERVAL",
+			Description: "how often to run this chore",
+			Default:     "24h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_LIST_LIMIT",
+			Description: "how many events to query in a batch",
+			Default:     "100",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_DELETE_CONCURRENCY",
+			Description: "how many delete workers to run at a time",
+			Default:     "1",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_PROJECT_ENABLED",
+			Description: "whether data of this type of pending deletion resource should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_PROJECT_BUFFER_TIME",
+			Description: "how long after the resource is marked for deletion should we wait before deleting data",
+			Default:     "720h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_USER_ENABLED",
+			Description: "whether data of this type of pending deletion resource should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_USER_BUFFER_TIME",
+			Description: "how long after the resource is marked for deletion should we wait before deleting data",
+			Default:     "720h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_VIOLATION_FREEZE_ENABLED",
+			Description: "whether data of this type of pending deletion resource should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_VIOLATION_FREEZE_BUFFER_TIME",
+			Description: "how long after the resource is marked for deletion should we wait before deleting data",
+			Default:     "720h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_BILLING_FREEZE_ENABLED",
+			Description: "whether data of this type of pending deletion resource should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_BILLING_FREEZE_BUFFER_TIME",
+			Description: "how long after the resource is marked for deletion should we wait before deleting data",
+			Default:     "720h",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_TRIAL_FREEZE_ENABLED",
+			Description: "whether data of this type of pending deletion resource should be deleted or not",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PENDING_DELETE_CLEANUP_TRIAL_FREEZE_BUFFER_TIME",
+			Description: "how long after the resource is marked for deletion should we wait before deleting data",
+			Default:     "720h",
 		},
 		{
 			Name:        "STORJ_EMISSION_WRITE_ENERGY",
@@ -3266,5 +3551,5 @@ func satelliteapiConfig() []Option {
 			Description: "indicates whether the console API should be served as a standalone service",
 			Default:     "false",
 		},
-	}
+   }
 }

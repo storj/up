@@ -5,7 +5,7 @@ package config
 
 func storagenodeConfig() []Option {
 	return []Option{
-
+		
 		{
 			Name:        "STORJ_IDENTITY_CERT_PATH",
 			Description: "path to the certificate chain for this identity",
@@ -102,6 +102,11 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_DEBUG_PROMETHEUS_SANITIZE",
+			Description: "if true, sanitize prometheus metric names and labels",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_DEBUG_CRAWLSPACE",
 			Description: "if true, enable crawlspace on debug port",
 			Default:     "false",
@@ -167,6 +172,11 @@ func storagenodeConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_HASHSTORE_SYNC_LIFO",
+			Description: "controls if waiters are processed in LIFO or FIFO order.",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_HASHSTORE_LOGS_PATH",
 			Description: "path to store log files in (by default, it's relative to the storage directory)'",
 			Default:     "hashstore",
@@ -175,6 +185,81 @@ func storagenodeConfig() []Option {
 			Name:        "STORJ_HASHSTORE_TABLE_PATH",
 			Description: "path to store tables in. Can be same as LogsPath, as subdirectories are used (by default, it's relative to the storage directory)",
 			Default:     "hashstore",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_TABLE_DEFAULT_KIND_KIND",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_STORE_FLUSH_SEMAPHORE",
+			Description: "controls the number of concurrent flushes to log files",
+			Default:     "0",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_STORE_SYNC_WRITES",
+			Description: "if set, writes to the log file and table are fsync'd to disk",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_STORE_OPEN_FILE_CACHE",
+			Description: "number of open file handles to cache for reads",
+			Default:     "10",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_MAX_LOG_SIZE",
+			Description: "max size of a log file",
+			Default:     "1073741824",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_EXPIRES_DAYS",
+			Description: "number of days to keep trash records around",
+			Default:     "7",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_ALIVE_FRACTION",
+			Description: "if the log file is not this alive, compact it",
+			Default:     "0.25",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_PROBABILITY_POWER",
+			Description: "power to raise the rewrite probability to. >1 means must be closer to the alive fraction to be compacted, <1 means the opposite",
+			Default:     "2.0",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_REWRITE_MULTIPLE",
+			Description: "multiple of the hashtbl to rewrite in a single compaction",
+			Default:     "10",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_DELETE_TRASH_IMMEDIATELY",
+			Description: "if set, deletes all trash immediately instead of after the ttl",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_COMPACTION_ORDERED_REWRITE",
+			Description: "controls if we collect records and sort them and rewrite them before the hashtbl",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_HASHTBL_MMAP",
+			Description: "if set, uses mmap to do reads",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_HASHTBL_MLOCK",
+			Description: "if set, call mlock on any mmap/mremap'd data",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_MEMTBL_MMAP",
+			Description: "if set, uses mmap to do reads",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_MEMTBL_MLOCK",
+			Description: "if set, call mlock on any mmap/mremap'd data",
+			Default:     "true",
 		},
 		{
 			Name:        "STORJ_STORAGE_PATH",
@@ -646,5 +731,5 @@ func storagenodeConfig() []Option {
 			Description: "number of workers to handle forget satellite",
 			Default:     "1",
 		},
-	}
+   }
 }

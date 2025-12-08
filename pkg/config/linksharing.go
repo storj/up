@@ -5,7 +5,7 @@ package config
 
 func linksharingConfig() []Option {
 	return []Option{
-
+		
 		{
 			Name:        "STORJ_SERVER_NAME",
 			Description: "",
@@ -241,5 +241,10 @@ func linksharingConfig() []Option {
 			Description: "",
 			Default:     "",
 		},
-	}
+		{
+			Name:        "STORJ_TRACING_ANNOTATIONS",
+			Description: "",
+			Default:     "",
+		},
+   }
 }

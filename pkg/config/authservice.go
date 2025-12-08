@@ -5,7 +5,7 @@ package config
 
 func authserviceConfig() []Option {
 	return []Option{
-
+		
 		{
 			Name:        "STORJ_ENDPOINT",
 			Description: "Gateway endpoint URL to return to clients",
@@ -92,8 +92,8 @@ func authserviceConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_RETRIEVE_PUBLIC_PROJECT_ID",
-			Description: "retrieve and store public project ID when registering access grant",
+			Name:        "STORJ_RETRIEVE_PROJECT_INFO",
+			Description: "retrieve and store project info (such as public ID, and created date) when registering access grant",
 			Default:     "true",
 		},
 		{
@@ -186,5 +186,5 @@ func authserviceConfig() []Option {
 			Description: "",
 			Default:     "",
 		},
-	}
+   }
 }

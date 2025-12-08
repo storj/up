@@ -3,15 +3,14 @@
 
 package config
 
-// All returns with all known options for registered services.
 func All() map[string][]Option {
-	return map[string][]Option{
-		"authservice":     authserviceConfig(),
-		"linksharing":     linksharingConfig(),
+	return map[string][]Option{ 
+		"authservice": authserviceConfig(),
+		"linksharing": linksharingConfig(),
 		"satellite-admin": satelliteadminConfig(),
-		"satellite-api":   satelliteapiConfig(),
-		"satellite-core":  satellitecoreConfig(),
-		"storagenode":     storagenodeConfig(),
-		"storjscan":       storjscanConfig(),
+		"satellite-api": satelliteapiConfig(),
+		"satellite-core": satellitecoreConfig(),
+		"storagenode": storagenodeConfig(),
+		"storjscan": storjscanConfig(),
 	}
 }
