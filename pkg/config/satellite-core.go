@@ -122,99 +122,109 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
+			Name:        "STORJ_ADMIN_EXTERNAL_ADDRESS",
+			Description: "external endpoint of the satellite admin",
+			Default:     "",
+		},
+		{
 			Name:        "STORJ_ADMIN_STATIC_DIR",
-			Description: "an alternate directory path which contains the static assets to serve. When empty, it uses the embedded assets",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_ALLOWED_OAUTH_HOST",
-			Description: "the oauth host allowed to bypass token authentication.",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_GROUPS_LIMIT_UPDATE",
-			Description: "the group which is only allowed to update user and project limits and freeze and unfreeze accounts.",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_AUTHORIZATION_TOKEN",
-			Description: "",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_STATIC_DIR",
 			Description: "an alternate directory path which contains the static assets for the satellite administration web app. When empty, it uses the embedded assets",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_BYPASS_AUTH",
+			Name:        "STORJ_ADMIN_BYPASS_AUTH",
 			Description: "ignore authentication for local development",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_ALLOWED_OAUTH_HOST",
+			Name:        "STORJ_ADMIN_ALLOWED_OAUTH_HOST",
 			Description: "the oauth host allowed to host the backoffice.",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_PENDING_DELETE_USER_CLEANUP_ENABLED",
-			Description: "whether the pending delete data deletion chore is enabled.",
+			Name:        "STORJ_ADMIN_PENDING_DELETE_USER_CLEANUP_ENABLED",
+			Description: "whether the pending delete data deletion chore is enabled for users.",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_ADMIN",
+			Name:        "STORJ_ADMIN_PENDING_DELETE_PROJECT_CLEANUP_ENABLED",
+			Description: "whether the pending delete data deletion chore is enabled for projects.",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_ADMIN_USER_GROUPS_ROLE_ADMIN",
 			Description: "the list of groups whose users has the administration role",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_VIEWER",
+			Name:        "STORJ_ADMIN_USER_GROUPS_ROLE_VIEWER",
 			Description: "the list of groups whose users has the viewer role",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_CUSTOMER_SUPPORT",
+			Name:        "STORJ_ADMIN_USER_GROUPS_ROLE_CUSTOMER_SUPPORT",
 			Description: "the list of groups whose users has the customer support role",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_USER_GROUPS_ROLE_FINANCE_MANAGER",
+			Name:        "STORJ_ADMIN_USER_GROUPS_ROLE_FINANCE_MANAGER",
 			Description: "the list of groups whose users has the finance manager role",
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_ENABLED",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_ENABLED",
 			Description: "enable audit logging for admin operations",
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_CHANGES",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_CHANGES",
 			Description: "max changed fields recorded per event (0 = no limit)",
 			Default:     "300",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_DEPTH",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_DEPTH",
 			Description: "max struct depth to recurse when comparing (0 = no limit)",
 			Default:     "6",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_SLICE_ELEMENTS",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_SLICE_ELEMENTS",
 			Description: "max slice/array elements compared (0 = no limit)",
 			Default:     "50",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_MAP_ENTRIES",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_MAP_ENTRIES",
 			Description: "max map entries compared (0 = no limit)",
 			Default:     "200",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_STRING_LEN",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_STRING_LEN",
 			Description: "max string length recorded (0 = no limit)",
 			Default:     "512",
 		},
 		{
-			Name:        "STORJ_ADMIN_BACK_OFFICE_AUDIT_LOGGER_CAPS_MAX_BYTES",
+			Name:        "STORJ_ADMIN_AUDIT_LOGGER_CAPS_MAX_BYTES",
 			Description: "max total JSON bytes recorded (0 = no limit)",
 			Default:     "28672",
+		},
+		{
+			Name:        "STORJ_ADMIN_LEGACY_STATIC_DIR",
+			Description: "an alternate directory path which contains the static assets to serve. When empty, it uses the embedded assets",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_LEGACY_ALLOWED_OAUTH_HOST",
+			Description: "the oauth host allowed to bypass token authentication.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_LEGACY_GROUPS_LIMIT_UPDATE",
+			Description: "the group which is only allowed to update user and project limits and freeze and unfreeze accounts.",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_ADMIN_LEGACY_AUTHORIZATION_TOKEN",
+			Description: "",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONTACT_EXTERNAL_ADDRESS",
@@ -492,9 +502,19 @@ func satellitecoreConfig() []Option {
 			Default:     "",
 		},
 		{
-			Name:        "STORJ_BUCKET_EVENTING_BUCKETS",
-			Description: "defines which buckets are monitored for events (comma separated list of \"project_id:bucket_name:topic_id\")",
+			Name:        "STORJ_BUCKET_EVENTING_PROJECTS",
+			Description: "defines which projects are enabled for bucket eventing (comma separated list of project UUIDs)",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_BUCKET_EVENTING_CACHE_ADDRESS",
+			Description: "Redis address for bucket notification config cache",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_BUCKET_EVENTING_CACHE_TTL",
+			Description: "TTL for cached bucket notification configs",
+			Default:     "5m",
 		},
 		{
 			Name:        "STORJ_METAINFO_DATABASE_URL",
@@ -712,16 +732,6 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_NODE_ALIAS_CACHE_FULL_REFRESH",
-			Description: "node alias cache does a full refresh when a value is missing",
-			Default:     "false",
-		},
-		{
-			Name:        "STORJ_METAINFO_USE_BUCKET_LEVEL_OBJECT_VERSIONING",
-			Description: "enable the use of bucket level object versioning",
-			Default:     "true",
-		},
-		{
 			Name:        "STORJ_METAINFO_USE_LIST_OBJECTS_FOR_LISTING",
 			Description: "switch to new ListObjects implementation",
 			Default:     "false",
@@ -747,11 +757,6 @@ func satellitecoreConfig() []Option {
 			Default:     "100",
 		},
 		{
-			Name:        "STORJ_METAINFO_OBJECT_LOCK_ENABLED",
-			Description: "enable the use of bucket-level Object Lock",
-			Default:     "true",
-		},
-		{
 			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_ENABLED",
 			Description: "whether validation is enabled for user account info",
 			Default:     "false",
@@ -764,6 +769,16 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_METAINFO_USER_INFO_VALIDATION_CACHE_CAPACITY",
 			Description: "user info cache capacity",
+			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_METAINFO_PROJECT_ENTITLEMENT_CACHE_EXPIRATION",
+			Description: "delete objects hook cache expiration",
+			Default:     "10m",
+		},
+		{
+			Name:        "STORJ_METAINFO_PROJECT_ENTITLEMENT_CACHE_CAPACITY",
+			Description: "delete objects hook cache capacity",
 			Default:     "10000",
 		},
 		{
@@ -785,6 +800,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_METAINFO_BUCKET_TAGGING_ENABLED",
 			Description: "enable the use of the bucket tagging endpoints",
 			Default:     "false",
+		},
+		{
+			Name:        "STORJ_METAINFO_BUCKET_EVENTING_SERVICE_ACCOUNT",
+			Description: "service account email to impersonate for sending bucket eventing test event",
+			Default:     "",
 		},
 		{
 			Name:        "STORJ_METAINFO_APIKEY_TAILS_CONFIG_COMBINER_QUEUE_ENABLED",
@@ -837,11 +857,6 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_METAINFO_TESTING_TWO_ROUNDTRIP_COMMIT",
-			Description: "Use a new two roundtrip commit object.",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_METAINFO_TESTING_PROJECTS_WITH_COMMIT_DELAY",
 			Description: "list of project IDs for which commit delay is enabled",
 			Default:     "",
@@ -885,6 +900,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_METAINFO_METABASE_COMPRESSION",
 			Description: "Compression type to be used in spanner client for gRPC calls, disabled by default (gzip)",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_METAINFO_CREATE_REMAINDER_CHARGE_ON_OBJECT_DELETE",
+			Description: "whether to create a remainder charge when an object is deleted before minimum retention",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_ORDERS_ENCRYPTION_KEYS_DEFAULT_ID",
@@ -945,6 +965,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_ORDERS_MAX_COMMIT_DELAY",
 			Description: "maximum commit delay to use for spanner (currently only used for updating bandwidth rollups). Disable it with 0 or negative",
 			Default:     "100ms",
+		},
+		{
+			Name:        "STORJ_ORDERS_EVENTKIT_TRACKING_ENABLED",
+			Description: "whether to emit eventkit events for order settlement",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_USERINFO_ENABLED",
@@ -1245,6 +1270,26 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_REPAIRER_EXCLUDED_PLACEMENTS_PLACEMENTS",
 			Description: "",
 			Default:     "",
+		},
+		{
+			Name:        "STORJ_REPAIRER_CONNECTION_POOL_CAPACITY",
+			Description: "RPC connection pool capacity (0 disables connection pool)",
+			Default:     "100",
+		},
+		{
+			Name:        "STORJ_REPAIRER_CONNECTION_POOL_KEY_CAPACITY",
+			Description: "RPC connection pool limit per key",
+			Default:     "5",
+		},
+		{
+			Name:        "STORJ_REPAIRER_CONNECTION_POOL_IDLE_EXPIRATION",
+			Description: "RPC connection pool idle expiration",
+			Default:     "2m0s",
+		},
+		{
+			Name:        "STORJ_REPAIRER_CONNECTION_POOL_MAX_LIFETIME",
+			Description: "RPC connection pool max lifetime of a connection",
+			Default:     "0",
 		},
 		{
 			Name:        "STORJ_AUDIT_NODE_FILTER",
@@ -1627,6 +1672,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_TALLY_EVENTKIT_TRACKING_ENABLED",
+			Description: "whether to emit eventkit events for storage tally",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_NODE_TALLY_BATCH_SIZE",
 			Description: "batch size for saving tallies into DB",
 			Default:     "1000",
@@ -1645,6 +1695,11 @@ func satellitecoreConfig() []Option {
 			Name:        "STORJ_ROLLUP_DELETE_TALLIES_BATCH_SIZE",
 			Description: "how many tallies to delete in a batch",
 			Default:     "10000",
+		},
+		{
+			Name:        "STORJ_ROLLUP_EVENTKIT_TRACKING_ENABLED",
+			Description: "whether to emit eventkit events for storage and bandwidth rollup",
+			Default:     "false",
 		},
 		{
 			Name:        "STORJ_ROLLUP_ARCHIVE_ENABLED",
@@ -1862,6 +1917,21 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_POPULATE_MIN_OBJECT_SIZE_INVOICE_LINE_ITEM",
+			Description: "whether to populate invoice line items for minimum object size usage",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_POPULATE_MIN_RETENTION_INVOICE_LINE_ITEM",
+			Description: "whether to populate minimum retention info in invoice line items",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETENTION_REMAINDER_BATCH_SIZE",
+			Description: "number of deletion remainder records to process in a single batch",
+			Default:     "300",
+		},
+		{
 			Name:        "STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_RETRIES_INITIAL_BACKOFF",
 			Description: "the duration of the first retry interval",
 			Default:     "20ms",
@@ -1953,11 +2023,6 @@ func satellitecoreConfig() []Option {
 		},
 		{
 			Name:        "STORJ_PAYMENTS_PLACEMENT_PRICE_OVERRIDES_PLACEMENT_PRODUCT_MAP",
-			Description: "",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_PAYMENTS_PARTNERS_PLACEMENT_PRICE_OVERRIDES_PARTNER_PLACEMENT_PRODUCT_MAP",
 			Description: "",
 			Default:     "",
 		},
@@ -2207,6 +2272,16 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
+			Name:        "STORJ_CONSOLE_SEGMENTS_UIENABLED",
+			Description: "whether segments UI should be shown in project dashboard",
+			Default:     "true",
+		},
+		{
+			Name:        "STORJ_CONSOLE_BUCKET_LIMITS_UIENABLED",
+			Description: "whether bucket limits UI should be shown in project dashboard",
+			Default:     "true",
+		},
+		{
 			Name:        "STORJ_CONSOLE_DAYS_BEFORE_TRIAL_END_NOTIFICATION",
 			Description: "days left before trial end notification",
 			Default:     "3",
@@ -2397,11 +2472,6 @@ func satellitecoreConfig() []Option {
 			Default:     "https://ariane.abtasty.com",
 		},
 		{
-			Name:        "STORJ_CONSOLE_SSO_ENABLED",
-			Description: "whether SSO is enabled",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_PASSWORD_COST",
 			Description: "password hashing cost (0=automatic)",
 			Default:     "0",
@@ -2532,6 +2602,11 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
+			Name:        "STORJ_CONSOLE_CONFIG_HIDE_PROJECT_ENCRYPTION_OPTIONS",
+			Description: "whether to hide encryption options in the UI if satellite managed encryption is also enabled",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_CONSOLE_CONFIG_EMAIL_CHANGE_FLOW_ENABLED",
 			Description: "whether change user email flow is enabled",
 			Default:     "false",
@@ -2572,11 +2647,6 @@ func satellitecoreConfig() []Option {
 			Default:     "true",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_SKU_ENABLED",
-			Description: "whether we should use SKUs for product usages",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_USER_FEEDBACK_ENABLED",
 			Description: "whether user feedback is enabled",
 			Default:     "false",
@@ -2602,19 +2672,9 @@ func satellitecoreConfig() []Option {
 			Default:     "false",
 		},
 		{
-			Name:        "STORJ_CONSOLE_CONFIG_ENTITLEMENTS_ENABLED",
-			Description: "whether entitlements are enabled",
-			Default:     "false",
-		},
-		{
 			Name:        "STORJ_CONSOLE_CONFIG_NEW_PRICING_START_DATE",
 			Description: "the date (YYYY-MM-DD) when new pricing tiers will be enabled",
 			Default:     "2025-11-01",
-		},
-		{
-			Name:        "STORJ_CONSOLE_CONFIG_PRODUCT_PRICE_SUMMARIES",
-			Description: "the pricing summaries gotten from configured products",
-			Default:     "",
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_MEMBER_ACCOUNTS_ENABLED",
@@ -2624,6 +2684,16 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_COLLECT_BILLING_INFO_ON_ONBOARDING",
 			Description: "whether to collect billing information during onboarding",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_REQUIRE_BILLING_ADDRESS",
+			Description: "whether to require billing address during account upgrades and package purchases",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_HIDE_UPLINK_BEHAVIOR",
+			Description: "whether to hide uplink behavior in the UI",
 			Default:     "false",
 		},
 		{
@@ -2648,6 +2718,136 @@ func satellitecoreConfig() []Option {
 		},
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_WHITE_LABEL_HOST_NAME_IDLOOKUP",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_TENANT_ID",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_HOST_NAME",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_EXTERNAL_ADDRESS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_NAME",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_LOGO_URLS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_FAVICON_URLS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_COLORS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SUPPORT_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_DOCS_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_HOMEPAGE_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_GET_IN_TOUCH_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SOURCE_CODE_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SOCIAL_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_BLOG_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_PRIVACY_POLICY_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_TERMS_OF_SERVICE_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_TERMS_OF_USE_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_GATEWAY_URL",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_COMPANY_NAME",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_ADDRESS_LINE1",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_ADDRESS_LINE2",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SMTP_SERVER_ADDRESS",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SMTP_FROM",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SMTP_AUTH_TYPE",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SMTP_LOGIN",
+			Description: "",
+			Default:     "",
+		},
+		{
+			Name:        "STORJ_CONSOLE_CONFIG_SINGLE_WHITE_LABEL_WHITE_LABEL_CONFIG_SMTP_PASSWORD",
 			Description: "",
 			Default:     "",
 		},
@@ -2874,16 +3074,6 @@ func satellitecoreConfig() []Option {
 		{
 			Name:        "STORJ_CONSOLE_CONFIG_ANNOUNCEMENT_BODY",
 			Description: "body of the announcement",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_CONSOLE_CONFIG_SUPPORT_URL",
-			Description: "url link to general request page",
-			Default:     "",
-		},
-		{
-			Name:        "STORJ_CONSOLE_CONFIG_LOGIN_URL",
-			Description: "url link to the satellite UI login",
 			Default:     "",
 		},
 		{

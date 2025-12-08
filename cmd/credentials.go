@@ -22,7 +22,7 @@ import (
 
 	"storj.io/common/uuid"
 	pkg "storj.io/storj-up/pkg"
-	"storj.io/storj/satellite/console/consolewasm"
+	"storj.io/storj/web/satellite/wasm/consolewasm"
 )
 
 const (

@@ -1,6 +1,6 @@
 module storj.io/storj-up
 
-go 1.24.7
+go 1.25
 
 require (
 	cloud.google.com/go/spanner v1.76.1
@@ -12,15 +12,16 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/zeebo/errs v1.4.0
 	github.com/zeebo/errs/v2 v2.0.5
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
 	google.golang.org/api v0.233.0
 	gopkg.in/yaml.v3 v3.0.1
-	storj.io/common v0.0.0-20251022143549-19bf6a9f274a
-	storj.io/storj v1.143.2
+	storj.io/common v0.0.0-20260203162304-8cd2cb45fbaf
+	storj.io/storj v1.147.5
+	storj.io/storj/web/satellite/wasm v0.0.0-20260223135357-1ba0c63435b9
 )
 
 require (
@@ -67,10 +68,10 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-oauth2/oauth2/v4 v4.4.2 // indirect
+	github.com/go-oauth2/oauth2/v4 v4.5.4 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v24.3.25+incompatible // indirect
@@ -124,7 +125,7 @@ require (
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
-	github.com/quic-go/quic-go v0.53.0 // indirect
+	github.com/quic-go/quic-go v0.57.1 // indirect
 	github.com/redis/go-redis/v9 v9.5.1 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
@@ -133,7 +134,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
-	github.com/spacemonkeygo/monkit/v3 v3.0.25-0.20251022131615-eb24eb109368 // indirect
+	github.com/spacemonkeygo/monkit/v3 v3.0.25-0.20260113195619-706ad4b46206 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spacemonkeygo/tlshowdy v0.0.0-20160207005338-8fa2cec1d7cd // indirect
 	github.com/spf13/afero v1.11.0 // indirect
@@ -150,7 +151,7 @@ require (
 	github.com/zeebo/float16 v0.1.0 // indirect
 	github.com/zeebo/goof v0.0.0-20230907150950-e9457bc94477 // indirect
 	github.com/zeebo/incenc v0.0.0-20180505221441-0d92902eec54 // indirect
-	github.com/zeebo/mwc v0.0.6 // indirect
+	github.com/zeebo/mwc v0.0.7 // indirect
 	github.com/zeebo/structs v1.0.3-0.20230601144555-f2db46069602 // indirect
 	github.com/zeebo/sudo v1.0.2 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
@@ -166,17 +167,17 @@ require (
 	go.opentelemetry.io/otel/sdk v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
-	go.uber.org/mock v0.5.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/mod v0.27.0 // indirect
-	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/time v0.11.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/telemetry v0.0.0-20251008203120-078029d740a8 // indirect
+	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/time v0.12.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250425173222-7b384671a197 // indirect
@@ -192,5 +193,5 @@ require (
 	storj.io/minmaxheap v0.0.0-20250403032542-1e24a6fe9c16 // indirect
 	storj.io/monkit-jaeger v0.0.0-20250523220404-454c1b072fad // indirect
 	storj.io/picobuf v0.0.4 // indirect
-	storj.io/uplink v1.13.2-0.20250807183920-f49c2319cb74 // indirect
+	storj.io/uplink v1.13.2-0.20260204161751-a31c5f3468fc // indirect
 )

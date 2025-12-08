@@ -207,6 +207,16 @@ func storagenodeConfig() []Option {
 			Default:     "10",
 		},
 		{
+			Name:        "STORJ_HASHSTORE_STORE_RECONSTRUCT_TABLE",
+			Description: "if set, reconstructs the table from the log files on startup if table is missing and logs are present",
+			Default:     "false",
+		},
+		{
+			Name:        "STORJ_HASHSTORE_STORE_SKIP_LOG_CHECK",
+			Description: "if set, skips checking log file integrity on startup",
+			Default:     "false",
+		},
+		{
 			Name:        "STORJ_HASHSTORE_COMPACTION_MAX_LOG_SIZE",
 			Description: "max size of a log file",
 			Default:     "1073741824",

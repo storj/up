@@ -10,7 +10,7 @@ import (
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/common/macaroon"
-	"storj.io/storj/satellite/console/consolewasm"
+	"storj.io/storj/web/satellite/wasm/consolewasm"
 )
 
 // Satellite0Identity is a standard test identity included in our compose files.
