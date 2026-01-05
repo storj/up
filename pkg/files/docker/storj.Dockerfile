@@ -35,7 +35,13 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/satellite && npm install && n
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/ui && npm install && npm run build ; fi
-RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/back-office/ui && npm install && npm run build ; fi
+
+# Old versions had the satellite admin next generation under this folder, but new version don't have this directory
+RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/back-office/ui " ] ; then cd satellite/admin/back-office/ui && npm install && npm run build ; fi
+
+# New versions has the deprecated satellite admin under this folder, but old version don't have this directory
+RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/legacy/ui " ] ; then cd satellite/admin/legacy/ui && npm install && npm run build ; fi
+
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh ; fi
 
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
@@ -58,8 +64,16 @@ COPY --from=binaries /var/lib/storj/storj/web/satellite/stati[c] /var/lib/storj/
 COPY --from=binaries /var/lib/storj/storj/web/satellite/dis[t] /var/lib/storj/storj/web/satellite/dist
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/buil[d] /var/lib/storj/storj/satellite/admin/ui/build
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/dis[t] /var/lib/storj/storj/satellite/admin/ui/dist
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-office/ui/buil[d] /var/lib/storj/storj/satellite/admin/back-office/ui/build
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-office/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
+
+# Old versions had the satellite admin next generation under this folder, but new version don't have this directory
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/buil[d] /var/lib/storj/storj/satellite/admin/back-office/ui/build
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
+
+# New versions has the deprecated satellite admin under this folder, but old version don't have this directory
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/buil[d] /var/lib/storj/storj/satellite/admin/back-office/ui/build
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
+
+
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/stati[c] /var/lib/storj/web/storagenode/static
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/dis[t] /var/lib/storj/web/storagenode/dist
 COPY --from=binaries /var/lib/storj/storj/web/multinode/stati[c] /var/lib/storj/web/multinode/static
