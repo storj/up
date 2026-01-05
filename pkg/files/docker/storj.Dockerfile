@@ -70,8 +70,8 @@ COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/buil[
 COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
 
 # New versions has the deprecated satellite admin under this folder, but old version don't have this directory
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/buil[d] /var/lib/storj/storj/satellite/admin/back-office/ui/build
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/buil[d] /var/lib/storj/storj/satellite/admin/legacy/ui/build
+COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/dis[t] /var/lib/storj/storj/satellite/admin/legacy/ui/dist
 
 
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/stati[c] /var/lib/storj/web/storagenode/static
