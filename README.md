@@ -257,3 +257,7 @@ Update the sources to match the configuration parameters of the version with
 
 Verifies that the tool compiles with `go run . -h`, otherwise make the required changes to fix the
 compilation.
+
+## How release & update docker images
+
+Refer to [DEPLOYMENT document](DEPLOYMENT.md).
