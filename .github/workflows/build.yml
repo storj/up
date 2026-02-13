@@ -3,24 +3,153 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
     steps:
-      - uses: earthly/actions-setup@v1
-        with:
-          version: v0.8.0
       - uses: actions/checkout@v4
-
-      - name: Test
-        run: earthly --ci +test
-      - name: Lint
-        run: earthly --ci +lint
-      - name: Cleanup used space
-        uses: jlumbroso/free-disk-space@main
+      - uses: actions/setup-go@v5
         with:
-          tool-cache: false
-          docker-images: false
-      - name: Integration
-        run: earthly -P --ci +integration-all
+          go-version: "1.25.1"
+      - name: Install lint tools
+        run: make lint-deps
+      - name: Run lint checks
+        run: make lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+      - name: Install test dependencies
+        run: make test-deps
+      - name: Run tests
+        run: make test
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: build/tests.json
+
+  integration-uplink:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+      - name: Build storj-up
+        run: make build
+      - name: Generate docker-compose
+        run: ./build/storj-up init minimal,db,uplink
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services to be healthy
+        run: ./build/storj-up health
+      - name: Setup credentials and run test
+        run: |
+          docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -e >> ~/.bashrc'
+          < test/uplink/basic_upload_download.sh docker compose exec -T -u 0 uplink bash -i
+      - name: Collect logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
+  integration-edge:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+      - name: Build storj-up
+        run: make build
+      - name: Generate docker-compose
+        run: |
+          ./build/storj-up init minimal,edge,db,uplink
+          ./build/storj-up env set authservice STORJ_ENDPOINT=http://gateway-mt:9999
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services to be healthy
+        run: ./build/storj-up health
+      - name: Setup credentials and run test
+        run: |
+          docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -a http://authservice:8888 -e --s3 >> ~/.bashrc'
+          < test/edge/basic_rclone.sh docker compose exec -T -u 0 uplink bash -i
+      - name: Collect logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
+  integration-storjscan:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+      - name: Build storj-up
+        run: make build
+      - name: Generate docker-compose
+        run: |
+          ./build/storj-up init minimal,satellite-core,edge,db,billing
+          ./build/storj-up env setenv satellite-core STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
+          ./build/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
+          ./build/storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12
+          ./build/storj-up env setenv storjscan STORJ_TOKEN_PRICE_USE_TEST_PRICES=true
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services to be healthy
+        run: ./build/storj-up health
+      - name: Setup credentials and copy test artifacts
+        run: |
+          docker compose exec -T -u 0 storjscan bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -a http://authservice:8888 -e >> ~/.bashrc'
+          docker compose cp test/storjscan/pk.json storjscan:/var/lib/storj/pk.json
+          docker compose cp test/storjscan/pass storjscan:/var/lib/storj/pass
+          docker compose cp test/storjscan/TestToken.abi storjscan:/var/lib/storj/TestToken.abi
+          docker compose cp test/storjscan/TestToken.bin storjscan:/var/lib/storj/TestToken.bin
+      - name: Run test
+        run: |
+          < test/storjscan/basic_storjscan.sh docker compose exec -T -u 0 storjscan bash -i
+      - name: Collect logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
+  integration-spanner-uplink:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+      - name: Build storj-up
+        run: make build
+      - name: Generate docker-compose
+        run: ./build/storj-up init minimal,redis,spanner,uplink
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services to be healthy
+        run: docker compose exec -T -u 0 uplink bash -c 'storj-up health --dbtype spanner --host spanner'
+      - name: Setup credentials and run test
+        run: |
+          docker compose exec -T -u 0 uplink bash -c 'storj-up credentials -s satellite-api:7777 -c satellite-api:10000 -e >> ~/.bashrc'
+          < test/spanner/uplink/basic_upload_download.sh docker compose exec -T -u 0 uplink bash -i
+      - name: Collect logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop services
+        if: always()
+        run: docker compose down
