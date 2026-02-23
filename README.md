@@ -232,7 +232,7 @@ docker compose down -v
 
 TL;DR This section explains the process to bump the storj.io/storj and storj.io/edge dependencies,
 however, there is _scripts/bump-storj-edge-deps.sh_ shell script that does this automatically.
-NOTE the process may need some manual intervention and it the script will tell you, so pay attention
+NOTE the process may need some manual intervention and the script will tell you, so pay attention
 to the script output; read the process if you need to have a more understanding.
 
 Versions are specified in these instructions as `vX.XXX.X`. It should be replaced with the specific
