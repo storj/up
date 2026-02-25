@@ -42,12 +42,12 @@ build-app:
 test:
    RUN go install github.com/mfridman/tparse@36f80740879e24ba6695649290a240c5908ffcbb
    RUN apt-get update && apt-get install -y jq
-   RUN go install -race storj.io/storj/cmd/storagenode@v1.125.2
-   RUN go install -race storj.io/storj/cmd/satellite@v1.125.2
-   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.125.2
-   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.97.0
-   RUN go install -race storj.io/edge/cmd/linksharing@v1.97.0
-   RUN go install -race storj.io/edge/cmd/authservice@v1.97.0
+   RUN go install -race storj.io/storj/cmd/storagenode@v1.147.5
+   RUN go install -race storj.io/storj/cmd/satellite@v1.147.5
+   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.147.5
+   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.111.0
+   RUN go install -race storj.io/edge/cmd/linksharing@v1.111.0
+   RUN go install -race storj.io/edge/cmd/authservice@v1.111.0
    RUN mkdir build
    COPY . .
    RUN --mount=type=cache,target=/root/.cache/go-build \
