@@ -125,7 +125,7 @@ func dockerBuild(publish bool) error {
 	})
 }
 
-func dockerCore(version string, publish bool) error {
+func dockerCore(version string, publish bool, buildTag string, baseTag string) error {
 	err := buildxRun(
 		publish,
 		"build",
@@ -133,6 +133,8 @@ func dockerCore(version string, publish bool) error {
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
+		"--build-arg", "BUILD_TAG="+buildTag,
+		"--build-arg", "BASE_TAG="+baseTag,
 		"-f", "pkg/files/docker/storj.Dockerfile", ".")
 	if err != nil {
 		return err
@@ -159,13 +161,15 @@ func buildxRun(publish bool, args ...string) error {
 	return sh.RunV(args[0], args[1:]...)
 }
 
-func dockerEdge(version string, publish bool) error {
+func dockerEdge(version string, publish bool, buildTag string, baseTag string) error {
 	err := buildxRun(publish,
 		"build",
 		"-t", "img.dev.storj.io/storjup/edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
+		"--build-arg", "BUILD_TAG="+buildTag,
+		"--build-arg", "BASE_TAG="+baseTag,
 		"-f", "pkg/files/docker/edge.Dockerfile", ".")
 	if err != nil {
 		return err
@@ -184,12 +188,22 @@ func Integration() error {
 //
 //nolint:deadcode
 func RebuildImages() error {
+	// Read tags once for all rebuilds
+	buildTag, err := readDockerTag("build.last")
+	if err != nil {
+		return err
+	}
+	baseTag, err := readDockerTag("base.last")
+	if err != nil {
+		return err
+	}
+
 	versions, err := listContainerVersions("storj")
 	if err != nil {
 		return err
 	}
 	for _, v := range versions {
-		err := dockerCore(v, true)
+		err := dockerCore(v, true, buildTag, baseTag)
 		if err != nil {
 			return err
 		}
@@ -200,7 +214,7 @@ func RebuildImages() error {
 		return err
 	}
 	for _, v := range versions {
-		err := dockerEdge(v, true)
+		err := dockerEdge(v, true, buildTag, baseTag)
 		if err != nil {
 			return err
 		}
@@ -209,31 +223,81 @@ func RebuildImages() error {
 }
 
 // DockerEdge builds a Edge docker image for local use.
+// version: required - the edge version tag (e.g., "1.95.1")
+// publish: whether to push the image to the registry
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
 //
 //nolint:deadcode
-func DockerEdge(version string, publish bool) error {
+func DockerEdge(version string, publish bool, buildTag string, baseTag string) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}
-	return dockerEdge(version, publish)
+
+	var err error
+	if buildTag == "" {
+		buildTag, err = readDockerTag("build.last")
+		if err != nil {
+			return errs.Wrap(err)
+		}
+	}
+
+	if baseTag == "" {
+		baseTag, err = readDockerTag("base.last")
+		if err != nil {
+			return errs.Wrap(err)
+		}
+	}
+
+	return dockerEdge(version, publish, buildTag, baseTag)
 }
 
 // DockerStorj builds a Core docker image for local use.
+// version: required - the storj version tag (e.g., "1.95.1")
+// publish: whether to push the image to the registry
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
 //
 //nolint:deadcode
-func DockerStorj(version string, publish bool) error {
+func DockerStorj(version string, publish bool, buildTag string, baseTag string) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}
-	return dockerCore(version, publish)
+
+	var err error
+	if buildTag == "" {
+		buildTag, err = readDockerTag("build.last")
+		if err != nil {
+			return errs.Wrap(err)
+		}
+	}
+
+	if baseTag == "" {
+		baseTag, err = readDockerTag("base.last")
+		if err != nil {
+			return errs.Wrap(err)
+		}
+	}
+
+	return dockerCore(version, publish, buildTag, baseTag)
 }
 
 // Images build missing images for existing git tags
 //
 //nolint:deadcode
 func Images() error {
-	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
-		err := dockerCore(version, true)
+	// Read tags once for all image builds
+	buildTag, err := readDockerTag("build.last")
+	if err != nil {
+		return err
+	}
+	baseTag, err := readDockerTag("base.last")
+	if err != nil {
+		return err
+	}
+
+	err = doOnMissing("storj", "storj", func(container string, repo string, version string) error {
+		err := dockerCore(version, true, buildTag, baseTag)
 		if err != nil {
 			return err
 		}
@@ -244,7 +308,7 @@ func Images() error {
 	}
 
 	err = doOnMissing("edge", "gateway-mt", func(container string, repo string, version string) error {
-		err := dockerEdge(version, true)
+		err := dockerEdge(version, true, buildTag, baseTag)
 		if err != nil {
 			return err
 		}
@@ -348,6 +412,16 @@ func doOnMissing(containerName string, repoName string, action func(string, stri
 // writeDockerTag persist the last used docker tag to a file.
 func writeDockerTag(tagFile string, tag string) error {
 	return os.WriteFile(tagFile, []byte(tag), 0o644)
+}
+
+// readDockerTag reads the current tag from a tag file.
+// Returns an error if the file doesn't exist or cannot be read.
+func readDockerTag(tagFile string) (string, error) {
+	content, err := os.ReadFile(tagFile)
+	if err != nil {
+		return "", errs.Wrap(err)
+	}
+	return strings.TrimSpace(string(content)), nil
 }
 
 // ListVersions prints out the available container / release versions.
