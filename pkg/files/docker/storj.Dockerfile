@@ -34,6 +34,7 @@ COPY --chown=storj ${PATH} .
 
 FROM ${TYPE} AS binaries
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/satellite && npm install && npm run build ; fi
+RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/satellite && env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head npm run wasm ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/multinode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/ui && npm install && npm run build ; fi
@@ -43,8 +44,6 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/back-office/ui " ]
 
 # New versions has the deprecated satellite admin under this folder, but old version don't have this directory
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/legacy/ui " ] ; then cd satellite/admin/legacy/ui && npm install && npm run build ; fi
-
-RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then env env GO111MODULE=on GOOS=js GOARCH=wasm GOARM=6 -CGO_ENABLED=1 TAG=head scripts/build-wasm.sh ; fi
 
 RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
@@ -81,7 +80,6 @@ COPY --from=binaries /var/lib/storj/storj/web/storagenode/stati[c] /var/lib/stor
 COPY --from=binaries /var/lib/storj/storj/web/storagenode/dis[t] /var/lib/storj/web/storagenode/dist
 COPY --from=binaries /var/lib/storj/storj/web/multinode/stati[c] /var/lib/storj/web/multinode/static
 COPY --from=binaries /var/lib/storj/storj/web/multinode/dis[t] /var/lib/storj/web/multinode/dist
-COPY --from=binaries /var/lib/storj/storj/releas[e]/head/wasm /var/lib/storj/storj/web/satellite/static/wasm
 
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
 ENV PATH=$PATH:/var/lib/storj/go/bin
