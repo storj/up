@@ -6,7 +6,7 @@ package modify
 import (
 	"testing"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/stretchr/testify/require"
 
 	recipe2 "storj.io/storj-up/pkg/recipe"

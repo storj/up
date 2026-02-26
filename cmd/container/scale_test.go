@@ -6,7 +6,7 @@ package container
 import (
 	"testing"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,5 +19,5 @@ func TestScale(t *testing.T) {
 	err := scale(&k, "10")
 	require.NoError(t, err)
 
-	require.Equal(t, uint64(10), *k.Deploy.Replicas)
+	require.Equal(t, 10, *k.Deploy.Replicas)
 }

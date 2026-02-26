@@ -6,7 +6,7 @@ package container
 import (
 	"strconv"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 
@@ -38,7 +38,7 @@ func init() {
 }
 
 func scale(composeService *types.ServiceConfig, scale string) error {
-	instances, err := strconv.ParseUint(scale, 10, 64)
+	instances, err := strconv.Atoi(scale)
 	if err != nil {
 		return errs.Wrap(err)
 	}

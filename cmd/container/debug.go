@@ -4,7 +4,7 @@
 package container
 
 import (
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/spf13/cobra"
 	"github.com/zeebo/errs/v2"
 
@@ -58,7 +58,7 @@ func enableDebug(st recipe.Stack, rt runtime.Runtime, selector []string) error {
 			for _, portConfig := range composeService.Ports {
 				if portConfig.Mode == "ingress" &&
 					portConfig.Target == 2345 &&
-					portConfig.Published == 2345 &&
+					portConfig.Published == "2345" &&
 					portConfig.Protocol == "tcp" {
 					return nil
 				}
@@ -66,7 +66,7 @@ func enableDebug(st recipe.Stack, rt runtime.Runtime, selector []string) error {
 			composeService.Ports = append(composeService.Ports, types.ServicePortConfig{
 				Mode:      "ingress",
 				Target:    2345,
-				Published: 2345,
+				Published: "2345",
 				Protocol:  "tcp",
 			})
 			return nil

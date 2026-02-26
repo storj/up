@@ -6,7 +6,7 @@ package modify
 import (
 	"testing"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/stretchr/testify/require"
 
 	"storj.io/storj-up/pkg/recipe"
@@ -47,14 +47,14 @@ func TestAddPort(t *testing.T) {
 			Mode:       "ingress",
 			HostIP:     "",
 			Target:     80,
-			Published:  80,
+			Published:  "80",
 			Protocol:   "tcp",
 			Extensions: nil,
 		}, {
 			Mode:       "ingress",
 			HostIP:     "",
 			Target:     90,
-			Published:  90,
+			Published:  "90",
 			Protocol:   "tcp",
 			Extensions: nil,
 		}}, config.Ports)
@@ -102,7 +102,7 @@ func TestRemovePort(t *testing.T) {
 			Mode:       "ingress",
 			HostIP:     "",
 			Target:     90,
-			Published:  90,
+			Published:  "90",
 			Protocol:   "tcp",
 			Extensions: nil,
 		}}, config.Ports)

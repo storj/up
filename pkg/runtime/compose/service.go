@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/types"
 	"golang.org/x/exp/slices"
 
 	"storj.io/storj-up/pkg/runtime/runtime"
@@ -29,9 +29,9 @@ var _ runtime.ManageableNetwork = (*Service)(nil)
 
 // GetENV implements runtime.Service.
 func (s *Service) GetENV() map[string]*string {
-	for ix, ds := range s.project.Services {
+	for _, ds := range s.project.Services {
 		if filtered(s, ds) {
-			return s.project.Services[ix].Environment
+			return ds.Environment
 		}
 	}
 	return nil
@@ -39,9 +39,9 @@ func (s *Service) GetENV() map[string]*string {
 
 // GetVolumes implements runtime.Service.
 func (s *Service) GetVolumes() (mounts []runtime.VolumeMount) {
-	for ix, ds := range s.project.Services {
+	for _, ds := range s.project.Services {
 		if filtered(s, ds) {
-			for _, mount := range s.project.Services[ix].Volumes {
+			for _, mount := range ds.Volumes {
 				mounts = append(mounts, runtime.VolumeMount{
 					MountType: mount.Type,
 					Source:    mount.Source,
@@ -75,9 +75,9 @@ func (s *Service) useVolume(path string, name string) {
 	if path == "" {
 		path = "/tmp"
 	}
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			s.project.Services[ix].Volumes = append(s.project.Services[ix].Volumes, types.ServiceVolumeConfig{
+			ds.Volumes = append(ds.Volumes, types.ServiceVolumeConfig{
 				Type:   "bind",
 				Source: name,
 				Target: strings.ReplaceAll(filepath.Join(path, name), string(filepath.Separator), "/"),
@@ -85,6 +85,7 @@ func (s *Service) useVolume(path string, name string) {
 					CreateHostPath: true,
 				},
 			})
+			s.project.Services[serviceName] = ds
 		}
 	}
 }
@@ -96,15 +97,16 @@ func (s *Service) Labels() []string {
 
 // RemoveFlag implements runtime.Service.
 func (s *Service) RemoveFlag(flag string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			var filtered []string
-			for _, s := range s.project.Services[ix].Command {
-				if !strings.HasPrefix(s, flag+"=") {
-					filtered = append(filtered, s)
+			var filteredCmd []string
+			for _, cmd := range ds.Command {
+				if !strings.HasPrefix(cmd, flag+"=") {
+					filteredCmd = append(filteredCmd, cmd)
 				}
 			}
-			s.project.Services[ix].Command = filtered
+			ds.Command = filteredCmd
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -112,16 +114,17 @@ func (s *Service) RemoveFlag(flag string) error {
 
 // Persist implements runtime.Service.
 func (s *Service) Persist(dir string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			s.project.Services[ix].Volumes = append(s.project.Services[ix].Volumes, types.ServiceVolumeConfig{
+			ds.Volumes = append(ds.Volumes, types.ServiceVolumeConfig{
 				Type:   "bind",
-				Source: filepath.Join(s.composeDir, s.project.Services[ix].Name, filepath.Base(dir)),
+				Source: filepath.Join(s.composeDir, ds.Name, filepath.Base(dir)),
 				Target: dir,
 				Bind: &types.ServiceVolumeBind{
 					CreateHostPath: true,
 				},
 			})
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -129,9 +132,10 @@ func (s *Service) Persist(dir string) error {
 
 // ChangeImage implements runtime.Service.
 func (s *Service) ChangeImage(ch func(string) string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			s.project.Services[ix].Image = ch(s.project.Services[ix].Image)
+			ds.Image = ch(ds.Image)
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -144,13 +148,14 @@ func (s *Service) ID() runtime.ServiceInstance {
 
 // AddConfig implements runtime.Runtime.
 func (s *Service) AddConfig(key string, value string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
 			rendered, err := s.render(value)
 			if err != nil {
 				return err
 			}
-			s.project.Services[ix].Environment[key] = &rendered
+			ds.Environment[key] = &rendered
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -162,14 +167,15 @@ func filtered(s *Service, ds types.ServiceConfig) bool {
 
 // AddPortForward implements runtime.Service.
 func (s *Service) AddPortForward(ports runtime.PortMap) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			s.project.Services[ix].Ports = append(s.project.Services[ix].Ports, types.ServicePortConfig{
+			ds.Ports = append(ds.Ports, types.ServicePortConfig{
 				Mode:      "ingress",
 				Target:    uint32(ports.Internal),
-				Published: uint32(ports.External),
+				Published: strconv.Itoa(ports.External),
 				Protocol:  ports.Protocol,
 			})
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -177,15 +183,15 @@ func (s *Service) AddPortForward(ports runtime.PortMap) error {
 
 // RemovePortForward implements runtime.Service.
 func (s *Service) RemovePortForward(ports runtime.PortMap) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			service := &s.project.Services[ix]
-			i := slices.IndexFunc(service.Ports, func(port types.ServicePortConfig) bool {
+			i := slices.IndexFunc(ds.Ports, func(port types.ServicePortConfig) bool {
 				return port.Target == uint32(ports.Internal)
 			})
 			if i >= 0 {
-				service.Ports = slices.Delete(service.Ports, i, i+1)
+				ds.Ports = slices.Delete(ds.Ports, i, i+1)
 			}
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -193,20 +199,25 @@ func (s *Service) RemovePortForward(ports runtime.PortMap) error {
 
 // AddNetwork implements runtime.ManageableNetwork.
 func (s *Service) AddNetwork(networkAlias string) error {
+	if s.project.Networks == nil {
+		s.project.Networks = make(types.Networks)
+	}
 	if _, ok := s.project.Networks[networkAlias]; !ok {
 		s.project.Networks[networkAlias] = types.NetworkConfig{
-			Name: networkAlias,
-			External: types.External{
-				External: true,
-			},
-			Driver: "default",
+			Name:     networkAlias,
+			External: true,
+			Driver:   "default",
 		}
 	}
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			if s.project.Services[ix].Networks[networkAlias] == nil {
-				s.project.Services[ix].Networks[networkAlias] = &types.ServiceNetworkConfig{}
+			if ds.Networks == nil {
+				ds.Networks = make(map[string]*types.ServiceNetworkConfig)
 			}
+			if ds.Networks[networkAlias] == nil {
+				ds.Networks[networkAlias] = &types.ServiceNetworkConfig{}
+			}
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -214,9 +225,10 @@ func (s *Service) AddNetwork(networkAlias string) error {
 
 // RemoveNetwork implements runtime.ManageableNetwork.
 func (s *Service) RemoveNetwork(networkAlias string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			delete(s.project.Services[ix].Networks, networkAlias)
+			delete(ds.Networks, networkAlias)
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -224,7 +236,7 @@ func (s *Service) RemoveNetwork(networkAlias string) error {
 
 // AddFlag implements runtime.Service.
 func (s *Service) AddFlag(flag string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
 			rendered, err := s.render(flag)
 			if err != nil {
@@ -232,14 +244,15 @@ func (s *Service) AddFlag(flag string) error {
 			}
 			eqIndex := strings.Index(rendered, "=")
 			if eqIndex >= 0 {
-				commandIndex := slices.IndexFunc(s.project.Services[ix].Command, func(command string) bool {
+				commandIndex := slices.IndexFunc(ds.Command, func(command string) bool {
 					return strings.HasPrefix(command, rendered[:eqIndex+1])
 				})
 				if commandIndex >= 0 {
-					s.project.Services[ix].Command = slices.Delete(s.project.Services[ix].Command, commandIndex, commandIndex+1)
+					ds.Command = slices.Delete(ds.Command, commandIndex, commandIndex+1)
 				}
 			}
-			s.project.Services[ix].Command = append(s.project.Services[ix].Command, rendered)
+			ds.Command = append(ds.Command, rendered)
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -247,13 +260,14 @@ func (s *Service) AddFlag(flag string) error {
 
 // AddEnvironment registers new environment variable to be used. For normal configs, use AddConfig to be more general.
 func (s *Service) AddEnvironment(key string, value string) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
 			rendered, err := s.render(value)
 			if err != nil {
 				return err
 			}
-			s.project.Services[ix].Environment[key] = ptrStr(rendered)
+			ds.Environment[key] = ptrStr(rendered)
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil
@@ -261,12 +275,13 @@ func (s *Service) AddEnvironment(key string, value string) error {
 
 // TransformRaw enables to apply transformations on original raw docker service.
 func (s *Service) TransformRaw(apply func(config *types.ServiceConfig) error) error {
-	for ix, ds := range s.project.Services {
+	for serviceName, ds := range s.project.Services {
 		if filtered(s, ds) {
-			err := apply(&s.project.Services[ix])
+			err := apply(&ds)
 			if err != nil {
 				return err
 			}
+			s.project.Services[serviceName] = ds
 		}
 	}
 	return nil

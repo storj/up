@@ -4,12 +4,13 @@
 package common
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
-	"github.com/compose-spec/compose-go/cli"
-	"github.com/compose-spec/compose-go/loader"
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/cli"
+	"github.com/compose-spec/compose-go/v2/loader"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/goccy/go-yaml"
 	"github.com/zeebo/errs/v2"
 
@@ -34,16 +35,16 @@ type ComposeFile struct {
 // LoadComposeFromFile parses docker-compose file from the current directory.
 func LoadComposeFromFile(dir string, filename string) (*types.Project, error) {
 	options := cli.ProjectOptions{
-		Name:        filename,
+		Name:        "storj-up",
 		ConfigPaths: []string{filepath.Join(dir, filename)},
 	}
 
-	return cli.ProjectFromOptions(&options)
+	return cli.ProjectFromOptions(context.Background(), &options)
 }
 
 // LoadComposeFromBytes loads docker-compose definition from bytes.
 func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
-	return loader.Load(types.ConfigDetails{
+	return loader.LoadWithContext(context.Background(), types.ConfigDetails{
 		ConfigFiles: []types.ConfigFile{
 			{
 				Content: composeBytes,
@@ -51,16 +52,6 @@ func LoadComposeFromBytes(composeBytes []byte) (*types.Project, error) {
 		},
 		WorkingDir: ".",
 	})
-}
-
-// ContainsService check if the service is included in the list.
-func ContainsService(s []types.ServiceConfig, e string) bool {
-	for _, a := range s {
-		if a.Name == e {
-			return true
-		}
-	}
-	return false
 }
 
 // CreateBind can create a new volume binding object.

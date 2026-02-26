@@ -4,6 +4,7 @@
 package compose
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/compose-spec/compose-go/cli"
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/cli"
+	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/zeebo/errs/v2"
 
 	"storj.io/storj-up/pkg/common"
@@ -30,19 +31,20 @@ type Compose struct {
 // Reload implements runtime.Runtime.
 func (c *Compose) Reload(stack recipe.Stack) error {
 	options := cli.ProjectOptions{
-		Name:        common.ComposeFileName,
+		Name:        "storj-up",
 		ConfigPaths: []string{filepath.Join(c.dir, common.ComposeFileName)},
 	}
-	composeProject, err := cli.ProjectFromOptions(&options)
+	composeProject, err := cli.ProjectFromOptions(context.Background(), &options)
 	if err != nil {
 		return err
 	}
 	c.project = composeProject
-	for i, service := range c.project.Services {
+	for serviceName, service := range c.project.Services {
 		for _, recipe := range stack {
 			for _, baseService := range recipe.Add {
 				if strings.Contains(service.Name, baseService.Name) && len(baseService.Label) > 0 {
-					c.project.Services[i].Extensions = map[string]interface{}{"labels": baseService.Label}
+					service.Extensions = map[string]interface{}{"labels": baseService.Label}
+					c.project.Services[serviceName] = service
 				}
 			}
 		}
@@ -52,14 +54,14 @@ func (c *Compose) Reload(stack recipe.Stack) error {
 
 // GetServices  implements runtime.Runtime.
 func (c *Compose) GetServices() []runtime.Service {
-	k := make([]runtime.Service, len(c.project.Services))
-	for ix, s := range c.project.Services {
+	k := make([]runtime.Service, 0, len(c.project.Services))
+	for _, s := range c.project.Services {
 		id := runtime.ServiceInstanceFromIndexedName(s.Name)
 		var labels []string
 		if s.Extensions["labels"] != nil {
 			labels = s.Extensions["labels"].([]string)
 		}
-		k[ix] = &Service{
+		svc := &Service{
 			id:         id,
 			project:    c.project,
 			composeDir: c.dir,
@@ -68,6 +70,7 @@ func (c *Compose) GetServices() []runtime.Service {
 			},
 			labels: labels,
 		}
+		k = append(k, svc)
 	}
 	return k
 }
@@ -232,14 +235,17 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		}
 	}
 	if index == 1 {
-		for ix, ds := range c.project.Services {
+		for serviceName, ds := range c.project.Services {
 			if ds.Name == recipe.Name {
-				c.project.Services[ix].Name = ds.Name + "1"
+				newName := ds.Name + "1"
+				ds.Name = newName
+				delete(c.project.Services, serviceName)
+				c.project.Services[newName] = ds
 			}
 		}
 	}
 
-	one := uint64(1)
+	one := 1
 	s := types.ServiceConfig{
 		Name:          name,
 		ContainerName: containerName,
@@ -266,7 +272,10 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		s.Environment["STORJ_ROLE"] = ptrStr(recipe.Name)
 	}
 
-	c.project.Services = append(c.project.Services, s)
+	if c.project.Services == nil {
+		c.project.Services = make(types.Services)
+	}
+	c.project.Services[name] = s
 
 	id := runtime.NewServiceInstance(recipe.Name, index)
 	r := &Service{
