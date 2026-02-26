@@ -222,14 +222,27 @@ func RebuildImages() error {
 	return nil
 }
 
-// DockerEdge builds a Edge docker image for local use.
+// DockerEdgeBuild builds an Edge docker image for local use (no push).
 // version: required - the edge version tag (e.g., "1.95.1")
-// publish: whether to push the image to the registry
 // buildTag: optional - build image tag; reads from build.last if empty
 // baseTag: optional - base image tag; reads from base.last if empty
 //
 //nolint:deadcode
-func DockerEdge(version string, publish bool, buildTag string, baseTag string) error {
+func DockerEdgeBuild(version string, buildTag string, baseTag string) error {
+	return dockerEdgeWithTags(version, false, buildTag, baseTag)
+}
+
+// DockerEdgePublish builds and pushes an Edge docker image.
+// version: required - the edge version tag (e.g., "1.95.1")
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
+//
+//nolint:deadcode
+func DockerEdgePublish(version string, buildTag string, baseTag string) error {
+	return dockerEdgeWithTags(version, true, buildTag, baseTag)
+}
+
+func dockerEdgeWithTags(version string, publish bool, buildTag string, baseTag string) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}
@@ -252,14 +265,27 @@ func DockerEdge(version string, publish bool, buildTag string, baseTag string) e
 	return dockerEdge(version, publish, buildTag, baseTag)
 }
 
-// DockerStorj builds a Core docker image for local use.
+// DockerStorjBuild builds a Storj docker image for local use (no push).
 // version: required - the storj version tag (e.g., "1.95.1")
-// publish: whether to push the image to the registry
 // buildTag: optional - build image tag; reads from build.last if empty
 // baseTag: optional - base image tag; reads from base.last if empty
 //
 //nolint:deadcode
-func DockerStorj(version string, publish bool, buildTag string, baseTag string) error {
+func DockerStorjBuild(version string, buildTag string, baseTag string) error {
+	return dockerStorj(version, false, buildTag, baseTag)
+}
+
+// DockerStorjPublish builds and pushes a Storj docker image.
+// version: required - the storj version tag (e.g., "1.95.1")
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
+//
+//nolint:deadcode
+func DockerStorjPublish(version string, buildTag string, baseTag string) error {
+	return dockerStorj(version, true, buildTag, baseTag)
+}
+
+func dockerStorj(version string, publish bool, buildTag string, baseTag string) error {
 	if version == "" {
 		return errs.New("VERSION should be defined with environment variable")
 	}

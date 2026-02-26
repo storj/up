@@ -40,18 +40,18 @@ Storj image contains all the binaries required to run the satellite.
 
 To publish a new `storjup/storj` image:
 
-1. `mage dockerStorj <version> false "" ""` (only build, uses tags from .last files)
-2. `mage dockerStorj <version> true "" ""` (build and publish, uses tags from .last files)
+1. `mage dockerStorjBuild <version> "" ""` (only build, uses tags from .last files)
+2. `mage dockerStorjPublish <version> "" ""` (build and publish, uses tags from .last files)
 3. Use the new tag in recipe files
 
 To use specific build/base image tags:
 
 ```bash
-mage dockerStorj <version> <publish> <buildTag> <baseTag>
+mage dockerStorjBuild <version> <buildTag> <baseTag>
+mage dockerStorjPublish <version> <buildTag> <baseTag>
 ```
 
 - `version`: Required. The storj version without `v` prefix (e.g., `1.147.5`)
-- `publish`: `true` to push to registry, `false` for local build only
 - `buildTag`: Optional. Build image tag; pass `""` to use value from `build.last`
 - `baseTag`: Optional. Base image tag; pass `""` to use value from `base.last`
 
@@ -61,17 +61,17 @@ Edge image contains all the binaries required to run the edge services.
 
 To publish a new `storjup/edge` image:
 
-1. `mage dockerEdge <version> false "" ""` (only build, uses tags from .last files)
-2. `mage dockerEdge <version> true "" ""` (build and publish, uses tags from .last files)
+1. `mage dockerEdgeBuild <version> "" ""` (only build, uses tags from .last files)
+2. `mage dockerEdgePublish <version> "" ""` (build and publish, uses tags from .last files)
 3. Use the new tag in recipe files
 
 To use specific build/base image tags:
 
 ```bash
-mage dockerEdge <version> <publish> <buildTag> <baseTag>
+mage dockerEdgeBuild <version> <buildTag> <baseTag>
+mage dockerEdgePublish <version> <buildTag> <baseTag>
 ```
 
 - `version`: Required. The edge version without `v` prefix (e.g., `1.111.0`)
-- `publish`: `true` to push to registry, `false` for local build only
 - `buildTag`: Optional. Build image tag; pass `""` to use value from `build.last`
 - `baseTag`: Optional. Base image tag; pass `""` to use value from `base.last`
