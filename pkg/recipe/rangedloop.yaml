@@ -15,11 +15,12 @@ add:
     persistence:
       - /var/lib/storj/.local/share/storj
     config:
-      STORJ_DATABASE: '{{ Environment "cockroach" "main" }}'
-      STORJ_METAINFO_DATABASE_URL: '{{ Environment "cockroach" "metainfo" }}'
+      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim
+      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
 
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
