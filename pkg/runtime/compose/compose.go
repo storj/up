@@ -158,7 +158,7 @@ var _ runtime.Runtime = &Compose{}
 func NewCompose(dir string) (*Compose, error) {
 	return &Compose{
 		dir:     dir,
-		project: &types.Project{},
+		project: &types.Project{Name: "storj-up"},
 		variables: map[string]map[string]string{
 			"cockroach": {
 				"main":     "cockroach://root@cockroach:26257/master?sslmode=disable",
@@ -214,7 +214,7 @@ func NewCompose(dir string) (*Compose, error) {
 func NewEmptyCompose(dir string) *Compose {
 	return &Compose{
 		dir:     dir,
-		project: &types.Project{},
+		project: &types.Project{Name: "storj-up"},
 	}
 }
 
