@@ -27,7 +27,6 @@ var Store = composedb.ComposeHistory{DB: composedb.FileDatabase{}}
 
 // ComposeFile is the simplified structure of one compose file.
 type ComposeFile struct {
-	Version  string // used for compatibility with Compose V1
 	Name     string
 	Services types.Services
 	Networks types.Networks
@@ -97,7 +96,7 @@ func WriteComposeFile(dir string, compose *types.Project) error {
 // WriteComposeFileNoHistory persists current docker-compose project to docker-compose.yaml without saving a record
 // of the current compose file.
 func WriteComposeFileNoHistory(dir string, compose *types.Project) error {
-	resolvedServices, err := yaml.Marshal(&ComposeFile{Version: "3.4", Name: compose.Name, Services: compose.Services, Networks: compose.Networks})
+	resolvedServices, err := yaml.Marshal(&ComposeFile{Name: compose.Name, Services: compose.Services, Networks: compose.Networks})
 	if err != nil {
 		return errs.Wrap(err)
 	}
