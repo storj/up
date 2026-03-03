@@ -30,6 +30,11 @@ pipeline {
         }
         stage('Integration') {
             parallel {
+                stage('Build') {
+                    steps {
+                        sh "earthly -P ./test/build+test"
+                    }
+                }
                 stage('Uplink') {
                     steps {
                         sh "earthly -P ./test/uplink+test"

@@ -1,0 +1,11 @@
+VERSION 0.8
+# integration test for storj-up build command (compose generation)
+test:
+    FROM earthly/dind:ubuntu
+    WORKDIR /go/storj-up
+    COPY ../../+build-app/storj-up .
+    COPY verify.sh .
+    RUN chmod +x verify.sh
+    WITH DOCKER
+        RUN ./verify.sh
+    END

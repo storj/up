@@ -56,6 +56,7 @@ test:
    SAVE ARTIFACT build/tests.json AS LOCAL build/tests.json
 
 integration-all:
+   BUILD ./test/build+test
    BUILD ./test/uplink+test
    BUILD ./test/spanner/uplink+test
    BUILD ./test/edge+test
