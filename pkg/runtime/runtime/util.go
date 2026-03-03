@@ -4,6 +4,7 @@
 package runtime
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/zeebo/errs/v2"
@@ -85,13 +86,11 @@ func Match(service Service, matcher recipe.Matcher) bool {
 		panic("asd")
 	}
 	for _, l := range service.Labels() {
-		for _, m := range matcher.Label {
-			if l == m {
-				return true
-			}
+		if slices.Contains(matcher.Label, l) {
+			return true
 		}
 	}
-	for _, name := range strings.Split(matcher.Name, ",") {
+	for name := range strings.SplitSeq(matcher.Name, ",") {
 		if strings.TrimSpace(name) == service.ID().Name {
 			return true
 		}

@@ -140,7 +140,7 @@ func NewServiceInstance(name string, i int) ServiceInstance {
 func ModifyService(stack recipe.Stack, rt Runtime, selectors []string, f func(service Service) error) error {
 	for _, oneOrMoreSelector := range selectors {
 
-		for _, selector := range strings.Split(oneOrMoreSelector, ",") {
+		for selector := range strings.SplitSeq(oneOrMoreSelector, ",") {
 			found := false
 
 			for _, s := range rt.GetServices() {

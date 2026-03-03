@@ -43,7 +43,7 @@ func (c *Compose) Reload(stack recipe.Stack) error {
 		for _, recipe := range stack {
 			for _, baseService := range recipe.Add {
 				if strings.Contains(service.Name, baseService.Name) && len(baseService.Label) > 0 {
-					service.Extensions = map[string]interface{}{"labels": baseService.Label}
+					service.Extensions = map[string]any{"labels": baseService.Label}
 					c.project.Services[serviceName] = service
 				}
 			}
@@ -256,7 +256,7 @@ func (c *Compose) AddService(recipe recipe.Service) (runtime.Service, error) {
 		},
 		Ports:      []types.ServicePortConfig{},
 		Image:      recipe.Image,
-		Extensions: map[string]interface{}{"labels": recipe.Label},
+		Extensions: map[string]any{"labels": recipe.Label},
 	}
 
 	if recipe.Name == "storagenode" || recipe.Name == "satellite-core" || recipe.Name == "satellite-admin" {

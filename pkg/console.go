@@ -377,7 +377,7 @@ func (ce *ConsoleEndpoint) createAPIKey(ctx context.Context, projectID string) (
 	return createdKey.Key, nil
 }
 
-func (ce *ConsoleEndpoint) projectQuery(ctx context.Context, response interface{}) error {
+func (ce *ConsoleEndpoint) projectQuery(ctx context.Context, response any) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
@@ -397,7 +397,7 @@ func (ce *ConsoleEndpoint) projectQuery(ctx context.Context, response interface{
 	return ce.httpDo(request, response)
 }
 
-func (ce *ConsoleEndpoint) projectMutation(ctx context.Context, query string, response interface{}) error {
+func (ce *ConsoleEndpoint) projectMutation(ctx context.Context, query string, response any) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
@@ -417,7 +417,7 @@ func (ce *ConsoleEndpoint) projectMutation(ctx context.Context, query string, re
 	return ce.httpDo(request, response)
 }
 
-func (ce *ConsoleEndpoint) apiKeyMutation(ctx context.Context, apiKeyName, projectID string, response interface{}) error {
+func (ce *ConsoleEndpoint) apiKeyMutation(ctx context.Context, apiKeyName, projectID string, response any) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
@@ -437,7 +437,7 @@ func (ce *ConsoleEndpoint) apiKeyMutation(ctx context.Context, apiKeyName, proje
 	return ce.httpDo(request, response)
 }
 
-func (ce *ConsoleEndpoint) graphqlQuery(ctx context.Context, createAPIKeyQuery string, response interface{}) error {
+func (ce *ConsoleEndpoint) graphqlQuery(ctx context.Context, createAPIKeyQuery string, response any) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
@@ -461,7 +461,7 @@ func (ce *ConsoleEndpoint) graphqlQuery(ctx context.Context, createAPIKeyQuery s
 	return ce.graphqlDo(request, response)
 }
 
-func (ce *ConsoleEndpoint) graphqlMutation(ctx context.Context, query string, response interface{}) error {
+func (ce *ConsoleEndpoint) graphqlMutation(ctx context.Context, query string, response any) error {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
@@ -515,7 +515,7 @@ func tryReadLine(r io.Reader) string {
 	return scanner.Text()
 }
 
-func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interface{}) error {
+func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse any) error {
 	resp, err := ce.client.Do(request)
 	if err != nil {
 		return err
@@ -529,7 +529,7 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 
 	var response struct {
 		Data   json.RawMessage
-		Errors []interface{}
+		Errors []any
 	}
 
 	if err = json.NewDecoder(bytes.NewReader(b)).Decode(&response); err != nil {
@@ -547,7 +547,7 @@ func (ce *ConsoleEndpoint) graphqlDo(request *http.Request, jsonResponse interfa
 	return json.NewDecoder(bytes.NewReader(response.Data)).Decode(jsonResponse)
 }
 
-func (ce *ConsoleEndpoint) httpDo(request *http.Request, jsonResponse interface{}) error {
+func (ce *ConsoleEndpoint) httpDo(request *http.Request, jsonResponse any) error {
 	resp, err := ce.client.Do(request)
 	if err != nil {
 		return err
@@ -617,7 +617,7 @@ func RegisterAccess(ctx context.Context, authService string, accessSerialized st
 		return "", "", "", errs.New("no auth service address provided")
 	}
 
-	postData, err := json.Marshal(map[string]interface{}{
+	postData, err := json.Marshal(map[string]any{
 		"access_grant": accessSerialized,
 		"public":       false,
 	})

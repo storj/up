@@ -4,6 +4,8 @@
 package recipe
 
 import (
+	"slices"
+
 	"github.com/zeebo/errs/v2"
 	"gopkg.in/yaml.v3"
 )
@@ -83,12 +85,7 @@ type PortDefinition struct {
 
 // HasLabel checks if the service has one specific label.
 func (s Service) HasLabel(s2 string) bool {
-	for _, l := range s.Label {
-		if l == s2 {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s.Label, s2)
 }
 
 // Read loads a recipe from a yaml file.

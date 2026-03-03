@@ -12,7 +12,7 @@ import (
 
 // Render can resolve all the go templates in a string.
 func Render(r Runtime, serviceInstance ServiceInstance, original string) (string, error) {
-	funcMap := map[string]interface{}{
+	funcMap := map[string]any{
 		"Host": func(service string, hostType string) string {
 			return r.GetHost(ServiceInstanceFromStr(service), hostType)
 		},

@@ -175,7 +175,7 @@ func checkHealthSpanner(table string, records int) error {
 		// Check if the table exists
 		iter := client.Single().Query(clientCtx, spanner.Statement{
 			SQL: `SELECT table_name FROM information_schema.tables WHERE table_name = @table_name`,
-			Params: map[string]interface{}{
+			Params: map[string]any{
 				"table_name": table,
 			},
 		})

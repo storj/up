@@ -48,7 +48,7 @@ func ResolveServices(selectors []string) ([]string, error) {
 		return res, err
 	}
 	for _, oneOrMoreSelector := range selectors {
-		for _, selector := range strings.Split(oneOrMoreSelector, ",") {
+		for selector := range strings.SplitSeq(oneOrMoreSelector, ",") {
 			resolved := false
 			for _, r := range st {
 				if r.Name == selector {

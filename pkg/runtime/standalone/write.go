@@ -65,7 +65,7 @@ func (c *Standalone) writeSupervisor() error {
 		_ = f.Close()
 	}()
 	t, err := template.New("supervisord.template").
-		Funcs(map[string]interface{}{
+		Funcs(map[string]any{
 			"UniqueName": c.uniqueName,
 			"Add": func(a int, b int) int {
 				return a + b
@@ -93,17 +93,17 @@ func (c *Standalone) writeService(s *service) error {
 		_ = f.Close()
 	}()
 	t, err := template.New("start.sh").
-		Funcs(map[string]interface{}{
+		Funcs(map[string]any{
 			"HasPrefix": strings.HasPrefix,
 			"Safe": func(p string) string {
-				out := ""
+				var out strings.Builder
 				for i := 0; i < len(p); i++ {
 					if i > 0 && p[i] == '"' && p[i-1] != '\\' {
-						out += "\\"
+						out.WriteString("\\")
 					}
-					out += string(p[i])
+					out.WriteString(string(p[i]))
 				}
-				return out
+				return out.String()
 			},
 		}).
 		Parse(string(startTemplate))
@@ -145,7 +145,7 @@ func (c *Standalone) writeIntelliJRunner(s *service) error {
 		_ = f.Close()
 	}()
 	t, err := template.New("intellij.xml").
-		Funcs(map[string]interface{}{
+		Funcs(map[string]any{
 			"HasPrefix":  strings.HasPrefix,
 			"UniqueName": c.uniqueName,
 			"Tail": func(a []string) []string {

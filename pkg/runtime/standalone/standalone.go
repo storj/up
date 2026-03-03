@@ -108,8 +108,8 @@ func (c *Standalone) reloadEnvironment(service *service, script string) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "export ") {
-			line = strings.TrimPrefix(line, "export ")
+		if after, ok := strings.CutPrefix(line, "export "); ok {
+			line = after
 			if env, value, ok := strings.Cut(line, "="); ok {
 				service.Environment[env] = strings.Trim(value, "\"")
 			}

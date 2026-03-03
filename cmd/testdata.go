@@ -153,7 +153,7 @@ func generateProjectUsage(database, email string, bucketname string, useragent s
 			return errs.Wrap(err)
 		}
 		intervalStart := firstDayOfMonth
-		for i := 0; i < 24; i++ {
+		for range 24 {
 			usage := 1024000000000
 			err = db.Orders().UpdateBucketBandwidthAllocation(ctx, p.ID, []byte(bucket.Name), pb.PieceAction_GET, int64(usage), intervalStart)
 			if err != nil {
@@ -190,7 +190,7 @@ func generatePayments(database string) error {
 	var payments []compensation.Payment
 	now := time.Now()
 	paymentTypes := []string{"eth", "zksync", "polygon"}
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		oneMonthBefore := now.AddDate(0, -i, 0)
 		period := compensation.Period{
 			Year:  oneMonthBefore.Year(),

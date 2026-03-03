@@ -111,7 +111,7 @@ func initCmd() *cobra.Command {
 func normalizedArgs(args []string) []string {
 	var res []string
 	for _, a := range args {
-		for _, p := range strings.Split(a, ",") {
+		for p := range strings.SplitSeq(a, ",") {
 			p = strings.TrimSpace(p)
 			if p != "" {
 				res = append(res, p)
