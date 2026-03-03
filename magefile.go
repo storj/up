@@ -20,6 +20,8 @@ import (
 
 	"github.com/magefile/mage/sh"
 	"github.com/zeebo/errs"
+
+	dockerfiles "storj.io/storj-up/pkg/files/docker"
 )
 
 // Coverage executes all unit test with coverage measurement.
@@ -88,7 +90,7 @@ func DockerBasePublish() error {
 }
 
 func dockerBase(publish bool) error {
-	return withDockerTag("base.last", publish, func(tag string) error {
+	return withDockerTag("pkg/files/docker/base.last", publish, func(tag string) error {
 		return buildxRun(publish,
 			"build",
 			"--tag", "img.dev.storj.io/storjup/base:"+tag,
@@ -113,7 +115,7 @@ func DockerBuildPublish() error {
 }
 
 func dockerBuild(publish bool) error {
-	return withDockerTag("build.last", publish, func(tag string) error {
+	return withDockerTag("pkg/files/docker/build.last", publish, func(tag string) error {
 		return buildxRun(publish,
 			"build",
 			"--build-arg", "SOURCE=branch",
@@ -188,15 +190,8 @@ func Integration() error {
 //
 //nolint:deadcode
 func RebuildImages() error {
-	// Read tags once for all rebuilds
-	buildTag, err := readDockerTag("build.last")
-	if err != nil {
-		return err
-	}
-	baseTag, err := readDockerTag("base.last")
-	if err != nil {
-		return err
-	}
+	buildTag := dockerfiles.BuildTag()
+	baseTag := dockerfiles.BaseTag()
 
 	versions, err := listContainerVersions("storj")
 	if err != nil {
@@ -247,19 +242,12 @@ func dockerEdgeWithTags(version string, publish bool, buildTag string, baseTag s
 		return errs.New("VERSION should be defined with environment variable")
 	}
 
-	var err error
 	if buildTag == "" {
-		buildTag, err = readDockerTag("build.last")
-		if err != nil {
-			return errs.Wrap(err)
-		}
+		buildTag = dockerfiles.BuildTag()
 	}
 
 	if baseTag == "" {
-		baseTag, err = readDockerTag("base.last")
-		if err != nil {
-			return errs.Wrap(err)
-		}
+		baseTag = dockerfiles.BaseTag()
 	}
 
 	return dockerEdge(version, publish, buildTag, baseTag)
@@ -290,19 +278,12 @@ func dockerStorj(version string, publish bool, buildTag string, baseTag string) 
 		return errs.New("VERSION should be defined with environment variable")
 	}
 
-	var err error
 	if buildTag == "" {
-		buildTag, err = readDockerTag("build.last")
-		if err != nil {
-			return errs.Wrap(err)
-		}
+		buildTag = dockerfiles.BuildTag()
 	}
 
 	if baseTag == "" {
-		baseTag, err = readDockerTag("base.last")
-		if err != nil {
-			return errs.Wrap(err)
-		}
+		baseTag = dockerfiles.BaseTag()
 	}
 
 	return dockerCore(version, publish, buildTag, baseTag)
@@ -312,17 +293,10 @@ func dockerStorj(version string, publish bool, buildTag string, baseTag string) 
 //
 //nolint:deadcode
 func Images() error {
-	// Read tags once for all image builds
-	buildTag, err := readDockerTag("build.last")
-	if err != nil {
-		return err
-	}
-	baseTag, err := readDockerTag("base.last")
-	if err != nil {
-		return err
-	}
+	buildTag := dockerfiles.BuildTag()
+	baseTag := dockerfiles.BaseTag()
 
-	err = doOnMissing("storj", "storj", func(container string, repo string, version string) error {
+	err := doOnMissing("storj", "storj", func(container string, repo string, version string) error {
 		err := dockerCore(version, true, buildTag, baseTag)
 		if err != nil {
 			return err
@@ -438,16 +412,6 @@ func doOnMissing(containerName string, repoName string, action func(string, stri
 // writeDockerTag persist the last used docker tag to a file.
 func writeDockerTag(tagFile string, tag string) error {
 	return os.WriteFile(tagFile, []byte(tag), 0o644)
-}
-
-// readDockerTag reads the current tag from a tag file.
-// Returns an error if the file doesn't exist or cannot be read.
-func readDockerTag(tagFile string) (string, error) {
-	content, err := os.ReadFile(tagFile)
-	if err != nil {
-		return "", errs.Wrap(err)
-	}
-	return strings.TrimSpace(string(content)), nil
 }
 
 // ListVersions prints out the available container / release versions.

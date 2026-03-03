@@ -3,7 +3,10 @@
 
 package dockerfiles
 
-import _ "embed"
+import (
+	_ "embed"
+	"strings"
+)
 
 // StorjDocker is a Dockerfile for core services.
 //
@@ -14,3 +17,15 @@ var StorjDocker []byte
 //
 //go:embed edge.Dockerfile
 var EdgeDocker []byte
+
+//go:embed build.last
+var buildTag string
+
+//go:embed base.last
+var baseTag string
+
+// BuildTag returns the current build image tag.
+func BuildTag() string { return strings.TrimSpace(buildTag) }
+
+// BaseTag returns the current base image tag.
+func BaseTag() string { return strings.TrimSpace(baseTag) }

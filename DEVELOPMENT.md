@@ -22,7 +22,7 @@ To publish a new `storjup/build` image:
 
  1. `mage dockerBuildBuild` (only build)
  2. `mage dockerBuildPublish` (build and publish)
- 3. New tag is saved to `build.last`. Please commit that file with your PR.
+ 3. New tag is saved to `pkg/files/docker/build.last`. Please commit that file with your PR.
 
 ## Update base image
 
@@ -32,7 +32,7 @@ To publish a new `storjup/base` image:
 
  1. `mage dockerBaseBuild` (only build)
  2. `mage dockerBasePublish` (build and publish)
- 3. New tag is saved to `base.last`. Please commit that file with your PR.
+ 3. New tag is saved to `pkg/files/docker/base.last`. Please commit that file with your PR.
 
 ## Update Storj image
 
@@ -52,8 +52,8 @@ mage dockerStorjPublish <version> <buildTag> <baseTag>
 ```
 
 - `version`: Required. The storj version without `v` prefix (e.g., `1.147.5`)
-- `buildTag`: Optional. Build image tag; pass `""` to use value from `build.last`
-- `baseTag`: Optional. Base image tag; pass `""` to use value from `base.last`
+- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
 
 ## Update Edge image
 
@@ -73,5 +73,5 @@ mage dockerEdgePublish <version> <buildTag> <baseTag>
 ```
 
 - `version`: Required. The edge version without `v` prefix (e.g., `1.111.0`)
-- `buildTag`: Optional. Build image tag; pass `""` to use value from `build.last`
-- `baseTag`: Optional. Base image tag; pass `""` to use value from `base.last`
+- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`

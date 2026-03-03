@@ -64,6 +64,14 @@ func updateCompose(services []string, remoteType string) error {
 		}
 		for serviceName, service := range composeProject.Services {
 			if strings.EqualFold(service.Name, buildType) {
+				err = setArg(&service, "BUILD_TAG="+dockerfiles.BuildTag())
+				if err != nil {
+					return errs.Wrap(err)
+				}
+				err = setArg(&service, "BASE_TAG="+dockerfiles.BaseTag())
+				if err != nil {
+					return errs.Wrap(err)
+				}
 				err = setArg(&service, "TYPE="+remoteType)
 				if err != nil {
 					return errs.Wrap(err)
