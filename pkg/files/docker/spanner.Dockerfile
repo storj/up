@@ -1,6 +1,6 @@
 FROM img.dev.storj.io/storjup/base:20251110-1 AS binaries
 
-FROM gcr.io/cloud-spanner-emulator/emulator:1.5.31 AS emulator
+FROM gcr.io/cloud-spanner-emulator/emulator:1.5.51 AS emulator
 
 FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:517.0.0-slim AS final
 
