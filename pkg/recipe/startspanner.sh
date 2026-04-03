@@ -8,7 +8,10 @@ export INSTANCE_NAME="${INSTANCE_NAME:-test-instance}"
 export SPANNER_EMULATOR_URL="${SPANNER_EMULATOR_URL:-http://localhost:9010}"
 
 # Start Spanner emulator with public access flags
-gcloud emulators spanner start --host-port=0.0.0.0:9010&
+# We use this command instead of starting Spanner with gcloud because gcloud's
+# Spanner Emulator component comes with its own version of Spanner Emulator.
+# We want to use the Spanner Emulator version we selected ourselves.
+gateway_main --hostname 0.0.0.0 --grpc_port 9010 --http_port 9020 &
 
 # Configure gcloud
 gcloud config set disable_prompts true
