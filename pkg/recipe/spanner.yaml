@@ -2,7 +2,7 @@ name: spanner
 description: spanner DB.
 add:
   - name: spanner
-    image: img.dev.storj.io/storjup/spanner-emulator:1.5.31
+    image: img.dev.storj.io/storjup/spanner-emulator:1.5.51
     port:
       - name: gRPC
         description: Spanner gRPC port
@@ -16,7 +16,7 @@ add:
       SPANNER_EMULATOR_URL: http://localhost:9020/
 modify:
   - match:
-      name: 
+      name:
         satellite-api,
         satellite-core,
         satellite-admin,
