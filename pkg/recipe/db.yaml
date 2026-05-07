@@ -2,7 +2,7 @@ name: db
 description: Cockroach and redis required by other services.
 add:
   - name: spanner
-    image: img.dev.storj.io/storjup/spanner-emulator:1.5.51
+    image: img.dev.storj.io/storjup/spanner-emulator:1.5.52
     port:
       - name: gRPC
         description: Spanner gRPC port

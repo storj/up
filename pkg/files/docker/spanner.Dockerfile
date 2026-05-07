@@ -1,4 +1,4 @@
-FROM gcr.io/cloud-spanner-emulator/emulator:1.5.51 AS emulator
+FROM gcr.io/cloud-spanner-emulator/emulator:1.5.52 AS emulator
 
 FROM debian:trixie-slim AS final
 
