@@ -5,12 +5,12 @@ add:
     label:
       - storj
       - versioncontrol
-    image: ghcr.io/storj/up/storj:1.125.2
+    image: ghcr.io/storj/up/storj:1.158.2
     command:
       - versioncontrol
       - run
     persistence:
-      - /var/lib/storj/.local/share/storj
+      - /storj/.local/share/storj
     config:
       BINARY_GATEWAY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"
       BINARY_IDENTITY_ROLLOUT_SEED: "0000000000000000000000000000000000000000000000000000000000000001"

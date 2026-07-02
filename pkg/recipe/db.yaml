@@ -1,20 +1,60 @@
 name: db
-description: Cockroach and redis required by other services.
+description: Default DB - TiDB metabase + Postgres main DB (and redis). Metabase runs on TiDB, satellitedb on Postgres.
 add:
-  - name: spanner
-    image: ghcr.io/storj/up/spanner-emulator:1.5.52
+  - name: tidb
+    # Official upstream image; config is mounted (see file: below) rather than baked.
+    image: pingcap/tidb:v8.5.6
+    command:
+      - -config=/etc/tidb.toml
     port:
-      - name: gRPC
-        description: Spanner gRPC port
-        target: 9010
-      - name: REST
-        description: Spanner REST port
-        target: 9020
+      - name: tidb
+        description: TiDB MySQL-protocol SQL port
+        target: 4000
+    file:
+      # max-index-length=12288 is required by the metabase objects-table primary key.
+      - name: tidb.toml
+        path: /etc
+        data: |
+          max-index-length = 12288
+          lease = "1s"
+          initialize-sql-file = "/etc/tidb-init.sql"
+          [performance]
+          force-init-stats = false
+          [instance]
+          tidb_enable_collect_execution_info = false
+          tidb_record_plan_in_slow_log = 0
+      # bootstrap runs before the SQL port opens, so the metainfo DB is ready on first connect.
+      - name: tidb-init.sql
+        path: /etc
+        data: |
+          CREATE DATABASE IF NOT EXISTS metainfo;
+          SET GLOBAL tidb_enable_async_commit = 1;
+          SET GLOBAL tidb_skip_utf8_check = 1;
+          SET GLOBAL tidb_runtime_filter_mode = 'LOCAL';
+  - name: postgres
+    image: postgres:latest
+    port:
+      - name: postgres
+        description: Postgres SQL port
+        target: 5432
+    command:
+      - postgres
     environment:
-      PROJECT_ID: test-project
-      INSTANCE_NAME: test-instance
-      SPANNER_EMULATOR_URL: http://localhost:9020/
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: master
   - name: redis
     image: redis:6.0.9
     command:
       - redis-server
+modify:
+  - match:
+      name:
+        satellite-api,
+        satellite-core,
+        satellite-admin,
+        satellite-audit,
+        satellite-rangedloop,
+        satellite-repair
+    config:
+      STORJ_DATABASE: "postgres://postgres@postgres:5432/master?sslmode=disable"
+      STORJ_METAINFO_DATABASE_URL: "tidb://root@tidb:4000/metainfo?parseTime=true"

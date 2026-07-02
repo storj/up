@@ -5,28 +5,56 @@ add:
     label:
       - storj
       - core
-    image: ghcr.io/storj/up/storj:1.125.2
+    image: ghcr.io/storj/up/storj:1.158.2
     command:
       - satellite
       - run
       - --defaults=dev
       - '--identity-dir={{ Environment .This "identityDir" }}'
     persistence:
-      - /var/lib/storj/.local/share/storj
+      - /storj/.local/share/storj
     config:
-      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'
+      STORJ_DATABASE: '{{ Environment "db" "main" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=1'
       STORJ_LOG_LEVEL: debug
       STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
-      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "db" "metainfo" }}'
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
-      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
+      # storj >=1.158 externalized the repair queue: `satellite run` refuses to
+      # start without a job-queue server node URL (see the jobq service below).
+      STORJ_JOB_QUEUE_SERVER_NODE_URL: '{{ Environment "jobq" "identity" }}@jobq:15781'
+      STORJ_JOB_QUEUE_TLS_USE_PEER_CA_WHITELIST: "false"
+      STORJ_JOB_QUEUE_TLS_EXTENSIONS_REVOCATION: "false"
     environment:
       STORJUP_AUTHSERVICE: http://authservice:8888
       STORJUP_SATELLITE: satellite-api
       STORJ_DEFAULTS: dev
       STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'
+  # Job queue (repair queue) server. Required by satellite-core/repair/rangedloop
+  # since storj 1.158. Reuses the predefined satellite identity so its node URL
+  # is the known Satellite0Identity.
+  - name: jobq
+    # No "storj" label: that label makes the standalone runtime run `<cmd> setup`,
+    # which jobq has no subcommand for. Compose keys off STORJUP_ROLE instead, and
+    # jobq's identity comes from STORJ_USE_PREDEFINED_IDENTITY below.
+    label:
+      - core
+    image: ghcr.io/storj/up/storj:1.158.2
+    command:
+      - jobq
+      - '--identity-dir={{ Environment .This "identityDir" }}'
+    persistence:
+      - /storj/.local/share/storj
+    config:
+      STORJ_LISTEN_ADDRESS: 0.0.0.0:15781
+      STORJ_LOG_LEVEL: debug
+      STORJ_TLS_USE_PEER_CA_WHITELIST: "false"
+      STORJ_TLS_EXTENSIONS_REVOCATION: "false"
+    environment:
+      STORJ_DEFAULTS: dev
+      STORJ_IDENTITY_DIR: '{{ Environment .This "identityDir" }}'
+      STORJ_USE_PREDEFINED_IDENTITY: 1

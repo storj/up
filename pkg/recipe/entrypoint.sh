@@ -12,7 +12,7 @@ if [ "$STORJ_IDENTITY_DIR" ]; then
     if [ "$STORJ_USE_PREDEFINED_IDENTITY" ]; then
       # use predictable, pre-generated identity
       mkdir -p $(dirname $STORJ_IDENTITY_DIR)
-      cp -r /var/lib/storj/identities/$STORJ_USE_PREDEFINED_IDENTITY $STORJ_IDENTITY_DIR
+      cp -r /storj/identities/$STORJ_USE_PREDEFINED_IDENTITY $STORJ_IDENTITY_DIR
     else
       identity --identity-dir $STORJ_IDENTITY_DIR --difficulty 8 create .
     fi
@@ -32,12 +32,12 @@ fi
 
 
 if [ "$STORJUP_ROLE" == "satellite-api" ]; then
-  mkdir -p /var/lib/storj/.local
+  mkdir -p /storj/.local
 
   #only migrate first time
-  if [ ! -f "/var/lib/storj/.local/migrated" ]; then
+  if [ ! -f "/storj/.local/migrated" ]; then
     satellite run migration --identity-dir $STORJ_IDENTITY_DIR
-    touch /var/lib/storj/.local/migrated
+    touch /storj/.local/migrated
   fi
 fi
 
@@ -47,15 +47,15 @@ if [ "$STORJUP_ROLE" == "storagenode" ]; then
 
   #This is a workaround to set different static dir for statellite/storagenode with env variables.
   : ${STORJ_CONSOLE_STATIC_DIR:=$STORJ_STORAGENODE_CONSOLE_STATIC_DIR}
-  if [ -f "/var/lib/storj/.local/share/storj/storagenode/config.yaml" ]; then
-    rm "/var/lib/storj/.local/share/storj/storagenode/config.yaml"
+  if [ -f "/storj/.local/share/storj/storagenode/config.yaml" ]; then
+    rm "/storj/.local/share/storj/storagenode/config.yaml"
   fi
   storagenode setup
 fi
 
 if [ "$STORJUP_ROLE" == "multinode" ]; then
-  if [ -f "/var/lib/storj/.local/share/storj/multinode/config.yaml" ]; then
-    rm "/var/lib/storj/.local/share/storj/multinode/config.yaml"
+  if [ -f "/storj/.local/share/storj/multinode/config.yaml" ]; then
+    rm "/storj/.local/share/storj/multinode/config.yaml"
   fi
   multinode setup
 fi
@@ -66,7 +66,7 @@ if [ "$STORJUP_ROLE" == "uplink" ]; then
     eval $(storj-up credentials -e satellite-api test@storj.io)
   fi
 fi
-mkdir -p /var/lib/storj/.local/share/storj/satellite || true
+mkdir -p /storj/.local/share/storj/satellite || true
 
 if [ "$GO_DLV" ]; then
   echo "Starting with go dlv"
@@ -74,7 +74,7 @@ if [ "$GO_DLV" ]; then
   #absolute file path is required
   CMD=$(which $1)
   shift
-  /var/lib/storj/go/bin/dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec --check-go-version=false -- $CMD "$@"
+  /storj/bin/dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec --check-go-version=false -- $CMD "$@"
 else
    exec "$@"
 fi

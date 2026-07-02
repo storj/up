@@ -2,8 +2,14 @@ name: uplink
 description: uplink service
 add:
   - name: uplink
-    image: ghcr.io/storj/up/storj:1.125.2
+    image: ghcr.io/storj/up/storj:1.158.2
     command:
       - tail
       - -F
       - anything
+    environment:
+      # Noise-based piece transfer fails in dev clusters (the initiator packs a
+      # 65535-byte 0-RTT payload into the NOISE_IK handshake and the exchange
+      # never completes, so uploads silently get 0 pieces). Force libuplink to
+      # use TLS, which works. Drop this once upstream noise is fixed.
+      STORJ_NOISE_DISABLED_EXPERIMENTAL: "true"

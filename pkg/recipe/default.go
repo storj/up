@@ -19,9 +19,6 @@ var cockroach []byte
 //go:embed postgres.yaml
 var postgres []byte
 
-//go:embed spanner.yaml
-var spanner []byte
-
 //go:embed edge.yaml
 var edge []byte
 
@@ -63,7 +60,6 @@ var Defaults = map[string][]byte{
 	"cockroach":       cockroach,
 	"db":              db,
 	"postgres":        postgres,
-	"spanner":         spanner,
 	"edge":            edge,
 	"tracing":         tracing,
 	"billing":         billing,

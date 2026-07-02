@@ -34,7 +34,7 @@ fi
 
 export STORJUP_NO_HISTORY=true
 
-storj-up init minimal,satellite-core,satellite-admin,edge,db,billing
+storj-up init minimal,satellite-core,jobq,satellite-admin,edge,db,billing
 storj-up env setenv satellite-core STORJ_PAYMENTS_BILLING_CONFIG_INTERVAL=5s
 storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_INTERVAL=5s
 storj-up env setenv satellite-core STORJ_PAYMENTS_STORJSCAN_CONFIRMATIONS=12

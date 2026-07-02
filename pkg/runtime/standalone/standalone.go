@@ -299,10 +299,9 @@ func NewStandalone(paths Paths) (*Standalone, error) {
 				"metainfo": "cockroach://root@localhost:26257/metainfo?sslmode=disable",
 				"dir":      filepath.Join(paths.ScriptDir, "cockroach", "0", "data"),
 			},
-			"spanner": {
-				"main":         "spanner://projects/test-project/instances/test-instance/databases/master",
-				"metainfo":     "spanner://projects/test-project/instances/test-instance/databases/metainfo",
-				"emulatorHost": "spanner:9010",
+			"db": {
+				"main":     "postgres://postgres@localhost:5432/master?sslmode=disable",
+				"metainfo": "tidb://root@localhost:4000/metainfo?parseTime=true",
 			},
 			"storagenode": {
 				"staticDir": filepath.Join(paths.StorjDir, "web/storagenode"),
@@ -324,11 +323,13 @@ func NewStandalone(paths Paths) (*Standalone, error) {
 				"webDir":    filepath.Join(paths.GatewayDir, "pkg/linksharing/web"),
 				"staticDir": filepath.Join(paths.GatewayDir, "pkg/linksharing/web/static"),
 			},
+			"jobq": {},
 		},
 	}
 	s.variables["satellite-api"]["identity"] = common.Satellite0Identity
 	s.variables["satellite-core"]["identity"] = common.Satellite0Identity
 	s.variables["satellite-admin"]["identity"] = common.Satellite0Identity
+	s.variables["jobq"]["identity"] = common.Satellite0Identity
 	return s, nil
 }
 

@@ -1,5 +1,5 @@
 VERSION 0.8
-FROM golang:1.25.3
+FROM golang:1.26.4
 WORKDIR /go/storj-up
 
 lint-deps:
@@ -42,12 +42,12 @@ build-app:
 test:
    RUN go install github.com/mfridman/tparse@36f80740879e24ba6695649290a240c5908ffcbb
    RUN apt-get update && apt-get install -y jq
-   RUN go install -race storj.io/storj/cmd/storagenode@v1.147.5
-   RUN go install -race storj.io/storj/cmd/satellite@v1.147.5
-   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.147.5
-   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.111.0
-   RUN go install -race storj.io/edge/cmd/linksharing@v1.111.0
-   RUN go install -race storj.io/edge/cmd/authservice@v1.111.0
+   RUN go install -race storj.io/storj/cmd/storagenode@v1.158.2
+   RUN go install -race storj.io/storj/cmd/satellite@v1.158.2
+   RUN go install -race storj.io/storj/cmd/versioncontrol@v1.158.2
+   RUN go install -race storj.io/edge/cmd/gateway-mt@v1.113.0
+   RUN go install -race storj.io/edge/cmd/linksharing@v1.113.0
+   RUN go install -race storj.io/edge/cmd/authservice@v1.113.0
    RUN mkdir build
    COPY . .
    RUN --mount=type=cache,target=/root/.cache/go-build \
@@ -58,7 +58,6 @@ test:
 integration-all:
    BUILD ./test/build+test
    BUILD ./test/uplink+test
-   BUILD ./test/spanner/uplink+test
    BUILD ./test/edge+test
    BUILD ./test/storjscan+test
 

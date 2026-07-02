@@ -71,7 +71,7 @@ func projectUsageCmd() *cobra.Command {
 			return generateProjectUsage(database, email, bucket, useragent, usagePeriod)
 		},
 	}
-	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "spanner://projects/test-project/instances/test-instance/databases/master", "Database connection string to generate data")
+	projectUsageCmd.PersistentFlags().StringVarP(&database, "database", "d", "postgres://postgres@localhost:5432/master?sslmode=disable", "Database connection string to generate data")
 	projectUsageCmd.PersistentFlags().StringVarP(&email, "email", "e", "test@storj.io", "the email address of the user to add data for")
 	projectUsageCmd.PersistentFlags().StringVarP(&bucket, "bucket", "b", "storage-bucket", "the bucket to add the usage for")
 	projectUsageCmd.PersistentFlags().StringVarP(&useragent, "useragent", "u", "", "useragent for value attribution")

@@ -165,46 +165,49 @@ func NewCompose(dir string) (*Compose, error) {
 				"metainfo": "cockroach://root@cockroach:26257/metainfo?sslmode=disable",
 				"dir":      "/tmp/cockroach",
 			},
-			"spanner": {
-				"main":         "spanner://projects/test-project/instances/test-instance/databases/master",
-				"metainfo":     "spanner://projects/test-project/instances/test-instance/databases/metainfo",
-				"emulatorHost": "spanner:9010",
+			"db": {
+				"main":     "postgres://postgres@postgres:5432/master?sslmode=disable",
+				"metainfo": "tidb://root@tidb:4000/metainfo?parseTime=true",
 			},
 			"storagenode": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/storagenode/",
+				"identityDir": "/storj/.local/share/storj/identity/storagenode/",
 			},
 			"redis": {
 				"url": "redis://redis:6379",
 			},
 			"satellite-api": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 				"identity":    common.Satellite0Identity,
 			},
 			"satellite-core": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
+			},
+			"jobq": {
+				"identityDir": "/storj/.local/share/storj/identity/jobq/",
+				"identity":    common.Satellite0Identity,
 			},
 			"satellite-admin": {
-				"staticDir":   "/var/lib/storj/storj/satellite/admin/ui/build",
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"staticDir":   "/storj/web/satellite-admin",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-gc": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-bf": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-rangedloop": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-repair": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"satellite-audit": {
-				"identityDir": "/var/lib/storj/.local/share/storj/identity/satellite-api/",
+				"identityDir": "/storj/.local/share/storj/identity/satellite-api/",
 			},
 			"linksharing": {
-				"webDir":    "/var/lib/storj/pkg/linksharing/web/",
-				"staticDir": "/var/lib/storj/pkg/linksharing/web/static",
+				"webDir":    "/storj/web/linksharing/",
+				"staticDir": "/storj/web/linksharing/static",
 			},
 		},
 	}, nil

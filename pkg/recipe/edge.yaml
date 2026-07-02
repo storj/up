@@ -5,7 +5,7 @@ add:
     label:
       - storj
       - edge
-    image: ghcr.io/storj/up/edge:1.97.0
+    image: ghcr.io/storj/up/edge:1.113.0
     command:
       - gateway-mt
       - run
@@ -14,6 +14,9 @@ add:
       STORJ_AUTH_URL: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
       STORJ_DEFAULTS: dev
       STORJUP_AUTHSERVICE: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
+      # Noise piece transfer is broken in dev clusters; force libuplink to TLS.
+      # See uplink.yaml for details. Drop once upstream noise is fixed.
+      STORJ_NOISE_DISABLED_EXPERIMENTAL: "true"
     config:
       STORJ_AUTH_BASE_URL: 'http://{{ Host "authservice" "internal" }}:{{ Port "authservice" "public" }}'
       STORJ_AUTH_TOKEN: super-secret
@@ -25,7 +28,7 @@ add:
     label:
       - storj
       - edge
-    image: ghcr.io/storj/up/edge:1.97.0
+    image: ghcr.io/storj/up/edge:1.113.0
     command:
       - authservice
       - run
@@ -45,7 +48,7 @@ add:
     label:
       - storj
       - edge
-    image: ghcr.io/storj/up/edge:1.97.0
+    image: ghcr.io/storj/up/edge:1.113.0
     command:
       - linksharing
       - run
@@ -58,3 +61,7 @@ add:
       STORJ_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public" }}'
       STORJ_STATIC_SOURCES_PATH: '{{ Environment .This "staticDir" }}'
       STORJ_TEMPLATES: '{{ Environment .This "webDir" }}'
+    environment:
+      # Noise piece transfer is broken in dev clusters; force libuplink to TLS.
+      # See uplink.yaml for details. Drop once upstream noise is fixed.
+      STORJ_NOISE_DISABLED_EXPERIMENTAL: "true"

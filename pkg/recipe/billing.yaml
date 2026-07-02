@@ -4,11 +4,11 @@ add:
   - name: storjscan
     label:
       - storjscan
-    image: ghcr.io/storj/up/storjscan:20260702-1
+    image: ghcr.io/storj/up/storjscan:20260706-1
     command:
       - storjscan
       - run
-      - --database=postgres://postgres@postgres:5432/master?sslmode=disable
+      - --database=postgres://postgres@storjscan-postgres:5432/master?sslmode=disable
       - --tokens.endpoints=[{"URL":"http://geth:8545","Contract":"0x1E119A589270646585b044db12098B1e456a88Af","ChainID":"1337"}]
       - --token-price.interval=1m
       - --token-price.coinmarketcap-config.base-url=https://sandbox-api.coinmarketcap.com
@@ -54,12 +54,11 @@ add:
         target: 8545
       - name: rpc2
         target: 8546
-  - name: postgres
+  # storjscan's own DB, separate from the satellite's postgres. No host port
+  # published (recipe port: would publish 5432 and clash with the satellite's);
+  # storjscan reaches it over the compose network as storjscan-postgres:5432.
+  - name: storjscan-postgres
     image: postgres:latest
-    port:
-      - name: postgres
-        description: Postgres SQL port
-        target: 5432
     command:
       - postgres
     environment:

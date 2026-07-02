@@ -12,24 +12,24 @@ ARG BRANCH
 ARG COMMIT
 RUN git clone https://github.com/storj/storj.git --branch ${BRANCH}
 RUN cd storj && git reset --hard ${COMMIT}
-WORKDIR storj
+WORKDIR /storj/storj
 
 FROM base AS branch
 ARG BRANCH
 RUN git clone https://github.com/storj/storj.git --depth=1 --branch ${BRANCH}
-WORKDIR storj
+WORKDIR /storj/storj
 
 FROM ${SOURCE} AS github
 
 FROM base AS gerrit
 ARG REF
 RUN git clone https://github.com/storj/storj.git
-WORKDIR storj
+WORKDIR /storj/storj
 RUN git fetch https://review.dev.storj.tools/storj/storj ${REF} && git checkout FETCH_HEAD
 
 FROM base AS local
 ARG PATH
-WORKDIR /var/lib/storj/storj
+WORKDIR /storj/storj
 COPY --chown=storj ${PATH} .
 
 FROM ${TYPE} AS binaries
@@ -39,14 +39,11 @@ RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/multinode && npm install && n
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd web/storagenode && npm install && npm install @vue/cli-service && export PATH=$PATH:`pwd`/node_modules/.bin && npm run build ; fi
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] ; then cd satellite/admin/ui && npm install && npm run build ; fi
 
-# Old versions had the satellite admin next generation under this folder, but new version don't have this directory
-RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/back-office/ui " ] ; then cd satellite/admin/back-office/ui && npm install && npm run build ; fi
-
-# New versions has the deprecated satellite admin under this folder, but old version don't have this directory
+# New versions have the deprecated satellite admin under this folder, but old version don't have this directory
 RUN if [ -z "$SKIP_FRONTEND_BUILD" ] && [ -d "satellite/admin/legacy/ui " ] ; then cd satellite/admin/legacy/ui && npm install && npm run build ; fi
 
-RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
-    --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000 \
+RUN --mount=type=cache,target=/storj/go/pkg/mod,mode=777,uid=1000 \
+    --mount=type=cache,target=/storj/.cache/go-build,mode=777,uid=1000 \
     go install -race ./cmd/... \
     && go install -ldflags \
     "-X storj.io/common/version.buildRelease=false  \
@@ -56,31 +53,24 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
 
 ARG BASE_TAG
 FROM --platform=$TARGETPLATFORM ghcr.io/storj/up/base:${BASE_TAG} AS final
-ENV STORJ_ADMIN_STATIC_DIR=/var/lib/storj/storj/satellite/admin/ui/build
-ENV STORJ_CONSOLE_STATIC_DIR=/var/lib/storj/storj/web/satellite/
-ENV STORJ_MAIL_TEMPLATE_PATH=/var/lib/storj/storj/web/satellite/static/emails
-ENV STORJ_STORAGENODE_CONSOLE_STATIC_DIR=/var/lib/storj/web/storagenode
+ENV STORJ_ADMIN_STATIC_DIR=/storj/web/satellite-admin
+ENV STORJ_CONSOLE_STATIC_DIR=/storj/web/satellite/
+ENV STORJ_MAIL_TEMPLATE_PATH=/storj/web/satellite/static/emails
+ENV STORJ_STORAGENODE_CONSOLE_STATIC_DIR=/storj/web/storagenode
 # copy objects. the '[]' are to avoid the COPY command from failing if the files are missing.
-COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
-COPY --from=binaries /var/lib/storj/storj/web/satellite/stati[c] /var/lib/storj/storj/web/satellite/static
-COPY --from=binaries /var/lib/storj/storj/web/satellite/dis[t] /var/lib/storj/storj/web/satellite/dist
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/buil[d] /var/lib/storj/storj/satellite/admin/ui/build
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/ui/dis[t] /var/lib/storj/storj/satellite/admin/ui/dist
+COPY --from=binaries /storj/bin /storj/bin
+COPY --from=binaries /storj/storj/web/satellite/stati[c] /storj/web/satellite/static
+COPY --from=binaries /storj/storj/web/satellite/dis[t] /storj/web/satellite/dist
+COPY --from=binaries /storj/storj/satellite/admin/ui/buil[d] /storj/web/satellite-admin
 
-# Old versions had the satellite admin next generation under this folder, but new version don't have this directory
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/buil[d] /var/lib/storj/storj/satellite/admin/back-office/ui/build
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/back-offic[e]/ui/dis[t] /var/lib/storj/storj/satellite/admin/back-office/ui/dist
+# New versions have the deprecated satellite admin under this folder, but old version don't have this directory
+COPY --from=binaries /storj/storj/satellite/admin/legac[y]/ui/buil[d] /storj/web/satellite-admin-legacy
 
-# New versions has the deprecated satellite admin under this folder, but old version don't have this directory
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/buil[d] /var/lib/storj/storj/satellite/admin/legacy/ui/build
-COPY --from=binaries /var/lib/storj/storj/satellite/admin/legac[y]/ui/dis[t] /var/lib/storj/storj/satellite/admin/legacy/ui/dist
+COPY --from=binaries /storj/storj/web/storagenode/stati[c] /storj/web/storagenode/static
+COPY --from=binaries /storj/storj/web/storagenode/dis[t] /storj/web/storagenode/dist
+COPY --from=binaries /storj/storj/web/multinode/stati[c] /storj/web/multinode/static
+COPY --from=binaries /storj/storj/web/multinode/dis[t] /storj/web/multinode/dist
 
-
-COPY --from=binaries /var/lib/storj/storj/web/storagenode/stati[c] /var/lib/storj/web/storagenode/static
-COPY --from=binaries /var/lib/storj/storj/web/storagenode/dis[t] /var/lib/storj/web/storagenode/dist
-COPY --from=binaries /var/lib/storj/storj/web/multinode/stati[c] /var/lib/storj/web/multinode/static
-COPY --from=binaries /var/lib/storj/storj/web/multinode/dis[t] /var/lib/storj/web/multinode/dist
-
-ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
-ENV PATH=$PATH:/var/lib/storj/go/bin
+ENTRYPOINT ["/storj/entrypoint.sh"]
+ENV PATH=$PATH:/storj/bin
 LABEL org.opencontainers.image.source="https://github.com/storj/up"

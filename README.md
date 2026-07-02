@@ -53,7 +53,7 @@ you can also add more services to the network for testing things like the edge s
 for example
 
 ```
-storj-up init minimal,satellite-core,satellite-admin,edge,db,billing
+storj-up init minimal,satellite-core,jobq,satellite-admin,edge,db,billing
 ```
 
 Will give you all the services required to test the Web UI, the Admin API, and even the billing services. Additionally, there are dedicated subcommands

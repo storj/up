@@ -30,19 +30,19 @@ type mount struct {
 var frontendDict = map[string]mount{
 	"web.satellite": {
 		service:    []string{"satellite-api"},
-		targetPath: "/var/lib/storj/storj/web/satellite",
+		targetPath: "/storj/web/satellite",
 	},
 	"web.multinode": {
 		service:    []string{"storagenode"},
-		targetPath: "/var/lib/storj/web/multinode",
+		targetPath: "/storj/web/multinode",
 	},
 	"web.storagenode": {
 		service:    []string{"storagenode"},
-		targetPath: "/var/lib/storj/web/storagenode",
+		targetPath: "/storj/web/storagenode",
 	},
 	"admin.ui": {
 		service:    []string{"satellite-admin"},
-		targetPath: "/var/lib/storj/storj/satellite/admin/ui",
+		targetPath: "/storj/web/satellite-admin",
 	},
 }
 
@@ -116,7 +116,7 @@ func mountBinaries(composeService *types.ServiceConfig) error {
 		execName = command
 	}
 	source := filepath.Join(path.Join(dir, subdir), execName)
-	target := filepath.ToSlash(filepath.Join("/var/lib/storj/go/bin", execName))
+	target := filepath.ToSlash(filepath.Join("/storj/bin", execName))
 
 	if err := common.IsRegularFile(source); err != nil {
 		return err

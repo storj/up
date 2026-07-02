@@ -40,11 +40,6 @@ pipeline {
                         sh "earthly -P ./test/uplink+test"
                     }
                 }
-                stage('Uplink - Spanner') {
-                    steps {
-                        sh "earthly -P ./test/spanner/uplink+test"
-                    }
-                }
                 stage('Edge') {
                     steps {
                         sh "earthly -P ./test/edge+test"

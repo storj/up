@@ -33,7 +33,7 @@ func init() {
 func updateEntryPoint(composeService *types.ServiceConfig) error {
 	const scriptName = "entrypoint.sh"
 	const source = "./" + scriptName
-	const target = "/var/lib/storj/entrypoint.sh"
+	const target = "/storj/entrypoint.sh"
 
 	// Ensure the script exists
 	if err := common.IsRegularFile(scriptName); err != nil {

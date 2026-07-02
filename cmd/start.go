@@ -65,7 +65,7 @@ func buildServices(services []runtime.Service) error {
 	var buildpaths []string
 	for _, service := range services {
 		for _, mount := range service.GetVolumes() {
-			if mount.MountType == "bind" && filepath.Dir(mount.Target) == filepath.Clean("/var/lib/storj/go/bin") {
+			if mount.MountType == "bind" && filepath.Dir(mount.Target) == filepath.Clean("/storj/bin") {
 				var codeSource string
 				var foundCodeSource bool
 				serviceCodeSource, foundCodeSource := service.GetENV()["STORJ_UP_LOCAL_BINARY_SOURCE"]

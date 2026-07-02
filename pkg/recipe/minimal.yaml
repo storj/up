@@ -6,7 +6,7 @@ add:
     label:
       - storj
       - core
-    image: ghcr.io/storj/up/storj:1.125.2
+    image: ghcr.io/storj/up/storj:1.158.2
     command:
       - satellite
       - run
@@ -14,7 +14,7 @@ add:
       - --defaults=dev
       - '--identity-dir={{ Environment .This "identityDir" }}'
     persistence:
-      - /var/lib/storj/.local/share/storj
+      - /storj/.local/share/storj
     config:
       STORJ_CONSOLE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "console"}}'
       STORJ_CONSOLE_AUTH_TOKEN_SECRET: my-suppa-secret-key
@@ -24,17 +24,23 @@ add:
       STORJ_CONSOLE_OPEN_REGISTRATION_ENABLED: "true"
       STORJ_CONSOLE_RATE_LIMIT_BURST: "10000"
       STORJ_CONSOLE_SIGNUP_ACTIVATION_CODE_ENABLED: "false"
-      STORJ_DATABASE: '{{ Environment "spanner" "main" }}'
+      STORJ_DATABASE: '{{ Environment "db" "main" }}'
       STORJ_DEBUG_ADDR: '{{ Host .This "listen" }}:{{ Port .This "debug"}}'
       STORJ_LIVE_ACCOUNTING_STORAGE_BACKEND: '{{ Environment "redis" "url" }}?db=0'
       STORJ_LOG_LEVEL: debug
       STORJ_MAIL_FROM: Storj <storj-up@storj.io>
       STORJ_MAIL_SMTP_SERVER_ADDRESS: smtp.gmail.com:587
-      STORJ_METAINFO_DATABASE_URL: '{{ Environment "spanner" "metainfo" }}'
+      STORJ_METAINFO_DATABASE_URL: '{{ Environment "db" "metainfo" }}'
       STORJ_METAINFO_RATE_LIMITER_ENABLED: "false"
       STORJ_METRICS_APP_SUFFIX: sim
       STORJ_ORDERS_ENCRYPTION_KEYS: '0100000000000000=0100000000000000000000000000000000000000000000000000000000000000'
       STORJ_OVERLAY_NODE_MINIMUM_DISK_SPACE: 500MB
+      # Dev clusters have only unvetted nodes; allow selecting them for uploads.
+      # Newer satellites (>=1.15x) don't pick up the dev default here, so set it explicitly.
+      STORJ_OVERLAY_NODE_NEW_NODE_FRACTION: "1"
+      # Dev default staleness is 5m, so a fresh cluster can't serve uploads for
+      # minutes after nodes register. Refresh the upload-selection cache quickly.
+      STORJ_OVERLAY_NODE_SELECTION_CACHE_STALENESS: 5s
       STORJ_SERVER_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "public"}}'
       STORJ_SERVER_EXTENSIONS_REVOCATION: "false"
       STORJ_SERVER_REVOCATION_DBURL: '{{ Environment "redis" "url" }}?db=1'
@@ -43,7 +49,6 @@ add:
       STORJ_CONSOLE_EXTERNAL_ADDRESS: 'http://{{ Host .This "external"}}:{{ Port .This "console"}}/'
       STORJ_SERVER_PRIVATE_ADDRESS: '{{ Host .This "listen" }}:{{ Port .This "private" }}'
       STORJ_VERSION_RUN_MODE: disable
-      SPANNER_EMULATOR_HOST: '{{ Environment "spanner" "emulatorHost" }}'
       STORJ_VERSION_SERVER_ADDRESS: 'http://{{ Host "versioncontrol" "external"}}:{{ Port "versioncontrol" "public"}}'
     environment:
       STORJ_DEFAULTS: dev
@@ -57,7 +62,7 @@ add:
       - storj
       - core
     instance: 10
-    image: ghcr.io/storj/up/storj:1.125.2
+    image: ghcr.io/storj/up/storj:1.158.2
     command:
       - storagenode
       - run
@@ -65,7 +70,7 @@ add:
       - --defaults=dev
       - '--identity-dir={{ Environment .This "identityDir" }}'
     persistence:
-      - /var/lib/storj/.local/share/storj
+      - /storj/.local/share/storj
     config:
       STORJ_LOG_LEVEL: debug
       STORJ_METRICS_APP_SUFFIX: sim

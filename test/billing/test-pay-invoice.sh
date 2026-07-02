@@ -20,7 +20,7 @@ go install github.com/elek/cethacea@main
 
 export STORJUP_NO_HISTORY=true
 
-storj-up init minimal,satellite-core,satellite-admin,edge,db,billing
+storj-up init minimal,satellite-core,jobq,satellite-admin,edge,db,billing
 storj-up env setenv satellite-api satellite-admin STORJ_PAYMENTS_PROVIDER=stripecoinpayments
 storj-up env setenv satellite-api satellite-admin STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_PUBLIC_KEY="$STRIPE_PUBLIC_KEY"
 storj-up env setenv satellite-api satellite-admin STORJ_PAYMENTS_STRIPE_COIN_PAYMENTS_STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY"

@@ -1,22 +1,23 @@
-FROM golang:1.25 AS storjup
+FROM golang:1.26.4 AS storjup
 COPY . /go/storj-up
 WORKDIR /go/storj-up
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod  \
     go install
 
-FROM ubuntu:22.04 AS final
+FROM ubuntu:noble AS final
 RUN apt-get update
 RUN apt-get -y install iproute2 ca-certificates curl jq unzip
-RUN useradd storj --uid 1000 -d /var/lib/storj && \
-    mkdir -p /var/lib/storj/shared && \
-    mkdir -p /var/lib/storj/go/bin && \
-    chown storj. /var/lib/storj
-COPY --chown=storj identities /var/lib/storj/identities
-COPY --chown=storj --from=storjup /go/bin/storj-up /var/lib/storj/go/bin/storj-up
+RUN userdel -r ubuntu 2>/dev/null || true
+RUN useradd storj --uid 1000 -d /storj && \
+    mkdir -p /storj/shared && \
+    mkdir -p /storj/bin && \
+    chown storj. /storj
+COPY --chown=storj identities /storj/identities
+COPY --chown=storj --from=storjup /go/bin/storj-up /storj/bin/storj-up
 USER storj
-WORKDIR /var/lib/storj
-ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
-ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
-ENV PATH=$PATH:/var/lib/storj/go/bin
+WORKDIR /storj
+COPY pkg/recipe/entrypoint.sh /storj/entrypoint.sh
+ENTRYPOINT ["/storj/entrypoint.sh"]
+ENV PATH=$PATH:/storj/bin
 LABEL org.opencontainers.image.source="https://github.com/storj/up"
