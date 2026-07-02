@@ -216,24 +216,33 @@ func RebuildImages() error {
 	return nil
 }
 
+// optArg returns the value of an optional mage argument (a pointer flag),
+// or "" when the flag was omitted, so callers can fall back to a default.
+func optArg(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
+}
+
 // DockerEdgeBuild builds an Edge docker image for local use (no push).
 // version: required - the edge version tag (e.g., "1.95.1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerEdgeBuild(version string, buildTag string, baseTag string) error {
-	return dockerEdgeWithTags(version, false, buildTag, baseTag)
+func DockerEdgeBuild(version string, buildTag *string, baseTag *string) error {
+	return dockerEdgeWithTags(version, false, optArg(buildTag), optArg(baseTag))
 }
 
 // DockerEdgePublish builds and pushes an Edge docker image.
 // version: required - the edge version tag (e.g., "1.95.1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerEdgePublish(version string, buildTag string, baseTag string) error {
-	return dockerEdgeWithTags(version, true, buildTag, baseTag)
+func DockerEdgePublish(version string, buildTag *string, baseTag *string) error {
+	return dockerEdgeWithTags(version, true, optArg(buildTag), optArg(baseTag))
 }
 
 func dockerEdgeWithTags(version string, publish bool, buildTag string, baseTag string) error {
@@ -254,22 +263,22 @@ func dockerEdgeWithTags(version string, publish bool, buildTag string, baseTag s
 
 // DockerStorjBuild builds a Storj docker image for local use (no push).
 // version: required - the storj version tag (e.g., "1.95.1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerStorjBuild(version string, buildTag string, baseTag string) error {
-	return dockerStorj(version, false, buildTag, baseTag)
+func DockerStorjBuild(version string, buildTag *string, baseTag *string) error {
+	return dockerStorj(version, false, optArg(buildTag), optArg(baseTag))
 }
 
 // DockerStorjPublish builds and pushes a Storj docker image.
 // version: required - the storj version tag (e.g., "1.95.1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerStorjPublish(version string, buildTag string, baseTag string) error {
-	return dockerStorj(version, true, buildTag, baseTag)
+func DockerStorjPublish(version string, buildTag *string, baseTag *string) error {
+	return dockerStorj(version, true, optArg(buildTag), optArg(baseTag))
 }
 
 func dockerStorj(version string, publish bool, buildTag string, baseTag string) error {
@@ -290,22 +299,22 @@ func dockerStorj(version string, publish bool, buildTag string, baseTag string) 
 
 // DockerStorjscanBuild builds a storjscan docker image for local use (no push).
 // version: required - the output image tag (e.g., "20251110-1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerStorjscanBuild(version string, buildTag string, baseTag string) error {
-	return dockerStorjscan(version, false, buildTag, baseTag)
+func DockerStorjscanBuild(version string, buildTag *string, baseTag *string) error {
+	return dockerStorjscan(version, false, optArg(buildTag), optArg(baseTag))
 }
 
 // DockerStorjscanPublish builds and pushes a storjscan docker image.
 // version: required - the output image tag (e.g., "20251110-1")
-// buildTag: optional - build image tag; reads from build.last if empty
-// baseTag: optional - base image tag; reads from base.last if empty
+// -buildTag: optional - build image tag; reads from build.last if omitted
+// -baseTag: optional - base image tag; reads from base.last if omitted
 //
 //nolint:deadcode
-func DockerStorjscanPublish(version string, buildTag string, baseTag string) error {
-	return dockerStorjscan(version, true, buildTag, baseTag)
+func DockerStorjscanPublish(version string, buildTag *string, baseTag *string) error {
+	return dockerStorjscan(version, true, optArg(buildTag), optArg(baseTag))
 }
 
 // dockerStorjscan builds the storjscan image from storjscan's main branch.

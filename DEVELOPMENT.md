@@ -40,20 +40,20 @@ Storj image contains all the binaries required to run the satellite.
 
 To publish a new `ghcr.io/storj/up/storj` image:
 
-1. `mage dockerStorjBuild <version> "" ""` (only build, uses tags from .last files)
-2. `mage dockerStorjPublish <version> "" ""` (build and publish, uses tags from .last files)
+1. `mage dockerStorjBuild <version>` (only build, uses tags from .last files)
+2. `mage dockerStorjPublish <version>` (build and publish, uses tags from .last files)
 3. Use the new tag in recipe files
 
 To use specific build/base image tags:
 
 ```bash
-mage dockerStorjBuild <version> <buildTag> <baseTag>
-mage dockerStorjPublish <version> <buildTag> <baseTag>
+mage dockerStorjBuild <version> -buildTag=<buildTag> -baseTag=<baseTag>
+mage dockerStorjPublish <version> -buildTag=<buildTag> -baseTag=<baseTag>
 ```
 
 - `version`: Required. The storj version without `v` prefix (e.g., `1.147.5`)
-- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
-- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
+- `buildTag`: Optional. Build image tag; omit to use the value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; omit to use the value from `pkg/files/docker/base.last`
 
 ## Update Edge image
 
@@ -61,20 +61,20 @@ Edge image contains all the binaries required to run the edge services.
 
 To publish a new `ghcr.io/storj/up/edge` image:
 
-1. `mage dockerEdgeBuild <version> "" ""` (only build, uses tags from .last files)
-2. `mage dockerEdgePublish <version> "" ""` (build and publish, uses tags from .last files)
+1. `mage dockerEdgeBuild <version>` (only build, uses tags from .last files)
+2. `mage dockerEdgePublish <version>` (build and publish, uses tags from .last files)
 3. Use the new tag in recipe files
 
 To use specific build/base image tags:
 
 ```bash
-mage dockerEdgeBuild <version> <buildTag> <baseTag>
-mage dockerEdgePublish <version> <buildTag> <baseTag>
+mage dockerEdgeBuild <version> -buildTag=<buildTag> -baseTag=<baseTag>
+mage dockerEdgePublish <version> -buildTag=<buildTag> -baseTag=<baseTag>
 ```
 
 - `version`: Required. The edge version without `v` prefix (e.g., `1.111.0`)
-- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
-- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
+- `buildTag`: Optional. Build image tag; omit to use the value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; omit to use the value from `pkg/files/docker/base.last`
 
 ## Update Storjscan image
 
@@ -84,10 +84,10 @@ release version.
 
 To publish a new `ghcr.io/storj/up/storjscan` image:
 
-1. `mage dockerStorjscanBuild <tag> "" ""` (only build, uses tags from .last files)
-2. `mage dockerStorjscanPublish <tag> "" ""` (build and publish, uses tags from .last files)
+1. `mage dockerStorjscanBuild <tag>` (only build, uses tags from .last files)
+2. `mage dockerStorjscanPublish <tag>` (build and publish, uses tags from .last files)
 3. Use the new tag in recipe files
 
 - `tag`: Required. The output image tag (e.g., `20251110-1`)
-- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
-- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
+- `buildTag`: Optional. Build image tag; omit to use the value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; omit to use the value from `pkg/files/docker/base.last`
