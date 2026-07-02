@@ -18,4 +18,5 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     --mount=type=cache,target=/var/lib/storj/.cache/go-build,mode=777,uid=1000  \
     go install github.com/go-delve/delve/cmd/dlv@latest
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
+LABEL org.opencontainers.image.source="https://github.com/storj/up"
 

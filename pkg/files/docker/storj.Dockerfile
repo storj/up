@@ -3,7 +3,7 @@ ARG BUILD_TAG
 ARG BASE_TAG
 ARG TYPE
 ARG SOURCE
-FROM img.dev.storj.io/storjup/build:${BUILD_TAG} AS base
+FROM ghcr.io/storj/up/build:${BUILD_TAG} AS base
 
 ARG SKIP_FRONTEND_BUILD
 
@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     ./cmd/storagenode/...
 
 ARG BASE_TAG
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/base:${BASE_TAG} AS final
+FROM --platform=$TARGETPLATFORM ghcr.io/storj/up/base:${BASE_TAG} AS final
 ENV STORJ_ADMIN_STATIC_DIR=/var/lib/storj/storj/satellite/admin/ui/build
 ENV STORJ_CONSOLE_STATIC_DIR=/var/lib/storj/storj/web/satellite/
 ENV STORJ_MAIL_TEMPLATE_PATH=/var/lib/storj/storj/web/satellite/static/emails
@@ -83,3 +83,4 @@ COPY --from=binaries /var/lib/storj/storj/web/multinode/dis[t] /var/lib/storj/we
 
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
 ENV PATH=$PATH:/var/lib/storj/go/bin
+LABEL org.opencontainers.image.source="https://github.com/storj/up"

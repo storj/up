@@ -19,3 +19,4 @@ WORKDIR /var/lib/storj
 ADD pkg/recipe/entrypoint.sh /var/lib/storj/entrypoint.sh
 ENTRYPOINT ["/var/lib/storj/entrypoint.sh"]
 ENV PATH=$PATH:/var/lib/storj/go/bin
+LABEL org.opencontainers.image.source="https://github.com/storj/up"

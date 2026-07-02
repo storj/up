@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1.3
 ARG TYPE
 ARG SOURCE
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:20251110-1 AS base
+ARG BUILD_TAG
+ARG BASE_TAG
+FROM --platform=$TARGETPLATFORM ghcr.io/storj/up/build:${BUILD_TAG} AS base
 
 FROM base AS commit
 ARG BRANCH
@@ -34,5 +36,7 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     go install -race ./cmd/...
 RUN go install -race github.com/elek/cethacea@main
 
-FROM img.dev.storj.io/storjup/base:20251110-1 AS final
+ARG BASE_TAG
+FROM ghcr.io/storj/up/base:${BASE_TAG} AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
+LABEL org.opencontainers.image.source="https://github.com/storj/up"

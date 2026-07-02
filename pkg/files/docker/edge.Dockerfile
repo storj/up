@@ -3,7 +3,7 @@ ARG BUILD_TAG
 ARG BASE_TAG
 ARG TYPE
 ARG SOURCE
-FROM --platform=$TARGETPLATFORM img.dev.storj.io/storjup/build:${BUILD_TAG} AS base
+FROM --platform=$TARGETPLATFORM ghcr.io/storj/up/build:${BUILD_TAG} AS base
 
 FROM base AS commit
 ARG BRANCH
@@ -36,5 +36,6 @@ RUN --mount=type=cache,target=/var/lib/storj/go/pkg/mod,mode=777,uid=1000 \
     go install -race ./cmd/...
 
 ARG BASE_TAG
-FROM img.dev.storj.io/storjup/base:${BASE_TAG} AS final
+FROM ghcr.io/storj/up/base:${BASE_TAG} AS final
 COPY --from=binaries /var/lib/storj/go/bin /var/lib/storj/go/bin
+LABEL org.opencontainers.image.source="https://github.com/storj/up"

@@ -22,7 +22,7 @@ func TestPersist(t *testing.T) {
 
 	r := recipe.Service{
 		Name:  "satellite-api",
-		Image: "img.dev.storj.io/storjup/storj",
+		Image: "ghcr.io/storj/up/storj",
 	}
 
 	s, err := c.AddService(r)
@@ -50,7 +50,7 @@ func TestAddFile(t *testing.T) {
 
 	r := recipe.Service{
 		Name:  "satellite-api",
-		Image: "img.dev.storj.io/storjup/storj",
+		Image: "ghcr.io/storj/up/storj",
 	}
 
 	s, err := c.AddService(r)

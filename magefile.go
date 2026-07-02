@@ -92,7 +92,7 @@ func dockerBase(publish bool) error {
 	return withDockerTag("pkg/files/docker/base.last", publish, func(tag string) error {
 		return buildxRun(publish,
 			"build",
-			"--tag", "img.dev.storj.io/storjup/base:"+tag,
+			"--tag", "ghcr.io/storj/up/base:"+tag,
 			"-f", "pkg/files/docker/base.Dockerfile", ".")
 	})
 }
@@ -121,7 +121,7 @@ func dockerBuild(publish bool) error {
 			"--build-arg", "TYPE=github",
 			"--build-arg", "BRANCH=main",
 			"--build-arg", "REPO=https://github.com/storj/storj.git",
-			"--tag", "img.dev.storj.io/storjup/build:"+tag,
+			"--tag", "ghcr.io/storj/up/build:"+tag,
 			"-f", "pkg/files/docker/build.Dockerfile", ".")
 	})
 }
@@ -130,7 +130,7 @@ func dockerCore(version string, publish bool, buildTag string, baseTag string) e
 	err := buildxRun(
 		publish,
 		"build",
-		"-t", "img.dev.storj.io/storjup/storj:"+version,
+		"-t", "ghcr.io/storj/up/storj:"+version,
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
@@ -165,7 +165,7 @@ func buildxRun(publish bool, args ...string) error {
 func dockerEdge(version string, publish bool, buildTag string, baseTag string) error {
 	err := buildxRun(publish,
 		"build",
-		"-t", "img.dev.storj.io/storjup/edge:"+version,
+		"-t", "ghcr.io/storj/up/edge:"+version,
 		"--build-arg", "BRANCH=v"+version,
 		"--build-arg", "SOURCE=branch",
 		"--build-arg", "TYPE=github",
@@ -288,6 +288,53 @@ func dockerStorj(version string, publish bool, buildTag string, baseTag string) 
 	return dockerCore(version, publish, buildTag, baseTag)
 }
 
+// DockerStorjscanBuild builds a storjscan docker image for local use (no push).
+// version: required - the output image tag (e.g., "20251110-1")
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
+//
+//nolint:deadcode
+func DockerStorjscanBuild(version string, buildTag string, baseTag string) error {
+	return dockerStorjscan(version, false, buildTag, baseTag)
+}
+
+// DockerStorjscanPublish builds and pushes a storjscan docker image.
+// version: required - the output image tag (e.g., "20251110-1")
+// buildTag: optional - build image tag; reads from build.last if empty
+// baseTag: optional - base image tag; reads from base.last if empty
+//
+//nolint:deadcode
+func DockerStorjscanPublish(version string, buildTag string, baseTag string) error {
+	return dockerStorjscan(version, true, buildTag, baseTag)
+}
+
+// dockerStorjscan builds the storjscan image from storjscan's main branch.
+// storjscan uses build-date tags (e.g. "20251110-1") rather than release
+// versions, so version is only the output tag; the source is always main.
+func dockerStorjscan(version string, publish bool, buildTag string, baseTag string) error {
+	if version == "" {
+		return errs.New("VERSION should be defined with environment variable")
+	}
+
+	if buildTag == "" {
+		buildTag = dockerfiles.BuildTag()
+	}
+
+	if baseTag == "" {
+		baseTag = dockerfiles.BaseTag()
+	}
+
+	return buildxRun(publish,
+		"build",
+		"-t", "ghcr.io/storj/up/storjscan:"+version,
+		"--build-arg", "BRANCH=main",
+		"--build-arg", "SOURCE=branch",
+		"--build-arg", "TYPE=github",
+		"--build-arg", "BUILD_TAG="+buildTag,
+		"--build-arg", "BASE_TAG="+baseTag,
+		"-f", "pkg/files/docker/storjscan.Dockerfile", ".")
+}
+
 // Images build missing images for existing git tags
 //
 //nolint:deadcode
@@ -343,7 +390,7 @@ func ListImages() error {
 }
 
 func dockerPush(image string, tag string) error {
-	err := sh.RunV("docker", "push", fmt.Sprintf("img.dev.storj.io/storjup/%s:%s", image, tag))
+	err := sh.RunV("docker", "push", fmt.Sprintf("ghcr.io/storj/up/%s:%s", image, tag))
 	if err != nil {
 		return err
 	}
@@ -492,7 +539,7 @@ func listReleaseVersions(name string) ([]string, error) {
 // listContainerVersions lists the available tags for one specific container.
 func listContainerVersions(name string) ([]string, error) {
 	ctx := context.Background()
-	url := fmt.Sprintf("https://img.dev.storj.io/auth?service=img.dev.storj.io&scope=repository:storjup/%s:pull", name)
+	url := fmt.Sprintf("https://ghcr.io/token?service=ghcr.io&scope=repository:storj/up/%s:pull", name)
 	tokenResponse, err := httpCall(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, errs.Wrap(err)
@@ -506,7 +553,7 @@ func listContainerVersions(name string) ([]string, error) {
 		return nil, errs.Wrap(err)
 	}
 
-	url = fmt.Sprintf("https://img.dev.storj.io/v2/storjup/%s/tags/list", name)
+	url = fmt.Sprintf("https://ghcr.io/v2/storj/up/%s/tags/list", name)
 	tagResponse, err := httpCall(ctx, "GET", url, nil, func(request *http.Request) {
 		request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", k.Token))
 	})

@@ -14,7 +14,7 @@ import (
 func TestInitFromRecipe(t *testing.T) {
 	s := NewMockService("satellite-api")
 	r := recipe.Service{
-		Image:   "img.dev.storj.io/storjup/storj:latest",
+		Image:   "ghcr.io/storj/up/storj:latest",
 		Command: []string{"ls", "-lah"},
 		Config: map[string]string{
 			"conf1": "val1",
@@ -23,7 +23,7 @@ func TestInitFromRecipe(t *testing.T) {
 	err := InitFromRecipe(s, r)
 	require.NoError(t, err)
 
-	require.Equal(t, "img.dev.storj.io/storjup/storj:latest", s.Image)
+	require.Equal(t, "ghcr.io/storj/up/storj:latest", s.Image)
 	require.Equal(t, []string{"ls", "-lah"}, s.Flag)
 	require.Equal(t, "val1", s.Config["conf1"])
 }

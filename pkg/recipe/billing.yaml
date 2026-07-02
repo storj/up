@@ -4,7 +4,7 @@ add:
   - name: storjscan
     label:
       - storjscan
-    image: img.dev.storj.io/storjup/storjscan:20251110-1
+    image: ghcr.io/storj/up/storjscan:20260702-1
     command:
       - storjscan
       - run
@@ -20,7 +20,7 @@ add:
       - name: port
         target: 12000
   - name: geth
-    image: ethereum/client-go
+    image: ethereum/client-go:v1.13.15
     command:
       - --keystore=/tmp/
       - --password=/tmp/pass

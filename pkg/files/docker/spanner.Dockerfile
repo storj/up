@@ -11,3 +11,4 @@ COPY --from=emulator /emulator_main /gateway_main /usr/local/bin/
 COPY pkg/recipe/startspanner.sh /var/lib/storj/startspanner.sh
 
 ENTRYPOINT ["/var/lib/storj/startspanner.sh"]
+LABEL org.opencontainers.image.source="https://github.com/storj/up"

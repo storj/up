@@ -11,14 +11,14 @@
 - Mage. You can install it with `go install github.com/magefile/mage`
 - Docker with multi-platform enabled or configured, depending what Docker you use
   https://docs.docker.com/build/building/multi-platform
-- Docker client has access _img.dev.storj.io_ registry (e.g. `docker login ...`). This is only
+- Docker client has access to the _ghcr.io/storj_ registry (e.g. `docker login ghcr.io ...`). This is only
   required for publishing the images
 
 ## Update build image
 
 Build image contains all the tools required to create local builds.
 
-To publish a new `storjup/build` image:
+To publish a new `ghcr.io/storj/up/build` image:
 
  1. `mage dockerBuildBuild` (only build)
  2. `mage dockerBuildPublish` (build and publish)
@@ -28,7 +28,7 @@ To publish a new `storjup/build` image:
 
 Base image contains the storj-up binaries and required OS packages.
 
-To publish a new `storjup/base` image:
+To publish a new `ghcr.io/storj/up/base` image:
 
  1. `mage dockerBaseBuild` (only build)
  2. `mage dockerBasePublish` (build and publish)
@@ -38,7 +38,7 @@ To publish a new `storjup/base` image:
 
 Storj image contains all the binaries required to run the satellite.
 
-To publish a new `storjup/storj` image:
+To publish a new `ghcr.io/storj/up/storj` image:
 
 1. `mage dockerStorjBuild <version> "" ""` (only build, uses tags from .last files)
 2. `mage dockerStorjPublish <version> "" ""` (build and publish, uses tags from .last files)
@@ -59,7 +59,7 @@ mage dockerStorjPublish <version> <buildTag> <baseTag>
 
 Edge image contains all the binaries required to run the edge services.
 
-To publish a new `storjup/edge` image:
+To publish a new `ghcr.io/storj/up/edge` image:
 
 1. `mage dockerEdgeBuild <version> "" ""` (only build, uses tags from .last files)
 2. `mage dockerEdgePublish <version> "" ""` (build and publish, uses tags from .last files)
@@ -73,5 +73,21 @@ mage dockerEdgePublish <version> <buildTag> <baseTag>
 ```
 
 - `version`: Required. The edge version without `v` prefix (e.g., `1.111.0`)
+- `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
+- `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
+
+## Update Storjscan image
+
+Storjscan image contains the storjscan binaries. It is always built from the
+`main` branch and tagged with a build date (e.g. `20251110-1`) rather than a
+release version.
+
+To publish a new `ghcr.io/storj/up/storjscan` image:
+
+1. `mage dockerStorjscanBuild <tag> "" ""` (only build, uses tags from .last files)
+2. `mage dockerStorjscanPublish <tag> "" ""` (build and publish, uses tags from .last files)
+3. Use the new tag in recipe files
+
+- `tag`: Required. The output image tag (e.g., `20251110-1`)
 - `buildTag`: Optional. Build image tag; pass `""` to use value from `pkg/files/docker/build.last`
 - `baseTag`: Optional. Base image tag; pass `""` to use value from `pkg/files/docker/base.last`
